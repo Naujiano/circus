@@ -30,8 +30,8 @@ if ( parsedSearch.reset ) {
 		location = window.location.href + "&reset=1"
 	}	
 	createStore(storedVuexStore)
-	
 }
+console.log ( JSON.parse ( localStorage["vuexStore"] ) )
 export 	function loadTree ( cb, fileName ) {
 	//var fileName = fileName ? fileName : 'circus.json'
 	$.ajax({
@@ -90,190 +90,28 @@ function alterTree () {
 const store = JSON.parse(localStorage["vuexStore"])//vuexStore.state
 
 
-//import $ from 'jquery'
-//import _ from 'lodash'
-//import {vuexStore} from './store.js'
-//import {JSON.cc} from './helpers.js'
-/*
-const circusRelations = {
-	$loadCircusRelations: function() {
-		$get ( "sql=sp_circus_relations", "clientes" , function ( response ) { 
-			circusRelations.relations = response
+let services = {connNameToDbName:{}}
+$.ajax({
+	url: apiURL + 'services',
+  	data: '',
+  	method: "POST",
+  	async: false,
+	success: (respuesta) => {
+		//console.log(respuesta)
+		const jsonRespuesta = JSON.parse(JSON.parse(respuesta))
+		, connNameToDbName = {}
+		Object.keys ( jsonRespuesta ).forEach ( key => {
+			connNameToDbName[key.toLocaleLowerCase()] = jsonRespuesta[key]
 		})
-	}
-	, getRawTableRelations: function (tableName,nivel=0,deepTableRelations=[]) {
-		const tableRelations = circusRelations.relations.filter ( relation => relation.parent_table.toLowerCase() == tableName.toLowerCase() )
-		//if ( pub.joinSyntax == "" ) pub.joinSyntax = `${tableName} INNER JOIN`
-		, parentTable = tableName
-		, childCalls = []
-		//if(pub.joinSyntax=="")pub.joinSyntax += ` ${parentTable} `
-		tableRelations.forEach ( (relation,i) => {
-			const referencedTable = relation.referenced_table
-			relation.nivel = nivel
-			deepTableRelations.push ( relation )
-			childCalls.push ({referencedTable,nivel:(nivel+1), deepTableRelations})
-			//circusRelations.getRawTableRelations(referencedTable,(nivel+1), deepTableRelations)
-			//if(i==0)pub.joinSyntax += ` ${parentTable} `
-		})
-		childCalls.forEach ( childCall => {
-			//console.log('...childCall')
-			circusRelations.getRawTableRelations(childCall.referencedTable,childCall.nivel,childCall.deepTableRelations)
-		})
-		return deepTableRelations
-	}
-	, getTableRelations: function (tableName) {
-		const relations = _.uniq(circusRelations.getRawTableRelations(tableName))
-		//console.log(JSON.cc(relations).map(rel=>rel.referenced_table+rel.nivel))
-		//Relaciones que sobre la misma tabla al mismo nivel
-		const contradictoryRelations = relations.filter ( rel => {
-			let occ = -1
-			relations.forEach ( rel2 => {
-				if ( rel2.referenced_table == rel.referenced_table && rel2.nivel == rel.nivel ) occ++
-			})
-			return occ
-		})
-		//console.log(JSON.cc(relations))
-		_.pullAll ( relations, contradictoryRelations)
-		console.log(JSON.cc(relations).map(rel=>rel.referenced_table+rel.nivel))
-		//Menor nivel de relaciones para cada tabla
-		const minNivelPerTable = {}
-		relations.forEach ( rel => {
-			const table = rel.referenced_table
-			, relNivel = rel.nivel
-			, actualNivel = minNivelPerTable[table]
-			if ( typeof actualNivel == "undefined" || relNivel < actualNivel ) minNivelPerTable[table] = relNivel
-		})
-		//Relaciones para la misma tabla con nivel superior al mínimo
-		let offNivelRelations = []
-		relations.forEach ( rel => {
-			const tabName = rel.referenced_table
-			, minNivel = minNivelPerTable[tabName]
-			if ( ( rel.nivel - minNivel ) > 0 ) 
-				offNivelRelations.push ( rel )
-		})
-		
-		//console.log(minNivelPerTable)
-		//console.log(offNivelRelations)
-		_.pullAll ( relations, offNivelRelations)
-		//console.log(JSON.cc(relations).map(rel=>rel.referenced_table+rel.nivel))
-		return relations
-	}
-	, getJoinSyntax: function (tableName) {
-		const rels = circusRelations.getTableRelations(tableName)
-		let joinSyntax = tableName
-		rels.forEach ( rel => {
-			const pTable = rel.parent_table
-			, rTable = rel.referenced_table
-			, pColumn = rel.parent_column
-			, rColumn = rel.referenced_column
-			joinSyntax += ` INNER JOIN ${rTable} ON ${pTable}.${pColumn} = ${rTable}.${rColumn}`
-		})
-		return joinSyntax
-	}
-}
-circusRelations.$loadCircusRelations ();
-setTimeout(function(){console.log(circusRelations.getJoinSyntax('polizas'))},1000);
+		//console.log(jsonRespuesta)
+		Object.assign ( services.connNameToDbName, connNameToDbName )
+	},
+	error: (respuesta) => {
+		console.log('error en services json')
+  	}
+});
+console.log(services.connNameToDbName)
 
-export function getTableRelations(tableName){return circusRelations.getTableRelations(tableName)}
-
-(function getConnectionsModel () {
-	const connections = JSON.cc ( store.database.connections )
-	Object.keys(connections).forEach ( ( key ) => {
-		const db = connections[key]
-		, paramsTables = "sql=select * from sys.tables WHERE type_desc='user_table'&dbSettings=" + JSON.stringify ( db )
-		, paramsRelations = "sql=select * from dbo.fun_CIRCUS_RELATIONS()&dbSettings=" + JSON.stringify ( db )
-		$.post( apiUrl + 'query', encodeURI ( paramsTables ), (data) => {
-			//console.log(data)
-			const resTables = JSON.parse(data)
-			if ( resTables.error ) {
-				console.log(resTables.error)
-			} else {
-				//console.log ( res ) 
-				connectionsModel[key] = {"tables": resTables}
-				$.post( apiUrl + 'query', encodeURI ( paramsRelations ), (data) => {
-					console.log(paramsRelations)
-					const resRelations = JSON.parse(data)
-					if ( resRelations.error ) {
-						console.log(resRelations.error)
-					} else {
-						//console.log ( res ) 
-						connectionsModel[key] = {"relations": resRelations}
-						connectionsModel[key] = {"tablesRelations": {} }
-						resTables.forEach ( table => {
-							const tableName = table.name
-							, relations = resRelations.filter ( relation => relation["Parent table"] == tableName )
-							connectionsModel[key]["tablesRelations"][tableName] = relations
-							console.log('loaded connectionsModel')
-						})
-					}
-				} )
-			}
-		} )
-	})
-})
-
-function arbolGenialogico ( tableName ) {
-	//console.log(JSON.cc(connectionsModel[tableName]))
-	return
-	const tableRelations = connectionsModel.tablesRelations[tableName]
-	, relatedTablesName = tableRelations.map ( relation => relation["Referenced table"])
-	console.log(relatedTablesName)
-}
-function $get ( params ,tableName, cb ) {
-	const connections = JSON.cc ( store.database.connections )
-	, tables = JSON.cc ( store.database.tables )
-	let db = false
-	if ( !cb ) {
-		cb = dbName
-		//db = connections.filter ( ( database ) => database.bydefault )
-		Object.keys(connections).forEach ( ( key ) => connections[key].bydefault ? db = connections[key] : false )
-	} else {
-		//db = connections.filter ( ( database ) => database.name == dbName )
-		const connName = tables[tableName].connection
-		db = connections[connName]
-	}
-	//db = connections["coteyser"]
-	if ( !db ) { console.error ( "No se encuentra la tabla '" + tableName + "'" ); return false }
-	params += '&dbSettings=' + JSON.stringify ( db )
-	//console.log(params)
-	$.post( apiUrl + 'query', encodeURI ( params ), (data) => {
-		//console.log(data)
-		const res = JSON.parse(data)
-		if ( res.error ) {
-			console.log(res.error)
-			console.log(params)
-		} else {
-			cb ( res ) 
-		}
-	} )
-}
-export function $request ( url , cb ) {
-	$.get( apiUrl + url, (data) => {
-		//console.log(data)
-		const res = JSON.parse(data)
-		if ( res.error ) {
-			console.log(res.error)
-		} else {
-			cb ( res ) 
-		}
-	} )
-}
-(function loadFieldsForTables () {
-	Object.keys(vuexStore.state.database.tables).forEach ( table => {
-	    $fieldsForTable (table,fields => {
-			delete vuexStore.state.database.tables[table].fields
-			delete vuexStore.state.database.tables[table].indentities
-			localStorage["vuexStore"] = JSON.stringify({...vuexStore.state})
-			return
-			const identityKeys = fields.filter ( (field,index) => field.is_identity ).map ( field => field.column_name )
-			//console.log(identityKeys)
-			vuexStore.state.database.tables[table].fields = fields
-			vuexStore.state.database.tables[table].indentities = identityKeys
-			localStorage["vuexStore"] = JSON.stringify({...vuexStore.state})
-		})
-	})
-})
-*/
 //----------------------------------------------------------------------------------------------------------
 export function tablesFromConnection ( connection ) {
 	return [['clientes','clientes'],['polizas','polizas',],['recibos','recibos'],['colaboradores','colaboradores']]
@@ -305,8 +143,8 @@ export function getListModel ( listKey ) {
 	const listsModels = store.database.listsModels
     , lists = store.database.lists
     , listModelName = lists[listKey]
-    , listModel = listsModels[listModelName]
-	return JSON.cc(listModel)
+	, listModel = JSON.cc(listsModels[listModelName])
+	return listModel
 }
 export function getLiteral ( id ) {
 	const literales = store.database.literales
@@ -344,10 +182,13 @@ export function $fieldsForTable ( tableName, cb ) {
 		, db = tna.length > 1 ? `${tna[0]}.${tna[1]}.` : ''
 		, tabla = tna.length > 1 ? tna[2] : tableName
 		, dbID = getTableConnectionId(tableName)
+		//console.log(db+'**'+dbID+'**'+tableName)
 		const promise = new Promise ( ( resolve, reject ) => {
+			console.log()
             $dbq ({
                 operation: 'sp'
-                , sp_name: `${db}sp_circus_fields '${tabla}'`
+                //, sp_name: `${db}sp_circus_fields '${tabla}'`
+                , sp_name: `sp_circus_fields '${tabla}'`
 				, dbID: dbID
             }, campos => {
 				const newCampos = JSON.parse ( JSON.stringify ( campos ) )
@@ -361,7 +202,7 @@ export function $fieldsForTable ( tableName, cb ) {
 							, column_name: cf.sql
 							, data_type: cf.type
 							, is_identity: false
-							, table_name: tabla
+							, table_name: tableName //tabla
 							, literal: cf.literal
 						})
 					}
@@ -381,6 +222,8 @@ export function $fieldsForTable ( tableName, cb ) {
 		const promise = promises [promiseNumber]
 		promise.then( (newCampos) => {
 			finalCampos.push ( ...newCampos )
+			//console.log(JSON.cc(newCampos))
+
 			if ( promiseNumber < promises.length - 1 ) {
 				execPromises ( promiseNumber+1 )
 			} else {
@@ -399,17 +242,24 @@ function getFieldSettings ( fieldName, tableName ) {
 	treatedSettings.list = store.database.listsModels[listName]
 	return treatedSettings
 }
-export function getTableConnectionId ( tableName ) {
+export function getTableConnectionId ( tableName, databasename ) {
 	let dbID = false
 	Object.keys ( store.database.tables ).forEach ( key => {
-		if ( key.toLocaleLowerCase() == tableName.toLocaleLowerCase() ) dbID = store.database.tables[key].connection
+		if ( key.toLocaleLowerCase() == tableName.toLocaleLowerCase() ) {
+			//dbID = store.database.tables[key].connection
+			const connID = store.database.tables[key].connection//.toLowerCase()
+			//console.log(services.connNameToDbName+connID)
+			//console.log(services.connNameToDbName[connID.toLowerCase()])
+			dbID = databasename ? services.connNameToDbName[connID.toLowerCase()] : connID
+			//dbID = connID
+		}
 	})
 	//const dbID = store.database.tables[tableName].connection
 	return dbID
 }
 export function getTablesRelation ( tableName ) {
-	const dbID = store.database.tables[tableName].connection
-	const relatedGroup = { names: [tableName], joinSyntax: dbID+'.dbo.'+tableName }
+	const dbID = getTableConnectionId(tableName,1)
+	const relatedGroup = { names: [tableName], joinSyntax: cleanTableName(dbID)+'.dbo.'+cleanTableName(tableName) }
 	//let relatedNames = [tableName]
 	const relatedTables = getRelatedTables ( tableName )
 	relatedGroup.joinSyntax +=  relatedTables.joinSyntax
@@ -431,7 +281,16 @@ export function getTablesRelation ( tableName ) {
 	} while ( nextRelatedNames.length )
 	//relatedGroup.names = [tableName].concat ( relatedGroup.names )
 	//console.log(relatedGroup)
+	aliasIndex = -1
+	involvedTablesNames = []
 	return relatedGroup
+}
+const aliases = ['a','b','c','d','e','f','g','h','i']
+var involvedTablesNames = []
+var aliasIndex = -1
+function getNextAlias ( ) {
+	aliasIndex++
+	return aliases[aliasIndex]
 }
 function getRelatedTables ( tableName, excludeNames=[] ) {
 	//console.log(tableName)
@@ -444,22 +303,33 @@ function getRelatedTables ( tableName, excludeNames=[] ) {
 	if ( !table ) return res
 	let joinTables = ""
 	const relatedTables = table.relatedTables ? table.relatedTables : {}
-	Object.keys(relatedTables).filter(tableName=>excludeNames.indexOf(tableName)==-1).forEach ( ( key ) => {
+	Object.keys(relatedTables).filter(tableName=>excludeNames.indexOf(tableName)==-1).forEach ( ( key, aliasIndex ) => {
 		//if ( relatedTables[key].relation == "* => 1" ) {
-		relatedTablesNames.push ( key )
 		const relatedTable = relatedTables[key]
 		, remoteField = relatedTable.remoteField
 		, localField = relatedTable.localField
-		, dbID = getTableConnectionId ( key )
-		, dbID2 = getTableConnectionId ( tableName )
+		, dbID = cleanTableName ( getTableConnectionId ( key, 1 ) )
+		, dbID2 = cleanTableName ( getTableConnectionId ( tableName, 1 ) )
 		, joinType = relatedTables[key].join ? relatedTables[key].join : "INNER JOIN"
-		joinTables += ` ${joinType} ${dbID}.dbo.${key} ON ${dbID2}.dbo.${tableName}.${localField} = ${dbID}.dbo.${key}.${remoteField}`
-		//}
+		//joinTables += ` ${joinType} ${dbID}.dbo.${cleanTableName(key)} ON ${dbID2}.dbo.${cleanTableName(tableName)}.${localField} = ${dbID}.dbo.${cleanTableName(key)}.${remoteField}`
+		, t1fullname = `${dbID}.dbo.${cleanTableName(key)}`
+		, alias = involvedTablesNames.indexOf (key) != -1 ? getNextAlias() : ''
+		, alias2 = alias != '' ? alias : t1fullname
+		joinTables += ` ${joinType} ${t1fullname} ${alias} ON ${dbID2}.dbo.${cleanTableName(tableName)}.${localField} =  ${alias2}.${remoteField}`
+		relatedTablesNames.push ( key )
+		involvedTablesNames.push ( key )
 	})
 	res.names = relatedTablesNames
 	res.joinSyntax = joinTables
 	return res
 }
+function cleanTableName ( tn ) {
+	const tnArr = tn.split(".")
+	, cleanedName = tnArr.length > 1 ? tnArr[tnArr.length - 1] : tn
+	//console.log("tn: " + tn)
+	return cleanedName
+}
+
 export function getDirectParents ( tableName ) {
 	const relatedTables = store.database.tables[tableName].relatedTables
 	, parentTables = relatedTables ? relatedTables : {}
@@ -532,7 +402,7 @@ export function $dbq (
 			  //console.log(respuesta)
 			  const jsonRespuesta = JSON.parse(respuesta)
 			  if ( jsonRespuesta.length && jsonRespuesta[0].Error ){
-			  	//console.log('Error SQL')
+			  	console.log(JSON.stringify(jsonRespuesta[0]))
 			  	alert(JSON.stringify(jsonRespuesta[0]))
 			  }
 			if ( cb ) cb(jsonRespuesta)

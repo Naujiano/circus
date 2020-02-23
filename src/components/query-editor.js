@@ -246,7 +246,7 @@ function stringMatch ( n, v, data_type, param ) {
         literals.forEach ( function ( val ) {
             sqltxt = sqltxt + n + " LIKE " + val + " OR "
         } )
-        if (sqltxt.length ) sqltxt = sqltxt.substring(0, sqltxt.length-3);
+        if (sqltxt.length ) sqltxt = "(" + sqltxt.substring(0, sqltxt.length-3) + ")";
         if ( param.like ) return sqltxt
     
         return "("+n+" IN (" + literals + "))"

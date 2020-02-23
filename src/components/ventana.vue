@@ -367,8 +367,8 @@ export default {
             const table_name = field.table_name
             , column_name = field.column_name
             if ( field.literal ) return column_name
-            const dbID = this.api.getTableConnectionId ( table_name )
-            //console.log(dbID)
+            //const dbID = this.api.getTableConnectionId ( table_name )
+            const dbID = field.table_catalog
             return dbID + '.dbo.' + table_name + '.' + column_name
         },
         formSetValues ( formData ) {

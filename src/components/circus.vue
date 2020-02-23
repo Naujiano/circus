@@ -25,7 +25,7 @@
             </button>
         </div>
         -->
-         <div style="display:flex;height:100%" v-show="panels.bottom&&admin">
+         <div :style="{display:'flex',height:(show.formlist?'30%':'100%')}" v-show="panels.bottom&&admin">
             <div class="panel-envelope" style="flex-shrink:0;height:100%;width:200px;background: transparent;color:;font-weight:500;font-size:11px">
                 <div style="height:50%;width:100%;background: transparent" ref="helpCuadrant" v-html="helpText"></div>
                 <div class="custom-title" style="position:absolute; width: 176px; margin-top: -20px">LOG</div>
@@ -34,7 +34,7 @@
                 </div>
             </div>
             
-            <div class="panel-envelope" style=";flex-grow:1;height:100%;border:0px solid red;" id="queriesList">
+            <div class="panel-envelope" style=";flex-grow:1;height:100%;border:0px solid red; max-height:calc(100% - 0px);position:relative" id="queriesList">
                 <button  @click="show.formlist=!show.formlist" style="position:absolute;top:15px;right:15px;background:;padding: 3px;z-index:1">
                     <div :class="{'arrow-up':show.formlist,'arrow-down':!show.formlist}"></div>
                 </button>

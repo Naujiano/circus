@@ -9,8 +9,8 @@ new Vue({
 }).$mount('#app')
 
 
-require('../circus-layout.css')
-require('../simple-table.css')
+//require('../circus-layout.css')
+//require('../simple-table.css')
 
 import queryString from 'query-string';
 const parsedSearch = queryString.parse(location.search)

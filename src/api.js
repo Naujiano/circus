@@ -313,11 +313,16 @@ function getRelatedTables ( tableName, excludeNames=[] ) {
 		, joinType = relatedTables[key].join ? relatedTables[key].join : "INNER JOIN"
 		//joinTables += ` ${joinType} ${dbID}.dbo.${cleanTableName(key)} ON ${dbID2}.dbo.${cleanTableName(tableName)}.${localField} = ${dbID}.dbo.${cleanTableName(key)}.${remoteField}`
 		, t1fullname = `${dbID}.dbo.${cleanTableName(key)}`
-		, alias = involvedTablesNames.indexOf (key) != -1 ? getNextAlias() : ''
+		, alias = isTableRepeated (key) ? getNextAlias() : ''
 		, alias2 = alias != '' ? alias : t1fullname
-		joinTables += ` ${joinType} ${t1fullname} ${alias} ON ${dbID2}.dbo.${cleanTableName(tableName)}.${localField} =  ${alias2}.${remoteField}`
+		// AL FINAL HE DECIDIDO EXCLUIR CUALQUIER REPETICIÓN DE UNA TABLA EN LA SELECT. LA QUE LLEGUE PRIMERO SE LO QUEDA.
+		if ( ! isTableRepeated (key)  ) 
+			joinTables += ` ${joinType} ${t1fullname} ${alias} ON ${dbID2}.dbo.${cleanTableName(tableName)}.${localField} =  ${alias2}.${remoteField}`
 		relatedTablesNames.push ( key )
 		involvedTablesNames.push ( key )
+		function isTableRepeated (tn) {
+			return involvedTablesNames.indexOf (tn) != -1
+		}
 	})
 	res.names = relatedTablesNames
 	res.joinSyntax = joinTables

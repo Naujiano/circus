@@ -459,6 +459,7 @@ export default {
             //this.$store.commit ( 'log', checklist.length + ' registros marcados.' )
         },
         rowClick(row){
+            return
             const pk_id = row.PK_ID
             const table = this.ventana.data.table
             , identities = this.ventana.data.identities

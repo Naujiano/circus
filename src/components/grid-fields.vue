@@ -5,7 +5,7 @@
             <Ly v-for="campo in shallowFields(tab)" v-show="inFilter(campo)" :style="elementStyle(campo)">
                 <table style="white-space:nowrap">
                     <tr @click="addField($event,campo,tab)" style="display:block; margin: 1px 0">
-                    <td v-for="ele in campo.name.split('.')" v-if="(ele!='dbo')&&showPath" @dblclick="editFieldName($event.target)" @blur="saveFieldName($event.target,campo.name)"  class="highlight-text">{{ele}}</td>
+                    <td v-for="ele in campo.name.split('.').slice(0, 3)" v-if="(ele!='dbo')&&showPath" @dblclick="editFieldName($event.target)" @blur="saveFieldName($event.target,campo.name)"  class="highlight-text">{{ele}}</td>
                     <td @dblclick="editFieldName($event.target)" @blur="saveFieldName($event.target,campo.name)" v-html="api.getLiteral(campo.name)"  class="highlight-text highlight-text-strong" style=""></td>
                     </tr>
                 </table>

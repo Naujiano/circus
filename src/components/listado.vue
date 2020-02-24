@@ -153,7 +153,7 @@ export default {
                             vista.descripcion = ""
                             vista.fecha = this.utils.getSpDate(new Date())
                             vista.tipo = "Normal"
-                            this.$store.commit ( 'Query_add' , {query:vista,cb:(recordset)=>{window.circus.loadQueries()}} )
+                            this.$store.commit ( 'Query_add' , {query:vista,cb:(recordset)=>{console.log(recordset);window.circus.loadQueries()}} )
                             //this.$store.state.queries.push (vista)
                         }.bind(this))
                      }.bind(this)

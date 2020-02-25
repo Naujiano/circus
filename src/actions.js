@@ -113,6 +113,11 @@ const actions = {
             //if ( ! state.ventanas.data[indexVentana].list.checkedIds ) state.ventanas.data[indexVentana].list.checkedIds = []
             //state.ventanas.data[indexVentana].list.checkedIds.push ( ids )
         },
+        set_distinct ( state, {indexVentana,value} ) {
+            state.ventanas.data[indexVentana].queryeditor.distinct = value
+            //if ( ! state.ventanas.data[indexVentana].list.checkedIds ) state.ventanas.data[indexVentana].list.checkedIds = []
+            //state.ventanas.data[indexVentana].list.checkedIds.push ( ids )
+        },
         log ( state, msg ) {
             if ( ! state.log ) state.log = []
             var event = new Date()

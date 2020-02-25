@@ -29,9 +29,9 @@
                 </div>
             </div>
             <div :style="{'width':'100%','min-height':'22px','overflow':'hidden','border':'0px solid red','position':'relative'}">
-                <!--
-                <div style="float:left;height:15px;width:24px;padding:0px 0 0 6px;border:0px solid red;position:absolute;z-index:2;"><input type="checkbox" title="Funciones" @click="clickShowComputer($event)" ></div>
-                -->
+                
+                <div style="float:left;height:15px;width:14px;padding:0px 0 0 1px;border:0px solid red;position:absolute;z-index:2;"><button data-help-code="list-distinct" title="Funciones" @click="set_distinct()" :style="{'background':distinct?'red':''}">/</button></div>
+                
                 <div ref="computer" style="width: 10000px; height:40px; padding:0 0 0 22px;position:absolute;white-space:nowrap">
                     <div v-for="(col,i) in grid.columns.names" :ref="'computed_'+col.label" :style="{'float':'left','border':'0px solid grey','padding':'5px','box-sizing':'border-box','white-space':'nowrap','overflow':'hidden','white-space':'nowrap'}" :key="'cont_'+col.label" :type="grid.columns.types[i]">
                         <!--{{col.label}} = {{grid.columns.types[i]}}-->
@@ -238,6 +238,15 @@ export default {
             })
             return buttonsUser
         },
+        distinct: {
+            get(){
+                const distinct = this.$store.state.ventanas.data[this.ventana.index].queryeditor.distinct
+                return distinct
+            },
+           set(v){
+                this.$store.state.ventanas.data[this.ventana.index].queryeditor.distinct = v
+            }
+        },
         qeParams: {
             get(){
                 const params = this.$store.state.ventanas.data[this.ventana.index].queryeditor.parameters
@@ -249,25 +258,8 @@ export default {
             , fields = this.ventana.data.fields
             , identities = this.ventana.data.identities
             , idField = identities[0]
-            //, listFields = []
-            , columns = [table+'.'+idField+' as PK_ID']
-            /*
-            fields.forEach ( field => {
-                const is_identity = field.is_identity
-                , column_name = field.column_name
-                , table_name = field.table_name
-                , isIdentity = ( is_identity && table_name == table )
-                , position = field.list.position
-                , column = { name: column_name }
-                if ( isIdentity ) {
-                    listFields[0] = column 
-                } else if ( position > 0 ) {
-                    listFields[position] = column
-                }
-
-            })
-            const columns = _.compact(listFields).map ( column => ( table + '.' + column.name ).toLowerCase() )
-            */
+            , distinct = this.distinct // this.$store.state.ventanas.data[this.ventana.index].queryeditor.distinct
+            , columns = distinct ? ['1 as PK_ID'] : [table+'.'+idField+' as PK_ID']
             const qeColumns = this.$refs.qe.settings.columns
             qeColumns.forEach ( key => {
                 if ( columns.indexOf(key.toLowerCase()) == -1 ) 
@@ -292,6 +284,7 @@ export default {
     updated () {
     },
     mounted: function () {
+        console.log("distinct"+this.distinct)
         return
         const $div = $(this.$refs.qeContainer)
         $div.resizable({handles: "s"})
@@ -511,7 +504,9 @@ export default {
             //Object.keys( orderby )
         },
         qeHasChanged () {
-            const hasChanged = this.$refs.qe.settings != this.grid.qeSettings
+            const hasChanged = ( this.$refs.qe.settings != this.grid.qeSettings ) || ( this.qeHasChanged.changed )
+            this.qeHasChanged.changed = false
+            //this.distinct = this.$store.state.ventanas.data[this.ventana.index].queryeditor.distinct
             //console.log('QE has Changed: '+hasChanged)
             return hasChanged
         },
@@ -649,6 +644,23 @@ export default {
                 //console.log(data[0])
             })
         },
+        set_distinct () {
+            //console.log('aaaaa')
+            //this.distinct = ! this.distinct
+            this.$store.commit ( 'set_distinct' , {indexVentana:this.ventana.index, value: ! this.distinct} )
+            this.qeHasChanged.changed = true
+            return
+            const data = this.grid.rows
+            data.forEach ( thing => {thing.PK_ID=1})
+            const uniqueArray = data.filter((thing, index) => {
+              const _thing = JSON.stringify(thing);
+              return index === data.findIndex(obj => {
+                return JSON.stringify(obj) === _thing;
+              });
+            });
+            this.grid.rows = uniqueArray
+            this.$store.state.ventanas.data[this.ventana.index].queryeditor.distinct = true
+        },
         loadPage (o,cb) {
             this.telon(1)
             const table = this.ventana.data.table
@@ -701,19 +713,18 @@ export default {
                 columns: columns
                 , schemaSyntax: joinSyntax
                 , whereSyntax: whereSyntax
-                , orderbyColumns: orderbyStr//.split(",")
+                , orderbyColumns: orderbyStr
                 , offset: offset
                 , pageSize: recXPag
                 , dbID: this.api.getTableConnectionId(table)
+                , distinct: this.distinct // this.$store.state.ventanas.data[this.ventana.index].queryeditor.distinct
             }
             if ( o ) {
                 params.pageSize=999999999
             }
 
-
             this.api.$dbq (params , data => {
                 this.grid.rows =  this.grid.rows.concat(data)
-                //console.log(data)
                 this.grid.loadedRecsNumber = loadedRecsNumber
                 //this.grid.columns.names = Object.keys(this.grid.rows[0]).splice(1)
                 //this.grid.columns.types = [2]

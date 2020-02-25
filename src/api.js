@@ -82,7 +82,7 @@ function alterTree () {
 	let tree = JSON.stringify({...vuexStore.state})
 	//vuexStore.state.database.listsModels = {}
 	//vuexStore.state.database.listsModels.CLI_Estado = vuexStore.state.database.lists.CLI_Estado
-	//vuexStore.state.database.lists["PRODUCTOS.RAM_Id"]="RAM_Id"
+	//vuexStore.state.ventanas.data[0].queryeditor.distinct=true
 	localStorage["vuexStore"] = JSON.stringify({...vuexStore.state})
 	saveTree("circus.json")
 }

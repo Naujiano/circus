@@ -2,7 +2,6 @@
     
     <div data-component="query-editor" style="">
         <ol style="width:100%" ref="lista">
-            <div class="param" style="width:35px; float:left"><button  style="width:30px;margin-top:-0px" @click="">=/=</button></div>
             <li class="param" v-for="(param,i) in parameters.data" :param="JSON.stringify(param)" :data-active="param._active">
                 <span class="grippy"></span>
                 <button v-show="admin" @click="deleteParam(i)" class="close closeButton" data-help-code="search-parameter-close"></button>

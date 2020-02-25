@@ -285,6 +285,7 @@ export default {
     },
     mounted: function () {
         console.log("distinct"+this.distinct)
+        //this.qeHasChanged.changed = false
         return
         const $div = $(this.$refs.qeContainer)
         $div.resizable({handles: "s"})
@@ -532,46 +533,6 @@ export default {
             }
             //$('body').css({cursor:'pointer'})
         },
-        loadList (o,cb) {
-            
-            //this.grid.rows = []
-            //return
-            const table = this.ventana.data.table
-            , joinSyntax = this.tablesRelation.joinSyntax
-            , qeSyntax = this.$refs.qe.settings.sqlSyntax
-            , whereSyntax = qeSyntax.length ? 'WHERE ' + qeSyntax : ''
-            , pkName = this.pkName
-            , whereListado = `pkname = '${table}.${pkName}'`
-            , insertIds = `sql=delete DBH_listado INSERT INTO DBH_listado (sessionId,idusuario,idlistado,pkname) 
-            select 1,1,${pkName},'${table}.${pkName}' FROM ${joinSyntax} ${whereSyntax} 
-            SELECT count(idlistado) as noFilas FROM DBH_listado WHERE ${whereListado}` 
-            , rowIdsSql = `sql=select ${pkName} as id FROM ${joinSyntax} ${whereSyntax}`
-            , dbID = this.api.getTableConnectionId(table)
-            this.grid.loadedRecsNumber = 0
-            const queryPars = {
-                columns: [`count(${table}.${pkName}) as recnum`]
-                , schemaSyntax: joinSyntax
-                , whereSyntax: qeSyntax
-                , dbID
-            }
-            //console.log(JSON.stringify(queryPars))
-            //return
-            this.api.$dbq (queryPars, data => {
-                //console.log(data)
-                //this.grid.rowIds = data[0].recnum//data.map ( field => field.id )
-                this.grid.rowCount = data[0].recnum ? data[0].recnum : 0
-                this.grid.whereSql = whereSyntax
-                this.grid.qeSettings = this.$refs.qe.settings
-                this.grid.page = 0
-                this.grid.rows = []
-                this.checkedIds = []
-                this.checkedIndexes = []
-                console.log('a')
-                this.loadPage(o,cb)
-
-                if ( ! this.grid.rowCount ) console.log(queryPars)
-            })
-        },
         compute ( params ) {
             // COMPUTO
             // OBTENGO LOS NOMBRES DE LAS COLUMNAS
@@ -661,6 +622,65 @@ export default {
             this.grid.rows = uniqueArray
             this.$store.state.ventanas.data[this.ventana.index].queryeditor.distinct = true
         },
+        loadList (o,cb) {
+            
+            //this.grid.rows = []
+            //return
+            const table = this.ventana.data.table
+            , joinSyntax = this.tablesRelation.joinSyntax
+            , qeSyntax = this.$refs.qe.settings.sqlSyntax
+            , whereSyntax = qeSyntax.length ? 'WHERE ' + qeSyntax : ''
+            , pkName = this.pkName
+            , whereListado = `pkname = '${table}.${pkName}'`
+            , insertIds = `sql=delete DBH_listado INSERT INTO DBH_listado (sessionId,idusuario,idlistado,pkname) 
+            select 1,1,${pkName},'${table}.${pkName}' FROM ${joinSyntax} ${whereSyntax} 
+            SELECT count(idlistado) as noFilas FROM DBH_listado WHERE ${whereListado}` 
+            , rowIdsSql = `sql=select ${pkName} as id FROM ${joinSyntax} ${whereSyntax}`
+            , dbID = this.api.getTableConnectionId(table)
+            , selectSql = `SELECT ${this.distinct?'DISTINCT ':''} ${this.columns} FROM ${joinSyntax} WHERE ${qeSyntax}`
+            this.grid.loadedRecsNumber = 0
+            
+            //console.log(selectSql)
+            this.api.$dbq ({
+                sqlSyntax: "SELECT COUNT(*) as recnum FROM (" + selectSql + ") as a"
+				, dbID: this.api.getTableConnectionId(table)
+            }, data => {
+                console.log(data)
+                this.grid.rowCount = data[0].recnum ? data[0].recnum : 0
+                this.grid.whereSql = whereSyntax
+                this.grid.qeSettings = this.$refs.qe.settings
+                this.grid.page = 0
+                this.grid.rows = []
+                this.checkedIds = []
+                this.checkedIndexes = []
+                this.loadPage(o,cb)
+
+                if ( ! this.grid.rowCount ) console.log(queryPars)
+            },false,true)
+            return
+            
+            const queryPars = {
+                columns: [`count(${table}.${pkName}) as recnum`]
+                , schemaSyntax: joinSyntax
+                , whereSyntax: qeSyntax
+                , dbID
+            }
+            this.api.$dbq (queryPars, data => {
+                //console.log(data)
+                //this.grid.rowIds = data[0].recnum//data.map ( field => field.id )
+                this.grid.rowCount = data[0].recnum ? data[0].recnum : 0
+                this.grid.whereSql = whereSyntax
+                this.grid.qeSettings = this.$refs.qe.settings
+                this.grid.page = 0
+                this.grid.rows = []
+                this.checkedIds = []
+                this.checkedIndexes = []
+                console.log('a')
+                this.loadPage(o,cb)
+
+                if ( ! this.grid.rowCount ) console.log(queryPars)
+            })
+        },
         loadPage (o,cb) {
             this.telon(1)
             const table = this.ventana.data.table
@@ -675,6 +695,7 @@ export default {
                 , dbID: this.api.getTableConnectionId(table)
             })
             if ( this.qeHasChanged() ) {
+                console.log('has changed')
                 this.loadList(o,cb)
                 return
             }
@@ -703,12 +724,11 @@ export default {
             , orderbyStr = this.$refs.qe.settings.orderBy != "" ? this.$refs.qe.settings.orderBy:(table+'.'+pkName)
             , recXPag = this.grid.recXPag
             , offset = this.grid.page * recXPag
-            , selectSql = `sql=SELECT ${columns} FROM ${joinSyntax} ${this.grid.whereSql} ORDER BY ${orderbyStr} OFFSET ${offset} ROWS FETCH NEXT ${recXPag} ROWS ONLY`
+            , selectSql = `sql=SELECT ${this.distinct?'DISTINCT ':''} ${columns} FROM ${joinSyntax} ${this.grid.whereSql} ORDER BY ${orderbyStr} OFFSET ${offset} ROWS FETCH NEXT ${recXPag} ROWS ONLY`
             this.grid.page++
             let loadedRecsNumber = this.grid.page*this.grid.recXPag
             if ( ( loadedRecsNumber > this.grid.rowCount ) || o ) loadedRecsNumber = this.grid.rowCount
             this.grid.selectSql = selectSql.substring(4)
-            console.log(this.grid.selectSql)
             const params = {
                 columns: columns
                 , schemaSyntax: joinSyntax

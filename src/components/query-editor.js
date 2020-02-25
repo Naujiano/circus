@@ -102,8 +102,14 @@ export default class queryEditor {
         this.params.forEach ( param => {
             const order = param._orderby
             , valid = ( order == 'asc' || order == 'desc' )
-            if ( valid )
-                orderBy.push ( param.key + ' ' + order )
+            if ( valid ) {
+                let key = param.key
+                if(param.data_type=="date"){
+                    key = `(convert(char(10),${key},103))`
+                }
+                orderBy.push ( key + ' ' + order )
+                //return (`${key} as [${param.alias}]`)
+            }
         })
         //if ( orderBy != "" ) orderBy = orderBy.substring(0,orderBy.length-1)
         return orderBy

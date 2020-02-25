@@ -729,6 +729,7 @@ export default {
             let loadedRecsNumber = this.grid.page*this.grid.recXPag
             if ( ( loadedRecsNumber > this.grid.rowCount ) || o ) loadedRecsNumber = this.grid.rowCount
             this.grid.selectSql = selectSql.substring(4)
+            console.log(this.grid.selectSql)
             const params = {
                 columns: columns
                 , schemaSyntax: joinSyntax

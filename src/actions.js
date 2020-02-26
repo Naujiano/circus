@@ -114,8 +114,9 @@ const actions = {
             //state.ventanas.data[indexVentana].list.checkedIds.push ( ids )
         },
         set_distinct ( state, {indexVentana,value} ) {
-            //state.ventanas.data[indexVentana].queryeditor.distinct = value
-            Object.assign ( state.ventanas.data[indexVentana].queryeditor , { distinct : value } )
+            state.ventanas.data[indexVentana].queryeditor.distinct = value
+            //Object.assign ( state.ventanas.data[indexVentana].queryeditor , { distinct : value } )
+            console.log(state.ventanas.data[indexVentana].queryeditor)
             //if ( ! state.ventanas.data[indexVentana].list.checkedIds ) state.ventanas.data[indexVentana].list.checkedIds = []
             //state.ventanas.data[indexVentana].list.checkedIds.push ( ids )
         },

@@ -1,19 +1,23 @@
 <template>
     
     <Ly flexbox=1 column=1 height=1 data-component="Formulario" style="border:0 solid #ddd;border-width:0 0px 0 0;">
-        <div v-show="showToolbar" style="width:250px;height:30px;min-height:32px;padding:4px 4px 0 4px;border:0 solid #ddd;border-width: 0 0 0px 0" ref="Formulario">
+
+        <!-- CAPA EMERGENTE X ARRIBA. INUTILIZADA PERGO GUARDA POR SI ACASO.
+        <div style="width:250px;height:30px;min-height:32px;padding:4px 4px 0 4px;border:0 solid #ddd;border-width: 0 0 0px 0" ref="Formulario">
             <Toolbar :buttons="buttons" style="float:left"/>
-            <!--
             <input type="checkbox" style="float:left" :checked="showFields" @click="showFields=$event.target.checked">
             <div style="float:left;margin-top:2px">&nbsp;Campos&nbsp;&nbsp;</div>
-            -->
-            <input type="checkbox" style="float:left" :checked="showPath" @click="showPath=$event.target.checked">
-            <div style="float:left;margin-top:2px">&nbsp;Rutas&nbsp;</div>
         </div>
         <div style="width:100%; text-align:center;cursor:pointer" @click="showToolbar=!showToolbar" class=""><svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 width="292.362px" height="292.362px" viewBox="0 0 292.362 292.362" style="enable-background:new 0 0 292.362 292.362;zoom:0.7"	 xml:space="preserve"><g>	<path style="cursor:pointer" d="M286.935,69.377c-3.614-3.617-7.898-5.424-12.848-5.424H18.274c-4.952,0-9.233,1.807-12.85,5.424		C1.807,72.998,0,77.279,0,82.228c0,4.948,1.807,9.229,5.424,12.847l127.907,127.907c3.621,3.617,7.902,5.428,12.85,5.428		s9.233-1.811,12.847-5.428L286.935,95.074c3.613-3.617,5.427-7.898,5.427-12.847C292.362,77.279,290.548,72.998,286.935,69.377z"/></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg></div>
-        <div style="padding:3px;background:;"><input v-model="filter" class="form-control" placeholder="Buscar..." @focus="$event.target.select()"></div>
+        -->
+        <div style="display:flex; flex-wrap: nowrap;">
+            <div style="width:12px;margin-top:4px">
+                <input type="checkbox" style="" :checked="showPath" @click="showPath=$event.target.checked" data-help-code="campos-ruta-mostrar">
+                <!--<div style="float:left;margin-top:2px">&nbsp;Rutas&nbsp;</div>-->
+            </div>
+            <div style="padding:3px;background:;margin-left: 0px; width: calc(100% - 15px)"><input v-model="filter" class="form-control" placeholder="Buscar..." @focus="$event.target.select()"></div>
+        </div>
         <div style="position:relative;left:calc(100% - 50px);top:-20px;height:0;overflow:visible;font-size:9px;color:gray">{{shownNumber}} / {{Object.keys(formState.editorData).length}}</div>
-        <!---<Ly grow=1 :overflow="overflow" style="background:" @scroll="alert('juan')">-->
         <div class="LyItem LyItem-grow LyItem-overflow" @scroll="positionContext($event)" style="background:; padding:0">
             <GridFields 
                 :item="formState.editorData" 

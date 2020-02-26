@@ -100,6 +100,7 @@ export default {
                 {
                     label: `<svg data-help-code="list-toolbar-clear" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 330.5 330.5"><path d="M178.3 136.6l16.4 16.4 69.7-69.7c2.3-2.3 3.4-5.2 3.4-8.2 0-3-1.1-5.9-3.4-8.2 -4.5-4.5-11.8-4.5-16.4 0L178.3 136.6zM172.3 140.2l-0.7-0.7 -12.4 12.4 -7.7 7.7 20.4 20.4 8.3-8.3 11.8-11.8 -0.9-0.9 -1.2-1.2 -16.4-16.4L172.3 140.2zM66.8 197.2c-0.1 0-0.2 0.1-0.3 0.1 -0.5 0.1-0.9 0.3-1.3 0.6l-0.2 0.1L65 198c-0.5 0.3-0.8 0.7-1.2 1.2 -0.3 0.5-0.6 1-0.8 1.6 -0.5 1.7-0.3 3.7 1.3 4.9 3.8 3 7.7 6 11.6 8.9l0.7-0.3 1.7-0.7L80 213l14.1-5.4 20.6-7.9 -14.3 16.6 -8 9.2 -1.1 1.3 -1.1 1.3 -1.1 1.3c0.8 0.3 1.6 0.4 2.5 0.2 0.5-0.1 1-0.3 1.6-0.5 0.1 0 0.1-0.1 0.2-0.1 0.6-0.3 1.1-0.5 1.7-0.7l3.3 3.3c0 0.8-0.1 1.5-0.1 2.3 -0.1 0.7-0.1 1.5-0.2 2.2 -0.1 1.1-0.3 2.2-0.6 3.3 -0.6 2.5 0.8 5.7 3.5 6.2 4.4 0.9 8 2.4 11.1 4.5 3.5 2.4 6.4 5.4 9.1 9.1 1.3 1.8 2.6 3.6 3.9 5.6 1 1.6 2.6 2.3 4.1 2.3 0.7 0 1.4-0.1 2-0.4 2.4-0.9 4.2-3.4 3.1-6.2l32.3-75.5 -20.2-20.2L66.8 197.2zM165.2 330.5L165.2 330.5C74 330.5 0 256.5 0 165.2v0C0 74 74 0 165.2 0h0c91.3 0 165.2 74 165.2 165.2v0C330.5 256.5 256.5 330.5 165.2 330.5z"/></svg>`,
                     onClick: function () { 
+                        if ( ! confirm ( '¿Borrar los parámetros de filtrado?' ) ) return false
                         this.$store.commit ( 'Ventana_injectQE' , {indexVentana:this.ventana.index,qeParams:[]} )
                         this.$refs.qe.clear() 
                     }.bind(this)
@@ -241,10 +242,11 @@ export default {
         distinct: {
             get(){
                 const distinct = this.$store.state.ventanas.data[this.ventana.index].queryeditor.distinct
-                return distinct
+                return distinct //? distinct : false
             },
            set(v){
-                this.$store.state.ventanas.data[this.ventana.index].queryeditor.distinct = v
+                this.$store.commit ( 'set_distinct' , {indexVentana:this.ventana.index, value: v } )
+                //this.$store.state.ventanas.data[this.ventana.index].queryeditor.distinct = v
             }
         },
         qeParams: {
@@ -284,7 +286,7 @@ export default {
     updated () {
     },
     mounted: function () {
-        console.log("distinct"+this.distinct)
+        //console.log("distinct"+this.distinct)
         //this.qeHasChanged.changed = false
         return
         const $div = $(this.$refs.qeContainer)
@@ -608,7 +610,7 @@ export default {
         set_distinct () {
             //console.log('aaaaa')
             //this.distinct = ! this.distinct
-            this.$store.commit ( 'set_distinct' , {indexVentana:this.ventana.index, value: ! this.distinct} )
+            this.$store.commit ( 'set_distinct' , {indexVentana:this.ventana.index, value: !this.distinct} )
             this.qeHasChanged.changed = true
             return
             const data = this.grid.rows
@@ -637,7 +639,7 @@ export default {
             SELECT count(idlistado) as noFilas FROM DBH_listado WHERE ${whereListado}` 
             , rowIdsSql = `sql=select ${pkName} as id FROM ${joinSyntax} ${whereSyntax}`
             , dbID = this.api.getTableConnectionId(table)
-            , selectSql = `SELECT ${this.distinct?'DISTINCT ':''} ${this.columns} FROM ${joinSyntax} WHERE ${qeSyntax}`
+            , selectSql = `SELECT ${this.distinct?'DISTINCT ':''} ${this.columns} FROM ${joinSyntax}  ${qeSyntax?'WHERE '+qeSyntax:''}`
             this.grid.loadedRecsNumber = 0
             
             //console.log(selectSql)

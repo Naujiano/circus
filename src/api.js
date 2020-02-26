@@ -110,7 +110,7 @@ $.ajax({
 		console.log('error en services json')
   	}
 });
-console.log(services.connNameToDbName)
+//console.log(services.connNameToDbName)
 
 //----------------------------------------------------------------------------------------------------------
 export function tablesFromConnection ( connection ) {
@@ -361,6 +361,7 @@ export function getDirectSuns ( tableName ) {
 export function saveTree ( fileName, doPrompt ) {
 	if ( doPrompt ) {
 		const givenName = window.prompt ( "Introduzca el nombre que quiere dar al archivo de configuración" , fileName )
+		if ( !givenName ) return false
 		fileName = givenName + ( givenName.indexOf ( '.json' ) == - 1 ? '.json' : '' )
 	}
 	if ( !fileName ) fileName = uuidV1()+'.json'
@@ -374,6 +375,7 @@ export function saveTree ( fileName, doPrompt ) {
 			console.log('Model saved to ' + fileName )
 		}
 	});
+	return fileName
 }
 export function listFiles (folder,cb) {
 	$.ajax({
@@ -385,6 +387,49 @@ export function listFiles (folder,cb) {
 		  	cb ( JSON.parse ( list ) )
 	  	}
   	});
+}
+export function getTablesList (cb) {
+	const list = []
+	, promises = []
+	, connections = services.connNameToDbName
+	//return list
+	var promiseIndex = 0
+	//console.log(services.connNameToDbName)
+	Object.keys ( connections  ).forEach ( key => {
+		const connName = key
+		, dbName = connections[connName]
+		promises.push ( new Promise (
+			function ( resolve, reject ) {
+				$dbq (
+					{
+						columns: ['name']
+						, schemaSyntax: "sys.tables"
+						, dbID: connName
+						, whereSyntax: "name is not null"
+					},
+					function ( tablas ) {
+						list.push ( {label:connName, content:tablas.map ( ele => {return ele.name} ) } )
+						resolve ('all cool')
+						//cb(tablas)
+					}
+				)
+			}
+		) )
+	})
+	executePromise()
+	function executePromise () {
+		promises[promiseIndex].then ( 
+			function ( result ) { 
+				promiseIndex++; 
+				if ( promiseIndex<promises.length ) {
+					 executePromise () 
+				} else {
+					cb ( list )
+				}
+			}
+			, function ( err ) {}
+		)
+	}
 }
 export function $dbq (
 	params

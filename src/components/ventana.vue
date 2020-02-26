@@ -25,8 +25,9 @@
         </div>
         <div class="toolbar-box">
             <div class="toolbar-box-title">Configuración</div>
-            <select id="configFileSelect" @focus="loadFilesList($event.target)" class="form-control" style="display:inline;width:auto;font-size:11px;margin-bottom:-2px;margin-top:1px; float:left">
+            <select id="configFileSelect" class="form-control" style="display:inline;width:auto;font-size:11px;margin-bottom:-2px;margin-top:1px; float:left">
                 <option value="">Importar Config...</option>
+                <option v-for="fn in configFilesList" :value="fn" :selected="fn==api.parsedSearch.reset">{{fn}}</option>
             </select>
             <Toolbar :buttons="buttons" style="width:auto;float:left;margin:0px 0 -2px 3px" />
         </div>
@@ -78,6 +79,7 @@ export default {
   components: { Ly, Formulario, Toolbar, Listado },
     data: function () {
         return {
+            configFilesList: [],
             parentTables: this.api.getDirectParents(this.ventana.data.table),
             childTables: this.api.getDirectSuns(this.ventana.data.table),
             tree: true,
@@ -129,7 +131,7 @@ export default {
                     helpCode:"config-save",
                     onClick: () => { 
                         const configFile = $('#configFileSelect option:selected').text()
-                        this.api.saveTree(configFile,1)
+                        this.configFilesList.push (this.api.saveTree(configFile,1))
                         //console.log(configFile)
                     }
                 },
@@ -139,8 +141,9 @@ export default {
                     onClick: () => { 
                         const configFile = $('#configFileSelect option:selected').text()
                         this.deleteConfigFile(configFile)
-                        $('#configFileSelect')[0].selectedIndex = 0
-                        $('#configFileSelect').blur()
+                        this.configFilesList = this.configFilesList.filter (ele=>{if(ele!=configFile)return true;return false})
+                        //$('#configFileSelect')[0].selectedIndex = 0
+                        //$('#configFileSelect').blur()
                         //console.log(configFile)
                     }
                 },
@@ -230,15 +233,6 @@ export default {
    },
    methods: {
       ...mapActions(['setVentana']),
-      loadFilesList (target) {
-          this.api.listFiles('./json/',(list)=>{
-              target.options.length = 1
-              const $select = $(target)
-              list.forEach ( item => {
-                  $select.append(`<option value="${item}">${item}</option>`)
-              })
-          })
-    },
     loadConfigFile ( fileName ) {
         //const fileName = $(target).find('option:selected').text()
         this.api.loadConfig ( fileName )
@@ -396,7 +390,18 @@ export default {
             this.$store.commit ( 'Ventana_setFields', {indexVentana: this.ventana.index, fields, identities})
             this.form.data = this.formDataBlanked()
         } )
-        //return
+        this.api.listFiles('./json/',(list)=>{
+            /*
+            target.options.length = 1
+            const $select = $(target)
+            */
+            this.configFilesList = list
+            /*
+            list.forEach ( item => {
+                $select.append(`<option value="${item}">${item}</option>`)
+            })
+            */
+        })
         $(this.$refs.Formulario).resizable({
             handles: 'e'
             //,ghost:true

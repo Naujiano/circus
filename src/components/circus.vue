@@ -54,6 +54,10 @@
             </div>
         </ly>
         <ContextList/>
+        <div style="position:absolute;z-index:10000; width: 100vw; height: 100vh; background: pink; top:0;left:0;display:none;overflow:auto">
+            <treeMenu :treedata="treedata_tables"/>
+        </div>
+
         <!--<context-menu ref="contextMenu" v-show="Object.keys($store.state.contextMenu).length"/>-->
     </div>
 </template>
@@ -78,6 +82,8 @@ import ContextMenu from './context-menu.vue'
 //import Tabla from './grid-record.vue'
 import SimpleTable from 'D:/data/iis/simple-table/src/components/simple-table.vue'
 import queryEditor from './query-editor.js'
+import treeMenu from './tree-menu.vue'
+
 
 window.bus = new Vue()
 JSON.cc = function (object) {
@@ -140,7 +146,7 @@ Vue.use(plugin)
 
 export default {
     store: api.vuexStore,
-    components: { Ly, ToolBar, Containers, SimpleTable, ContextList },
+    components: { Ly, ToolBar, Containers, SimpleTable, ContextList, treeMenu },
     data () {
         return { 
             panels: {
@@ -149,6 +155,20 @@ export default {
                 top: true,
                 bottom: true
             },
+            treedata_tables: [],
+            /*
+            [
+                {
+                    label: 'cot'
+                    , content: ['juan','pablo']
+                },
+                {
+                    label: 'cot'
+                    , content: ['juan']
+                }
+            ],
+            */
+
             helpText: ""
             , logText: []
             , admin: this.api.parsedSearch.admin
@@ -435,6 +455,7 @@ export default {
             //window.store.commit ( 'log', `<span style="color:${color}">${msg}</span>` )
         }
         this.loadQueries()
+        this.api.getTablesList((tables)=>{this.treedata_tables = tables })
         if ( help ) {
             
             $(window.document)

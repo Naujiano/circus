@@ -1,6 +1,7 @@
 <template>
     <div id="circus" style="overflow:hidden; background: #292C3A; background:transparent">
-        
+        <!--<SimpleTable style="z-index:1000;position:absolute;width:100px;height:100px;background:green" :rows="[{nombre:'juan'},{nombre:'raul'}]" :searchable="true"/>-->
+
         <ly flexbox=1 column=1 height=1 style="position:relative">
           <ly v-show="show.formlist" width=1 style="height:70%;position:relative;z-index:10;border:0px solid red" grow=1 id="containers" ref="contents">
            <ly flexbox=1 height=1  >
@@ -26,15 +27,16 @@
         </div>
         -->
          <div :style="{display:'flex',height:(show.formlist?'30%':'100%')}" v-show="panels.bottom&&admin">
-            <div class="panel-envelope" style="flex-shrink:0;height:100%;width:200px;background: transparent;color:;font-weight:500;font-size:11px">
-                <div style="height:50%;width:100%;background: transparent" ref="helpCuadrant" v-html="helpText"></div>
-                <div class="custom-title" style="position:absolute; width: 176px; margin-top: -20px">LOG</div>
-                <div style="height:50%;width:100%;overflow-y:auto;overflow-x:none" ref="logCuadrant">
+         
+            <div v-show="showHelpState" class="panel-envelope" style="flex-shrink:0;height:auto;width:200px;background: transparent;color:;font-weight:500;font-size:11px;position:absolute;z-index:10;display:; align-self: flex-end">
+                <div style="height:50%;width:100%;background: white" ref="helpCuadrant" v-html="helpText"></div>
+                <div class="custom-title" style="position:absolute; width: 176px; margin-top: -20px;display:none">LOG</div>
+                <div style="height:50%;width:100%;overflow-y:auto;overflow-x:none;display:none;" ref="logCuadrant">
                     <div v-for="msg in logText" style="margin-bottom:7px" v-html="msg"></div>
                 </div>
             </div>
-            
-            <div class="panel-envelope" style=";flex-grow:1;height:100%;border:0px solid red; max-height:calc(100% - 0px);position:relative" id="queriesList">
+        
+            <div class="panel-envelope" style=";flex-grow:1;height:100%;border:0px solid red; max-height:calc(100% - 0px);position:relative;min-width:100%" id="queriesList">
                 <button  @click="show.formlist=!show.formlist" style="position:absolute;top:15px;right:15px;background:;padding: 3px;z-index:1">
                     <div :class="{'arrow-up':show.formlist,'arrow-down':!show.formlist}"></div>
                 </button>
@@ -170,6 +172,7 @@ export default {
             */
 
             helpText: ""
+            , showHelpState: false
             , logText: []
             , admin: this.api.parsedSearch.admin
             , queries: []
@@ -318,7 +321,12 @@ export default {
         }
     },
     methods: {
-        loadQueries () {
+        autoShowForm (event) {
+        
+            //console.log(event.target)
+            if ( $(event.target).closest('[data-component="Formulario"]').length > 0 ) alert ('b')
+        }
+        , loadQueries () {
             this.api.$dbq ({
                 schemaSyntax: "views"
                 , columns: ["v_id","v_nombre","v_identificador","convert(char(10),v_fecha,103) as v_fecha","v_json"]
@@ -452,7 +460,6 @@ export default {
             , currentTime = new Intl.DateTimeFormat('es-ES', options).format(event)
             that.logText.forEach ( (t,i) => that.logText[i] = t.replace ( "blink_me", "" ) )
             that.logText.unshift ( `${currentTime}<br><span class="${color} blink_me">${msg}</span>` ) 
-            //window.store.commit ( 'log', `<span style="color:${color}">${msg}</span>` )
         }
         this.loadQueries()
         this.api.getTablesList((tables)=>{this.treedata_tables = tables })
@@ -497,8 +504,20 @@ export default {
             , title = $html.find('titulo').html()
             $html.find('titulo').remove()
             const text = $html.html()
-            that.helpText = `<div style="height:100%;"/><titulo>${itemHelpCode?title:'&nbsp;'}</titulo><texto>${text}</texto></div>`
+            //showHelpBox(`<div style="height:100%;"/><titulo>${itemHelpCode?title:'&nbsp;'}</titulo><texto>${text}</texto></div>`)
+            showHelpBox({title:itemHelpCode?title:'&nbsp;',text})
         }
+        function showHelpBox ( text, log ) {
+            if ( log )  window.log ( text.text )
+            if (typeof text === 'object') {
+                text = `<div style="height:100%;"/><titulo>${text.title}</titulo><texto>${text.text}</texto></div>`
+            }
+            that.helpText = text
+            that.showHelpState = true
+            if ( window.circus.helpBoxCloseTimer ) clearTimeout ( window.circus.helpBoxCloseTimer )
+            window.circus.helpBoxCloseTimer = setTimeout ( ()=>that.showHelpState = false , 7000 )
+        }
+        /*
         $(helpCuadrant).resizable({
             handles: 'e'
             , resize: function(){
@@ -509,10 +528,48 @@ export default {
         $('#containers').resizable({
             handles: 's'
         })
-        window.circus = this
-        //return
+        */
+         window.circus = this
+         window.circus.showHelpBox = showHelpBox
+         //this.panels.form = false
+         function moumove (event) {
+                /*
+            if ( $(event.target).closest('[data-component="Formulario"]').length > 0 ) {
+                //console.log('enter')
+                if ( window.circus.hoverFormTimer ) { clearTimeout ( window.circus.hoverFormTimer ); window.circus.hoverFormTimer = false }
+            } else {
+                    //console.log(false)
+                if ( !window.circus.hoverFormTimer && window.circus.panels.form && !this.gracePeriod ) {
+                    window.circus.hoverFormTimer = setTimeout ( function () {
+                        //console.log('close')
+                        window.circus.panels.form = false   
+                    }, 200)
+                }
+            }
+                */
+        }
+        window.showForm = showForm
+        function showForm() {
+            window.circus.panels.form = true
+            console.log(  $('[data-component="Formulario"]').find('input').eq(1).val())
+            setTimeout(function(){
+                $('[data-component="Formulario"]').find('input').eq(1).focus()
+                console.log('focus')
+            },100)
+            //window.circus.gracePeriod = true
+            //setTimeout ( function () {window.circus.gracePeriod = false}, 100 )
+        }
+        window.showQueries = showQueries
+        function showQueries() {
+            window.circus.panels.bottom = true
+            //window.circus.gracePeriod = true
+            //setTimeout ( function () {window.circus.gracePeriod = false}, 100 )
+        }
+       $(window).mousemove ( moumove )
+                    
      },
      updated() {
+         /*
         $(this.$refs.helpCuadrant).resizable({
             handles: 'e'
             , resize: function(){
@@ -523,6 +580,7 @@ export default {
         $('#containers').resizable({
             handles: 's'
         })
+        */
      }
 }
 </script>

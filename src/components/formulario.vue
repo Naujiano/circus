@@ -1,6 +1,6 @@
 <template>
     
-    <Ly flexbox=1 column=1 height=1 data-component="Formulario" style="border:0 solid #ddd;border-width:0 0px 0 0;">
+    <Ly flexbox=1 column=1 height=1 data-component="Formulario" style="border:0 solid #ddd;border-width:0 0px 0 0;" >
 
         <!-- CAPA EMERGENTE X ARRIBA. INUTILIZADA PERGO GUARDA POR SI ACASO.
         <div style="width:250px;height:30px;min-height:32px;padding:4px 4px 0 4px;border:0 solid #ddd;border-width: 0 0 0px 0" ref="Formulario">

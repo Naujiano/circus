@@ -59,6 +59,7 @@
             :singlecheck="singlecheck"
             v-on:rowClick="contextListRowClick"
             v-on:checkClick="contextListCheckClick"
+            :searchString="searchString"
         />
         <div
             v-else-if="type=='date'||type=='number'"
@@ -100,6 +101,7 @@ export default {
             , comparation: 0
             , leftVal: ""
             , rightVal: ""
+            , searchString: ""
         }
     }
     , mounted () {
@@ -138,9 +140,13 @@ export default {
             this.onChange(checkedRows)
             //this.onChange(checkedRows)
         },      
-        openContext (keyName,$field,val,type,onChange,cb, singlecheck ) {
+        updateContext ({searchString}) {
+            this.searchString = searchString
+        },
+        openContext (keyName,$field,val,type,onChange,cb, singlecheck, {dbname,ownername,tablename,fieldname,dbID, searchString} ) {
             this.singlecheck = singlecheck
         	this.contextListFocused = true
+            this.searchString = searchString
             this.onChange = (val) => {
                 onChange(val)
                 setTimeout(this.positionContext,0)
@@ -184,6 +190,8 @@ export default {
         		function feedList() {
         			const top = $field.offset().top + $field.outerHeight()
         			, left = $field.offset().left
+                    , checkedRows = getCheckedRowsFromInput(val,contextListData)
+                    /*
         			, checkedRows = []
         			let json = false
         			try {
@@ -191,9 +199,8 @@ export default {
         				contextListData.forEach ( (row,i) => {
         					if ( checkedLiterals.indexOf(row[Object.keys(row)[1]]) != -1 ) checkedRows.push ( i ) 
         				})
-        				//console.log(checkedRows)
         			} catch (err){ }
-        			//const contextList = window.contextList
+                    */
         			contextList.rows = contextListData
         			contextList.hiddenKeys = contextListHiddenKeys
         			contextList.checkedRows = checkedRows
@@ -221,8 +228,37 @@ export default {
         		}
         		//console.log(type)
         		//contextList.rows = []
+                
+                if ( type == "text" ) {
+                     const dbqParams = {
+        				operation: 'request'
+        				, sqlSyntax: `SELECT distinct top 20  1 AS _ROW_NUMBER,${fieldname} FROM ${tablename} WHERE ${fieldname} IS NOT NULL AND ${fieldname} <> '' ORDER BY ${fieldname}`
+                        , dbID
+        			}
+                    console.log(dbqParams)
+        			this.api.$dbq ( dbqParams, data => {
+                    console.log(data)
+        				contextList.rows = data
+                        contextList.checkedRows = getCheckedRowsFromInput ( val, data )
+        				contextList.hiddenKeys = ['_ROW_NUMBER']
+        				//feedList()
+        			}, true, true)
+                    type="list"
+                }
+                
         		open(type)
         	}
+            function getCheckedRowsFromInput ( val, contextListData ) {
+        			const checkedRows = []
+        			let json = false
+        			try {
+        				const checkedLiterals = JSON.parse ( val )
+        				contextListData.forEach ( (row,i) => {
+        					if ( checkedLiterals.indexOf(row[Object.keys(row)[1]]) != -1 ) checkedRows.push ( i ) 
+        				})
+        			} catch (err){ }
+                    return checkedRows
+            }
         	function open(type) {
         		const top = $field.offset().top + $field.outerHeight()
         		, left = $field.offset().left

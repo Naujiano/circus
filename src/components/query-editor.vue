@@ -34,7 +34,7 @@
                     <svg v-show="param._active" :style="{height:'12px','margin-bottom':'-1px','margin-left':'-2px',fill:(param._active?'blue':'')}" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 viewBox="0 0 470 470" style="enable-background:new 0 0 470 470;" xml:space="preserve"><g>	<path d="M162.5,102.5c0-39.977,32.523-72.5,72.5-72.5s72.5,32.523,72.5,72.5V160h30v-57.5C337.5,45.981,291.519,0,235,0		S132.5,45.981,132.5,102.5V160h30V102.5z"/>	<rect x="77.5" y="190" width="315" height="280"/></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
 
                     <svg v-show="!param._active" :style="{height:'12px','margin-bottom':'-1px','margin-left':'-2px',fill:(param._active?'blue':'')}" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 viewBox="0 0 470 470" style="enable-background:new 0 0 470 470;" xml:space="preserve"><g>	<rect x="137.5" y="190" width="315" height="280"/>	<path d="M192.5,102.5V160h30v-57.5C222.5,45.981,176.519,0,120,0S17.5,45.981,17.5,102.5V190h30v-87.5		C47.5,62.523,80.023,30,120,30S192.5,62.523,192.5,102.5z"/></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>                </button>
-                <div v-show="param._active" @blur="editParameter(i,$event)" @focus="openContext(i,$event,param)" @keyup="positionContext()" contenteditable="true" data-help-code="search-parameter-value" v-html="valueParam(param)"  class="highlight-text"></div>
+                <div v-show="param._active" @blur="editParameter(i,$event)" @focus="openContext(i,$event,param)" @keyup="positionContext($event);" contenteditable="true" data-help-code="search-parameter-value" v-html="valueParam(param)"  class="highlight-text"></div>
                 <div v-show="param._active && param._extended" contenteditable="true" class="side-text" v-html="param.rightText" @blur="changeText(i,$event,'rightText')" @keyup="textKeyPress($event,'rightText')" data-help-code="search-parameter-parentesis-right" style="font-weight:bold"/>
                 <!--
                 <button @click="changeType(i)" v-show="param._extended" data-help-code="search-parameter-datatype" style="width:auto;padding:0 3px;border-width:0 1px 0 0">{{param.data_type}}</button>
@@ -59,6 +59,7 @@ export default {
     components: { },
     props: {
         params: [Array]
+        , dbID: String
     },
     data: function () {
         return {
@@ -95,8 +96,9 @@ export default {
         })
      },
     methods: {
-        positionContext() {
+        positionContext(event) {
             window.contextList.positionContext()
+            window.contextList.updateContext({searchString:event.target.innerHTML})
         },
         emitParameters(params) {
             this.$emit('paramUpdate',JSON.cc(this.parameters.data))
@@ -109,8 +111,12 @@ export default {
             , val = $(event.target).text()
             , type = param.data_type
             this.focusedParamIndex = i
-            //console.log(event.target)
-            window.contextList.openContext(keyName,$(event.target),val,type,this.contextListCheckClick)
+            const [dbname,ownername,tablename,fieldname] = param.reference.split('.')
+            let searchString = ""
+            try {
+                const obj = JSON.parse ( val )
+            } catch ( err ) {searchString = val}
+            window.contextList.openContext(keyName,$(event.target),val,type,this.contextListCheckClick,false,false,{dbname,ownername,tablename,fieldname,dbID: this.dbID, searchString})
         },
         contextListCheckClick(checkedRows){
             //console.log(checkedRows)

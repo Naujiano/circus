@@ -107,9 +107,11 @@ export default class queryEditor {
                 if(param.data_type=="date"){
                     key = `(convert(char(10),${key},103))`
                 }
+                /*
                 if(key.toLowerCase().indexOf('select ')!=-1&&key.toLowerCase().indexOf('from ')!=-1) {
-                    key = param.alias
+                    key = param.reference
                 }
+                */
                 orderBy.push ( key + ' ' + order )
                 //return (`${key} as [${param.alias}]`)
             }

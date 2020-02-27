@@ -1,5 +1,7 @@
 <template>
         <Ly flexbox=1 column=1 grow=1 height=1 data-component="Listado" class="qe" style="padding:0" ref="listado">
+            <div style="position:absolute;top:0;left:0;width:5px;height:100vh;background:transparent;z-index:1000" onmouseover="window.showForm()"></div>
+            <div style="position:absolute;bottom:2px;left:0;width:100vw;height:4px;background:transparent;z-index:1000" onmouseover="window.showQueries()"></div>
             <Series :operation="series.operation" :fields="series_parameters" ref="popup" @operate="operate_serie"/>
             <div style="width:100%;display:block;min-height:31px;padding: 1px 0;background:#f4f4f4;margin:0">
                 <div style="float:left;display:block;padding:3px; width: 450px;" ref="toolbar">
@@ -25,7 +27,7 @@
             </div>
             <div style="position:relative;border:0px solid red;max-height:80%;border:0 solid #ddd;border-width:0px 0 1px 0;margin-top:5px;margin-left:-5px;width:calc(100% + 10px)" class="bgqe" ref="qeContainer">
                 <div v-show="show.queryEditor" class="" style="height:100%;overflow:auto;padding:5px 0;min-height:47px">
-                    <Queryeditor ref="qe" :params="qeParams" @paramUpdate="qeParamUpdate"/>
+                    <Queryeditor ref="qe" :params="qeParams" @paramUpdate="qeParamUpdate" :dbID="api.getTableConnectionId(ventana.data.table)"/>
                 </div>
             </div>
             <div :style="{'width':'100%','min-height':'22px','overflow':'hidden','border':'0px solid red','position':'relative'}">
@@ -136,6 +138,7 @@ export default {
                     label: `<svg data-help-code="list-toolbar-savevista" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path d="M180.52,149v33.92H76.75V149H56.81v43.9a10,10,0,0,0,10,10H190.47a10,10,0,0,0,10-10V149H180.52Zm-48.3-3.08c3.39-3.38,27.68-35.63,27.68-35.63s4.3-4.29-1.41-4.29H143.63V56.41s0.06-2.06-2.6-2.06H118.39c-3.69,0-3,2.45-3,2.45V107H99.25c-4.71,0-.37,4.1-0.37,4.1l28.55,34.5S129.78,148.37,132.22,145.92ZM128,256h0A128,128,0,0,1,0,128H0A128,128,0,0,1,128,0h0A128,128,0,0,1,256,128h0A128,128,0,0,1,128,256Z"></path></svg>`,
                     //title: "Guardar Vista",
                     onClick: function() { 
+                        if ( ! confirm ( '¿Crear una vista con este filtro?' ) ) return false
                         const table = this.ventana.data.table
                         , queryEditor = JSON.cc(this.$refs.qe.settings)//JSON.cc(this.queryEditor)
                         , orderby = JSON.cc(this.orderby)
@@ -154,7 +157,8 @@ export default {
                             vista.descripcion = ""
                             vista.fecha = this.utils.getSpDate(new Date())
                             vista.tipo = "Normal"
-                            this.$store.commit ( 'Query_add' , {query:vista,cb:(recordset)=>{console.log(recordset);window.circus.loadQueries()}} )
+                            this.$store.commit ( 'Query_add' , {query:vista,cb:(recordset)=>{console.log(recordset);window.circus.loadQueries();window.circus.showHelpBox ( {title:'Vista creada',text:'Se ha creado una nueva vista con el filtro actual.'}, true )}} )
+                            
                             //this.$store.state.queries.push (vista)
                         }.bind(this))
                      }.bind(this)
@@ -265,6 +269,7 @@ export default {
             const qeColumns = this.$refs.qe.settings.columns
             qeColumns.forEach ( key => {
                 if ( columns.indexOf(key.toLowerCase()) == -1 ) 
+                
                     columns.push ( key  )
             })
             return _.uniq(columns)
@@ -685,6 +690,8 @@ export default {
         },
         loadPage (o,cb) {
             this.telon(1)
+            window.circus.panels.form = false
+            window.circus.panels.bottom = false
             const table = this.ventana.data.table
             , columns = this.columns
             , joinSyntax = this.tablesRelation.joinSyntax

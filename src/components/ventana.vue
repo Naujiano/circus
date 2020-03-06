@@ -37,7 +37,7 @@
       <div style="float:right;text-align:right">
       </div>
     </div>
-    -->
+    --> 
       <!--<Ly flexbox=1 height=1>-->
       <div style="display:flex;flex-grow:1;height:calc(100% - 0px);max-height:calc(100% - 50px);position:relative" >
           <div v-show="panels.form&&admin" class="panel-envelope" style="height:100%;border:0px solid red" ref="Formulario">

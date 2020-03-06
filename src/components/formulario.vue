@@ -253,7 +253,8 @@ export default {
             this.formState = formState
         },
         addField(campo){
-            this.onFilter(this.filterState())
+            const fs = JSON.cc(this.filterState())
+            this.onFilter(fs)
             this.clean()
         },
         formChange(item) {

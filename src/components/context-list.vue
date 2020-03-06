@@ -157,7 +157,7 @@ export default {
         	if ( listModel ) { 
         		let contextListData, contextListHiddenKeys
         		if ( !listModel.length ) { //Es lista dinámica
-                    console.log(dbqParams)
+                    //console.log(dbqParams)
         			const {sqlListGrid,connection} = listModel
         			, sql = sqlListGrid.toLowerCase()
         			, columns = sql.substring ( sql.indexOf('select') + 6, sql.indexOf('from') ).trim().split(",")
@@ -228,16 +228,17 @@ export default {
         		}
         		//console.log(type)
         		//contextList.rows = []
-                
+
+                // SELECTOR DE COINCIDENCIAS EN CAMPO DE TEXTO
                 if ( type == "text" ) {
                      const dbqParams = {
         				operation: 'request'
-        				, sqlSyntax: `SELECT distinct top 20  1 AS _ROW_NUMBER,${fieldname} FROM ${tablename} WHERE ${fieldname} IS NOT NULL AND ${fieldname} <> '' ORDER BY ${fieldname}`
+        				, sqlSyntax: `SELECT distinct top 20  1 AS _ROW_NUMBER,${fieldname} FROM ${tablename} WHERE ${fieldname} IS NOT NULL AND ${fieldname} <> '' AND ${fieldname} LIKE '%${val}%' ORDER BY ${fieldname}`
                         , dbID
         			}
-                    console.log(dbqParams)
+                    //console.log(dbqParams)
         			this.api.$dbq ( dbqParams, data => {
-                    console.log(data)
+                    //console.log(data)
         				contextList.rows = data
                         contextList.checkedRows = getCheckedRowsFromInput ( val, data )
         				contextList.hiddenKeys = ['_ROW_NUMBER']

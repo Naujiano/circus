@@ -17,13 +17,16 @@ const parsedSearch = queryString.parse(location.search)
 , apiURL = 	parsedSearch.api
 
 function keepDBConnAlive () {
+	let fileName = parsedSearch.reset
+	if ( !fileName ) fileName = 'circus.json'
 	$.ajax({
 		url: apiURL + 'writeFile',
-	data: { json: localStorage["vuexStore"], fileName:'circus.json' },
+	data: { json: localStorage["vuexStore"], fileName },
 	method: "POST",
 	//async: false,
 		success: (storedVuexStore) => {
 		console.log('tree saved!')
+		window.circus.showHelpBox ( {title:'Configuración Guardada',text:'Se ha guardado automáticamente la configuración actual en el archivo ' + fileName })
 	},
 	error: (respuesta) => {
 		console.log('error ajax ping')

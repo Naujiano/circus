@@ -130,8 +130,9 @@ export default {
                     label: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path d="M180.52,149v33.92H76.75V149H56.81v43.9a10,10,0,0,0,10,10H190.47a10,10,0,0,0,10-10V149H180.52Zm-48.3-3.08c3.39-3.38,27.68-35.63,27.68-35.63s4.3-4.29-1.41-4.29H143.63V56.41s0.06-2.06-2.6-2.06H118.39c-3.69,0-3,2.45-3,2.45V107H99.25c-4.71,0-.37,4.1-0.37,4.1l28.55,34.5S129.78,148.37,132.22,145.92ZM128,256h0A128,128,0,0,1,0,128H0A128,128,0,0,1,128,0h0A128,128,0,0,1,256,128h0A128,128,0,0,1,128,256Z"></path></svg>`,
                     helpCode:"config-save",
                     onClick: () => { 
-                        const configFile = $('#configFileSelect option:selected').text()
-                        this.configFilesList.push (this.api.saveTree(configFile,1))
+                        const configFile = this.api.saveTree("",1) //$('#configFileSelect option:selected').text()
+                        if ( ! this.configFilesList.filter ( ele => ele.toLowerCase() == configFile.toLowerCase() ).length ) this.configFilesList.push (configFile)
+                        window.circus.showHelpBox({title:'Configuración Guardada',text:"Se ha guardado la configuración actual en el archivo " + configFile})
                         //console.log(configFile)
                     }
                 },

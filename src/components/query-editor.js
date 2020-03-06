@@ -104,9 +104,11 @@ export default class queryEditor {
             , valid = ( order == 'asc' || order == 'desc' )
             if ( valid ) {
                 let key = param.key
+                /*
                 if(param.data_type=="date"){
                     key = `(convert(char(10),${key},103))`
                 }
+                */
                 /*
                 if(key.toLowerCase().indexOf('select ')!=-1&&key.toLowerCase().indexOf('from ')!=-1) {
                     key = param.reference

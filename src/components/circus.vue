@@ -1,6 +1,13 @@
 <template>
     <div id="circus" style="overflow:hidden; background: #292C3A; background:transparent">
         <!--<SimpleTable style="z-index:1000;position:absolute;width:100px;height:100px;background:green" :rows="[{nombre:'juan'},{nombre:'raul'}]" :searchable="true"/>-->
+            <div v-show="showHelpState" class="panel-envelope" style=";height:auto;width:auto;background: transparent;color:;font-weight:500;font-size:11px;position:absolute;bottom:0;z-index:100;display:; align-self: flex-end">
+                <div style="height:50%;width:100%;background: white" ref="helpCuadrant" v-html="helpText"></div>
+                <div class="custom-title" style="position:absolute; width: 176px; margin-top: -20px;display:none">LOG</div>
+                <div style="height:50%;width:100%;overflow-y:auto;overflow-x:none;display:none;" ref="logCuadrant">
+                    <div v-for="msg in logText" style="margin-bottom:7px" v-html="msg"></div>
+                </div>
+            </div>
 
         <ly flexbox=1 column=1 height=1 style="position:relative">
           <ly v-show="show.formlist" width=1 style="height:70%;position:relative;z-index:10;border:0px solid red" grow=1 id="containers" ref="contents">
@@ -28,13 +35,6 @@
         -->
          <div :style="{display:'flex',height:(show.formlist?'30%':'100%')}" v-show="panels.bottom&&admin">
          
-            <div v-show="showHelpState" class="panel-envelope" style="flex-shrink:0;height:auto;width:200px;background: transparent;color:;font-weight:500;font-size:11px;position:absolute;z-index:10;display:; align-self: flex-end">
-                <div style="height:50%;width:100%;background: white" ref="helpCuadrant" v-html="helpText"></div>
-                <div class="custom-title" style="position:absolute; width: 176px; margin-top: -20px;display:none">LOG</div>
-                <div style="height:50%;width:100%;overflow-y:auto;overflow-x:none;display:none;" ref="logCuadrant">
-                    <div v-for="msg in logText" style="margin-bottom:7px" v-html="msg"></div>
-                </div>
-            </div>
         
             <div class="panel-envelope" style=";flex-grow:1;height:100%;border:0px solid red; max-height:calc(100% - 0px);position:relative;min-width:100%" id="queriesList">
                 <button  @click="show.formlist=!show.formlist" style="position:absolute;top:15px;right:15px;background:;padding: 3px;z-index:1">
@@ -551,10 +551,10 @@ export default {
         window.showForm = showForm
         function showForm() {
             window.circus.panels.form = true
-            console.log(  $('[data-component="Formulario"]').find('input').eq(1).val())
+            //console.log(  $('[data-component="Formulario"]').find('input').eq(1).val())
             setTimeout(function(){
                 $('[data-component="Formulario"]').find('input').eq(1).focus()
-                console.log('focus')
+                //console.log('focus')
             },100)
             //window.circus.gracePeriod = true
             //setTimeout ( function () {window.circus.gracePeriod = false}, 100 )

@@ -205,7 +205,7 @@ export default {
     watch: {
         filter: function (object, oldVal ) {
             //convierto objeto con campos del formulario a array para el QE.
-            console.log(object)
+            //console.log(object)
             const qeParams = Object.keys(object).map ( key => ( Object.assign ( {}, object[key], { 
                 key: this.api.getListColumnSql ( key )
                 , alias: this.shortAlias ( this.api.getLiteral ( key ) )
@@ -648,11 +648,12 @@ export default {
             this.grid.loadedRecsNumber = 0
             
             //console.log(selectSql)
+            //this.qeHasChanged.changed = true
             this.api.$dbq ({
                 sqlSyntax: "SELECT COUNT(*) as recnum FROM (" + selectSql + ") as a"
 				, dbID: this.api.getTableConnectionId(table)
             }, data => {
-                console.log(data)
+                //console.log(data)
                 this.grid.rowCount = data[0].recnum ? data[0].recnum : 0
                 this.grid.whereSql = whereSyntax
                 this.grid.qeSettings = this.$refs.qe.settings
@@ -662,7 +663,7 @@ export default {
                 this.checkedIndexes = []
                 this.loadPage(o,cb)
 
-                if ( ! this.grid.rowCount ) console.log(queryPars)
+                //if ( ! this.grid.rowCount ) console.log(queryPars)
             },false,true)
             return
             
@@ -682,10 +683,10 @@ export default {
                 this.grid.rows = []
                 this.checkedIds = []
                 this.checkedIndexes = []
-                console.log('a')
+                //console.log('a')
                 this.loadPage(o,cb)
 
-                if ( ! this.grid.rowCount ) console.log(queryPars)
+                //if ( ! this.grid.rowCount ) console.log(queryPars)
             })
         },
         loadPage (o,cb) {
@@ -704,7 +705,7 @@ export default {
                 , dbID: this.api.getTableConnectionId(table)
             })
             if ( this.qeHasChanged() ) {
-                console.log('has changed')
+                //console.log('has changed')
                 this.loadList(o,cb)
                 return
             }

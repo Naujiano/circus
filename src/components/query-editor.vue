@@ -30,11 +30,11 @@
                 <div v-show="param._active && param._extended" contenteditable="true" class="side-text" v-html="param.leftText" @blur="changeText(i,$event,'leftText')" @keyup="textKeyPress($event,'leftText',i)" data-help-code="search-parameter-parentesis-left" style="font-weight:bold"/>
                 <div contenteditable="true" @blur="editAliasName(i,$event)" data-help-code="search-parameter-alias" class="highlight-text highlight-text-strong">{{param.alias}}</div><!--
                 -->
-                <button @click="activateParam(parameters.data[i]);" data-help-code="search-parameter-active" style="padding:0;border:0">
+                <button @click="activateParam(parameters.data[i],$event);" data-help-code="search-parameter-active" style="padding:0;border:0">
                     <svg v-show="param._active" :style="{height:'12px','margin-bottom':'-1px','margin-left':'-2px',fill:(param._active?'blue':'')}" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 viewBox="0 0 470 470" style="enable-background:new 0 0 470 470;" xml:space="preserve"><g>	<path d="M162.5,102.5c0-39.977,32.523-72.5,72.5-72.5s72.5,32.523,72.5,72.5V160h30v-57.5C337.5,45.981,291.519,0,235,0		S132.5,45.981,132.5,102.5V160h30V102.5z"/>	<rect x="77.5" y="190" width="315" height="280"/></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
 
                     <svg v-show="!param._active" :style="{height:'12px','margin-bottom':'-1px','margin-left':'-2px',fill:(param._active?'blue':'')}" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 viewBox="0 0 470 470" style="enable-background:new 0 0 470 470;" xml:space="preserve"><g>	<rect x="137.5" y="190" width="315" height="280"/>	<path d="M192.5,102.5V160h30v-57.5C222.5,45.981,176.519,0,120,0S17.5,45.981,17.5,102.5V190h30v-87.5		C47.5,62.523,80.023,30,120,30S192.5,62.523,192.5,102.5z"/></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>                </button>
-                <div v-show="param._active" @blur="editParameter(i,$event)" @focus="openContext(i,$event,param)" @keyup="positionContext($event);" contenteditable="true" data-help-code="search-parameter-value" v-html="valueParam(param)"  class="highlight-text"></div>
+                <div v-show="param._active" @blur="editParameter(i,$event)" @focus="openContext(i,$event,param)" @keyup="positionContext(i,$event,param);" contenteditable="true" data-help-code="search-parameter-value" v-html="valueParam(param)"  class="highlight-text"></div>
                 <div v-show="param._active && param._extended" contenteditable="true" class="side-text" v-html="param.rightText" @blur="changeText(i,$event,'rightText')" @keyup="textKeyPress($event,'rightText')" data-help-code="search-parameter-parentesis-right" style="font-weight:bold"/>
                 <!--
                 <button @click="changeType(i)" v-show="param._extended" data-help-code="search-parameter-datatype" style="width:auto;padding:0 3px;border-width:0 1px 0 0">{{param.data_type}}</button>
@@ -70,7 +70,13 @@ export default {
     },
     watch: {
         params: function (val, oldVal ) {
-            this.parameters.data = JSON.cc(val)
+            //console.log(val)
+            const fs = JSON.cc(val)
+            Object.keys ( fs ).forEach ( key => {
+                fs[key].value = fs[key].value == "%" ? "" : fs[key].value
+            })
+            //console.log(fs)
+            this.parameters.data = fs
         }
     },
     computed : {
@@ -96,9 +102,35 @@ export default {
         })
      },
     methods: {
-        positionContext(event) {
+        positionContext(i,event,param) {
             window.contextList.positionContext()
             window.contextList.updateContext({searchString:event.target.innerHTML})
+            //this.editParameter(i,event)
+            this.openContext(i,event,param)
+            //setEndOfContenteditable(event.target)
+            /*
+            this.$nextTick ( function setEndOfContenteditable()
+            {
+                var range,selection,contentEditableElement = event.target
+                if(document.createRange)//Firefox, Chrome, Opera, Safari, IE 9+
+                {
+                    range = document.createRange();//Create a range (a range is a like the selection but invisible)
+                    range.selectNodeContents(contentEditableElement);//Select the entire contents of the element with the range
+                    range.collapse(false);//collapse the range to the end point. false means collapse to end rather than the start
+                    selection = window.getSelection();//get the selection object (allows you to change selection)
+                    selection.removeAllRanges();//remove any selections already made
+                    selection.addRange(range);//make the range you have just created the visible selection
+                }
+                else if(document.selection)//IE 8 and lower
+                { 
+                    range = document.body.createTextRange();//Create a range (a range is a like the selection but invisible)
+                    range.moveToElementText(contentEditableElement);//Select the entire contents of the element with the range
+                    range.collapse(false);//collapse the range to the end point. false means collapse to end rather than the start
+                    range.select();//Select the range (make it the visible selection
+                }
+            })
+            */
+
         },
         emitParameters(params) {
             this.$emit('paramUpdate',JSON.cc(this.parameters.data))
@@ -106,7 +138,7 @@ export default {
         openContext(i,event,param) {
             let parVal = param.value
             //if ( typeof parVal == 'object' ) parVal = JSON.stringify ( parVal )
-            $(event.target).text(parVal)
+            //$(event.target).text(parVal)
             const keyName = param.reference
             , val = $(event.target).text()
             , type = param.data_type
@@ -136,15 +168,18 @@ export default {
         },
         deleteParam (i) {
             //$(this.$refs.lista).find('li').eq(i).remove();
-            this.sortableStop();
             this.parameters.data.splice(i,1)
             this.emitParameters()
+            //this.sortableStop();
             //this.$emit('paramSplice',i)
         },
-        activateParam (param) {
+        activateParam (param,event) {
             param._active=!param._active;
             //if(param.value==='%')param.value='%%'
             this.emitParameters()
+            const $textField = $(event.target).closest('li').find('.highlight-text')//="search-parameter-value"]')
+            console.log($textField)
+            setTimeout ( ()=>$textField.eq(1).focus(), 100)
             //this.$emit('paramSplice',i)
         },
         negateParam (param) {
@@ -372,6 +407,7 @@ export default {
     }
     .param[data-active]{
         background:white;
+        border-color: blue;
         //box-shadow: 1px 1px 2px #ddd;
     }
     .param>* {

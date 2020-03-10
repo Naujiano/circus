@@ -3,8 +3,17 @@ const actions = {
     strict: false,
     mutations: {
         setKey ( state, {path,val} ) {
-            console.log(val)
-            eval ( `state${path} = val` )
+            var statePos = state
+            path.forEach ( (p,i) => {
+                if ( i < path.length - 1 ) {
+                    statePos = statePos[p]
+                } else {
+                    if ( val )
+                        statePos[p] = val
+                    else
+                        delete statePos[p];
+                }
+            })
         },
         setContainerType ( state, {index,type} ) {
             console.log({index,type})

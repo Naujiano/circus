@@ -23,9 +23,11 @@
                 <button v-show="param._active" @click="negateParam(parameters.data[i])" data-help-code="search-parameter-negated" style="padding:0;">
                     <svg :style="{height:'11px','margin-bottom':'-1px','margin-left':'-2px',fill:(param.leftText.toLowerCase().indexOf('not')!=-1?'red':'')}" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 width="46px" height="46px" viewBox="0 0 46 46" style="enable-background:new 0 0 46 46;" xml:space="preserve"><g>	<g>		<path d="M32.294,19H13.706c-2.209,0-4,1.791-4,4s1.791,4,4,4h18.588c2.209,0,4-1.791,4-4S34.503,19,32.294,19z"/>		<path d="M23,0C10.298,0,0,10.298,0,23c0,12.703,10.298,23,23,23s23-10.297,23-23C46,10.298,35.702,0,23,0z M23,40			c-9.374,0-17-7.625-17-17c0-9.373,7.626-17,17-17s17,7.627,17,17C40,32.375,32.374,40,23,40z"/>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
                 </button>
+                <!--
                 <button v-show="param._active" @click="likeParam(i)" data-help-code="search-parameter-like" style="padding:0;">
                     <svg :style="{height:'11px','margin-bottom':'-1px','margin-left':'-2px',fill:(param.like?'red':'')}" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 width="46px" height="46px" viewBox="0 0 46 46" style="enable-background:new 0 0 46 46;" xml:space="preserve"><g>	<g>		<path d="M32.294,19H13.706c-2.209,0-4,1.791-4,4s1.791,4,4,4h18.588c2.209,0,4-1.791,4-4S34.503,19,32.294,19z"/>		<path d="M23,0C10.298,0,0,10.298,0,23c0,12.703,10.298,23,23,23s23-10.297,23-23C46,10.298,35.702,0,23,0z M23,40			c-9.374,0-17-7.625-17-17c0-9.373,7.626-17,17-17s17,7.627,17,17C40,32.375,32.374,40,23,40z"/>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
                 </button>
+                -->
                 </div>
                 <div v-show="param._active && param._extended" contenteditable="true" class="side-text" v-html="param.leftText" @blur="changeText(i,$event,'leftText')" @keyup="textKeyPress($event,'leftText',i)" data-help-code="search-parameter-parentesis-left" style="font-weight:bold"/>
                 <div contenteditable="true" @blur="editAliasName(i,$event)" data-help-code="search-parameter-alias" class="highlight-text highlight-text-strong">{{param.alias}}</div><!--
@@ -245,6 +247,7 @@ export default {
             })
             $(this.$refs.lista).sortable('cancel')
             this.parameters.data = params//_.reverse(params)
+            this.emitParameters()
         },
         filter () {
 
@@ -260,7 +263,7 @@ export default {
             //window.bus.$emit('contextListBlur')
             window.contextList.closeContext()
             this.emitParameters()
-            $(target).text(this.valueParam(par))
+            //$(target).text(this.valueParam(par))
             //this.$emit('paramUpdate',JSON.cc(this.parameters.data))
         },
         clear(){

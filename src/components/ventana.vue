@@ -39,7 +39,7 @@
     </div>
     --> 
       <!--<Ly flexbox=1 height=1>-->
-      <div style="display:flex;flex-grow:1;height:calc(100% - 0px);max-height:calc(100% - 50px);position:relative" >
+      <div style="display:flex;flex-grow:1;height:calc(100% - 0px);max-height:calc(100% - 50px);position:relative">
           <div v-show="panels.form&&admin" class="panel-envelope" style="height:100%;border:0px solid red" ref="Formulario">
             <Formulario :item="form.data" :onFilter="formFilter" :overflow="overflow" :keysSettings="keysSettings" :ventana="ventana" style="min-width:150px;background:#f4f4f4;padding:0px"
             />
@@ -147,7 +147,8 @@ export default {
                         //$('#configFileSelect').blur()
                         //console.log(configFile)
                     }
-                },
+                }
+                /* BOTÓN PARA EDITAR ARCHIVO DE CONFIGURACIÓN. DESACTIVADO DE MOMENTO.
                 { 
                     label: `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 viewBox="0 0 300 300" style="enable-background:new 0 0 300 300;" xml:space="preserve"><g>	<g>		<path d="M149.996,0C67.157,0,0.001,67.161,0.001,149.997S67.157,300,149.996,300s150.003-67.163,150.003-150.003			S232.835,0,149.996,0z M133.314,149.997c0,3.133-0.571,6.111-1.569,8.901l41.868,20.142c4.819-5.275,11.731-8.595,19.436-8.595			c14.553,0,26.353,11.796,26.353,26.348c0,14.555-11.803,26.356-26.359,26.356c-14.553,0-26.359-11.801-26.359-26.356			c0-1.395,0.145-2.757,0.353-4.09l-44.568-21.436c-4.357,3.188-9.71,5.089-15.52,5.089c-14.555,0-26.356-11.796-26.356-26.361			c0-14.55,11.801-26.348,26.356-26.348c5.81,0,11.165,1.901,15.523,5.086l44.571-21.431c-0.21-1.336-0.353-2.692-0.353-4.09			c0-14.558,11.803-26.356,26.359-26.356c14.553,0,26.356,11.798,26.356,26.356c0,14.555-11.803,26.356-26.356,26.356			c-7.7,0-14.617-3.328-19.436-8.598l-41.868,20.134C132.744,143.89,133.314,146.875,133.314,149.997z"/>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>`,
                     onClick: function(){
@@ -171,7 +172,7 @@ export default {
                         $('body').prepend(div)
                     }.bind(this)
                 },
-
+                */
              ],
         }
     },
@@ -356,6 +357,7 @@ export default {
             return itemTableName
         },
         formFilter ( filterState ) {
+            console.log(filterState)
             this.formFilterState.data = filterState
         },
         fieldUniqueId ( field ) {
@@ -406,6 +408,10 @@ export default {
         $(this.$refs.Formulario).resizable({
             handles: 'e'
             //,ghost:true
+        })
+        const that = this
+        $(window.document).on('keyup',function(e){
+          if(e.keyCode==13) that.$refs.listado.alterSearchString(e)
         })
   }
   ,updated: function () {

@@ -10,6 +10,40 @@ const parsedSearch = queryString.parse(location.search)
 console.log(apiURL)
 var storedVuexStore, vuexStore
 export {vuexStore, parsedSearch}
+
+let services = {connNameToDbName:{}}
+$.ajax({
+	url: apiURL + 'services',
+  	data: '',
+  	method: "POST",
+  	async: false,
+	success: (respuesta) => {
+		const jsonRespuesta = JSON.parse(JSON.parse(respuesta))
+		, connNameToDbName = {}
+		Object.keys ( jsonRespuesta ).forEach ( key => {
+			connNameToDbName[key.toLocaleLowerCase()] = jsonRespuesta[key]
+		})
+		Object.assign ( services.connNameToDbName, connNameToDbName )
+	},
+	error: (respuesta) => {
+		console.log('error en services json')
+  	}
+});
+let circusConfig = "puta"
+$.ajax({
+	url: apiURL + 'circusConfig',
+  	data: '',
+  	method: "POST",
+  	async: false,
+	success: (respuesta) => {
+		circusConfig = JSON.parse(JSON.parse(respuesta))
+	},
+	error: (respuesta) => {
+		console.log('error en circusConfig json')
+  	}
+});
+
+
 if ( parsedSearch.reset ) {
 	var fileName
 	if ( parsedSearch.reset == 1 ) 
@@ -18,7 +52,6 @@ if ( parsedSearch.reset ) {
 		fileName = parsedSearch.reset
 	loadTree( treeModel=>{
 			createStore(treeModel);
-			localStorage["vuexStore"] = JSON.stringify(treeModel)
 			console.log('Model loaded from ' + fileName );
 	}, fileName )
 } else {
@@ -31,7 +64,7 @@ if ( parsedSearch.reset ) {
 	}	
 	createStore(storedVuexStore)
 }
-console.log ( JSON.parse ( localStorage["vuexStore"] ) )
+//console.log ( JSON.parse ( localStorage["vuexStore"] ) )
 export 	function loadTree ( cb, fileName ) {
 	//var fileName = fileName ? fileName : 'circus.json'
 	$.ajax({
@@ -70,10 +103,17 @@ function createStore (storedVuexStore) {
 		} ,
 		...actions
 	}
+	vuexTree.state.database = circusConfig // Asigno la configuración de la aplicación al archivo de configuración global.
+	//Object.assign ( vuexTree.state.database , circusConfig )
 	vuexStore = new Vuex.Store(vuexTree)
+	localStorage["vuexStore"] = JSON.stringify(vuexTree.state)
+
+	console.log(circusConfig)
+	//console.log(JSON.parse(JSON.stringify(vuexTree.state)))
 	vuexStore.subscribe((mutation, state) => {
 		const estado = {...state}
 		localStorage["vuexStore"] = JSON.stringify(estado)
+		console.log( JSON.cc ( estado ) )
 	})
 }
 //alterTree()
@@ -90,26 +130,7 @@ function alterTree () {
 const store = JSON.parse(localStorage["vuexStore"])//vuexStore.state
 
 
-let services = {connNameToDbName:{}}
-$.ajax({
-	url: apiURL + 'services',
-  	data: '',
-  	method: "POST",
-  	async: false,
-	success: (respuesta) => {
-		//console.log(respuesta)
-		const jsonRespuesta = JSON.parse(JSON.parse(respuesta))
-		, connNameToDbName = {}
-		Object.keys ( jsonRespuesta ).forEach ( key => {
-			connNameToDbName[key.toLocaleLowerCase()] = jsonRespuesta[key]
-		})
-		//console.log(jsonRespuesta)
-		Object.assign ( services.connNameToDbName, connNameToDbName )
-	},
-	error: (respuesta) => {
-		console.log('error en services json')
-  	}
-});
+
 //console.log(services.connNameToDbName)
 
 //----------------------------------------------------------------------------------------------------------
@@ -117,7 +138,7 @@ export function tablesFromConnection ( connection ) {
 	return [['clientes','clientes'],['polizas','polizas',],['recibos','recibos'],['colaboradores','colaboradores']]
 }
 export function getListColumnSql ( key, options ) {
-    const listModel = getListModel(key)
+	const listModel = getListModel(key)
 	if ( !listModel ) return key
     if ( listModel.length ) { // Es Array. Lista estática
 		if ( !options ) {
@@ -184,7 +205,6 @@ export function $fieldsForTable ( tableName, cb ) {
 		, dbID = getTableConnectionId(tableName)
 		//console.log(db+'**'+dbID+'**'+tableName)
 		const promise = new Promise ( ( resolve, reject ) => {
-			console.log()
             $dbq ({
                 operation: 'sp'
                 //, sp_name: `${db}sp_circus_fields '${tabla}'`
@@ -274,13 +294,9 @@ export function getTablesRelation ( tableName ) {
 			nextRelatedNames = nextRelatedNames.concat(relatedTables.names)
 			relatedGroup.names.push ( tableName )
 			relatedGroup.joinSyntax +=  relatedTables.joinSyntax
-		//console.log(tableName)
-		//console.log(relatedTables.names)
 		}
-		//console.log(nextRelatedNames)
 	} while ( nextRelatedNames.length )
 	//relatedGroup.names = [tableName].concat ( relatedGroup.names )
-	//console.log(relatedGroup)
 	aliasIndex = -1
 	involvedTablesNames = []
 	return relatedGroup
@@ -293,8 +309,6 @@ function getNextAlias ( ) {
 	return aliases[aliasIndex]
 }
 function getRelatedTables ( tableName, excludeNames=[] ) {
-	//console.log(tableName)
-	//tableName='personas_riesgos'
 	const res = { names: [], joinSyntax: "" }
 	const tables = store.database.tables
 	, table = tables[tableName]
@@ -331,7 +345,6 @@ function getRelatedTables ( tableName, excludeNames=[] ) {
 function cleanTableName ( tn ) {
 	const tnArr = tn.split(".")
 	, cleanedName = tnArr.length > 1 ? tnArr[tnArr.length - 1] : tn
-	//console.log("tn: " + tn)
 	return cleanedName
 }
 
@@ -377,6 +390,19 @@ export function saveTree ( fileName, doPrompt ) {
 	});
 	return fileName
 }
+export function saveCircusConfig ( ) {
+	circusConfig =  JSON.parse(localStorage["vuexStore"]).database 
+	$.ajax({
+  		url: apiURL + 'writeConfig',
+		data: { json: JSON.stringify(circusConfig,null,2) },
+		method: "POST",
+		//async: false,
+  		success: (storedVuexStore) => {
+			console.log('Circus config saved.' )
+		}
+	});
+	return fileName
+}
 export function listFiles (folder,cb) {
 	$.ajax({
 		url: apiURL + 'listFiles',
@@ -394,7 +420,6 @@ export function getTablesList (cb) {
 	, connections = services.connNameToDbName
 	//return list
 	var promiseIndex = 0
-	//console.log(services.connNameToDbName)
 	Object.keys ( connections  ).forEach ( key => {
 		const connName = key
 		, dbName = connections[connName]
@@ -437,7 +462,6 @@ export function $dbq (
 	, async
 	, request
 ) {
-	//console.log(params)
 	//if ( ! params.dbID ) params.dbID = 'visual'
 	params.language = 'spanish'
 	if ( ! async ) async = true
@@ -449,7 +473,6 @@ export function $dbq (
 		method: "POST",
 		async: async,
   		success: (respuesta) => {
-			  //console.log(respuesta)
 			  const jsonRespuesta = JSON.parse(respuesta)
 			  if ( jsonRespuesta.length && jsonRespuesta[0].Error ){
 			  	console.log(JSON.stringify(jsonRespuesta[0]))
@@ -482,8 +505,3 @@ export function downloadExcel ( sqlParams, types ) {
 	window.open ( apiURL + 'downloadExcel?' + `params=${encodeURIComponent(JSON.stringify(sqlParams))}&types=${encodeURIComponent(JSON.stringify(types))}` )
 	return
 }
-//console.log( getTablesRelation('recibos') )
-//console.log(getTablesRelation('recibos'))
-//console.log( getRelatedTables(['polizas','gestoresdecobro']) )
-//console.log( getRelatedTables(['polizas']) )
-//console.log( getRelatedTables(['clientes','productos','companias']) )

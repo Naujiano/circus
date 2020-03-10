@@ -1,5 +1,7 @@
 <template>
     <div id="circus" style="overflow:hidden; background: #292C3A; background:transparent">
+        <contextDialog componentName="contextFieldEditor" :componentProps="contextDialog.props" v-show="contextDialog.show"/>
+        <!--<contextDialog componentName="contextFieldEditor" :componentProps="{key:'CLI_Estado',target:{}}" />-->
         <!--<SimpleTable style="z-index:1000;position:absolute;width:100px;height:100px;background:green" :rows="[{nombre:'juan'},{nombre:'raul'}]" :searchable="true"/>-->
             <div v-show="showHelpState" class="panel-envelope" style=";height:auto;width:auto;background: transparent;color:;font-weight:500;font-size:11px;position:absolute;bottom:0;z-index:100;display:; align-self: flex-end">
                 <div style="height:50%;width:100%;background: white" ref="helpCuadrant" v-html="helpText"></div>
@@ -56,9 +58,11 @@
             </div>
         </ly>
         <ContextList/>
+        <!--
         <div style="position:absolute;z-index:10000; width: 100vw; height: 100vh; background: pink; top:0;left:0;display:none;overflow:auto">
             <treeMenu :treedata="treedata_tables"/>
         </div>
+        -->
 
         <!--<context-menu ref="contextMenu" v-show="Object.keys($store.state.contextMenu).length"/>-->
     </div>
@@ -85,6 +89,7 @@ import ContextMenu from './context-menu.vue'
 import SimpleTable from 'D:/data/iis/simple-table/src/components/simple-table.vue'
 import queryEditor from './query-editor.js'
 import treeMenu from './tree-menu.vue'
+import contextDialog from './context-components/context-dialog.vue'
 
 
 window.bus = new Vue()
@@ -148,7 +153,7 @@ Vue.use(plugin)
 
 export default {
     store: api.vuexStore,
-    components: { Ly, ToolBar, Containers, SimpleTable, ContextList, treeMenu },
+    components: { Ly, ToolBar, Containers, SimpleTable, ContextList, treeMenu, contextDialog },
     data () {
         return { 
             panels: {
@@ -189,6 +194,7 @@ export default {
                 , leftVal: ""
                 , rightVal: ""
             }
+            , contextDialog: {show: false, props: {} } 
             , show: {queries:true,list:true,formlist:true}
             , buttons: [
                 { 
@@ -461,8 +467,12 @@ export default {
             that.logText.forEach ( (t,i) => that.logText[i] = t.replace ( "blink_me", "" ) )
             that.logText.unshift ( `${currentTime}<br><span class="${color} blink_me">${msg}</span>` ) 
         }
+        window.contextDialog = function (props) {
+            that.contextDialog.props = props
+            that.contextDialog.show = true
+        }
         this.loadQueries()
-        this.api.getTablesList((tables)=>{this.treedata_tables = tables })
+        //this.api.getTablesList((tables)=>{this.treedata_tables = tables })
         if ( help ) {
             
             $(window.document)
@@ -472,6 +482,11 @@ export default {
                 event.stopImmediatePropagation();
                 event.preventDefault();
                 return false
+            })
+            .on('click', function(event) {
+                const $ele = $(event.target)
+                , dontHide = $ele.closest ( '.context-dialog-container' ).length || $ele.closest ( 'table.header' ).length
+                if(!dontHide) that.contextDialog.show = false
             })
             /*
             .on('mouseover',function(event){

@@ -153,6 +153,7 @@ export default {
             }
             this.$field = $field
         	const contextList = this
+            contextList.rows = []
         	const listModel = this.api.getListModel(keyName)
         	if ( listModel ) { 
         		let contextListData, contextListHiddenKeys

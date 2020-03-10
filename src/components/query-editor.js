@@ -66,7 +66,7 @@ export default class queryEditor {
                 , query = this.getQueryByName ( vista )
                 const joinSyntax = query.joinSyntax
                 , whereSql = query.whereSql
-                val = ` ${param.key} IN ( SELECT ${campo} FROM ${joinSyntax} ${whereSql} )`
+                val = ` ${param.key} on( SELECT ${campo} FROM ${joinSyntax} ${whereSql} )`
                 //sqlSyntax += ` ${param.operator} ${param.leftText} ${val} ${param.rightText}`
             } else if (isInlineSelect) {
                 val = ` ${param.key} IN ( ${isInlineSelect.sql} )`
@@ -88,7 +88,7 @@ export default class queryEditor {
                 }
                 val = stringMatch ( param.key, param.text, param.data_type, param )
             }
-            if ( param.value != "%" ) sqlSyntax += ` ${param.operator} ${param.leftText} ${val} ${param.rightText}`
+            if ( param.value != "%" && param.value != "[]" && param.value != "" ) sqlSyntax += ` ${param.operator} ${param.leftText} ${val} ${param.rightText}`
         })
         if ( sqlSyntax.length > 0 ) {
             sqlSyntax = sqlSyntax.substring ( 4 )
@@ -245,7 +245,7 @@ function stringMatch ( n, v, data_type, param ) {
     if ( v == '%' ) v=sqlparaloquesea
     try {
         vJson = JSON.parse ( v )
-        if ( typeof vJson == "string" || typeof vJson == "number" ) vJson = undefined
+        if ( typeof vJson == "string" || typeof vJson == "number"  ) vJson = undefined
     } catch ( err ) {
     }
 	var re=/"([^"]*)"/gi
@@ -260,7 +260,8 @@ function stringMatch ( n, v, data_type, param ) {
             sqltxt = sqltxt + n + " LIKE " + val + " OR "
         } )
         if (sqltxt.length ) sqltxt = "(" + sqltxt.substring(0, sqltxt.length-3) + ")";
-        if ( param.like ) return sqltxt
+        //if ( param.like ) return sqltxt
+        if ( ! isnumeric && ! isdate ) return sqltxt
     
         return "("+n+" IN (" + literals + "))"
     } else {

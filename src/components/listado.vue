@@ -30,14 +30,12 @@
                     <Queryeditor ref="qe" :params="qeParams" @paramUpdate="qeParamUpdate" :dbID="api.getTableConnectionId(ventana.data.table)"/>
                 </div>
             </div>
-            <div :style="{'width':'100%','min-height':'22px','overflow':'hidden','border':'0px solid red','position':'relative'}">
+            <div :style="{'width':'100%','min-height':'50px','overflow':'hidden','border':'0px solid red','position':'relative'}">
                 
                 <div style="float:left;height:15px;width:14px;padding:0px 0 0 1px;border:0px solid red;position:absolute;z-index:2;"><button data-help-code="list-distinct" title="Funciones" @click="set_distinct()" :style="{'background':distinct?'red':''}">/</button></div>
                 
                 <div ref="computer" style="width: 10000px; height:40px; padding:0 0 0 22px;position:absolute;white-space:nowrap">
-                    <div v-for="(col,i) in grid.columns.names" :ref="'computed_'+col.label" :style="{'float':'left','border':'0px solid grey','padding':'5px','box-sizing':'border-box','white-space':'nowrap','overflow':'hidden','white-space':'nowrap'}" :key="'cont_'+col.label" :type="grid.columns.types[i]">
-                        <!--{{col.label}} = {{grid.columns.types[i]}}-->
-                        <!--<div style="width:100%;float:left;display:none;position:absolute">{{col.label}}</div>-->
+                    <div v-for="(col,i) in grid.columns.names" :ref="'computed_'+col.label" class="header-cell" :key="'cont_'+col.label" :type="grid.columns.types[i]">
                         <svg title="SUMA" v-show="grid.columns.types[i]=='number'" class="hide" @click="clickFunc('SUM',$event)" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"  viewBox="0 0 512.002 512.002" style="color:red;zoom:0.6;float:left;margin-top:-2px" xml:space="preserve"><g>	<g>		<path style="background:blue" d="M437.108,74.898c-99.869-99.858-262.345-99.858-362.214,0c-99.858,99.858-99.858,262.34,0,362.203			c49.934,49.929,115.521,74.896,181.107,74.896s131.173-24.967,181.107-74.896C536.966,337.243,536.966,174.762,437.108,74.898z			 M373.067,166.895c0,9.229-7.484,16.707-16.707,16.707s-16.707-7.478-16.707-16.707v-16.826H191.01l77.923,95.294			c5.036,6.15,5.036,14.975,0,21.126l-77.923,95.204h148.643v-16.588c0-9.229,7.484-16.707,16.707-16.707			c9.223,0,16.707,7.478,16.707,16.707v33.414c0,9.229-7.601,16.588-16.824,16.588H155.758c-6.45,0-12.334-3.66-15.098-9.491			c-2.762-5.835-1.926-12.713,2.164-17.705l91.585-111.926L142.825,144.06c-4.09-4.992-4.927-11.959-2.164-17.795			c2.762-5.83,8.648-9.61,15.098-9.61h200.485c9.223,0,16.824,7.597,16.824,16.826V166.895z"/>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
                         <svg title="MEDIA" v-show="grid.columns.types[i]=='number'" @click="clickFunc('AVG',$event)" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;zoom:0.6;float:left;margin-top:-2px" class="hide" xml:space="preserve"><g>	<g>		<path d="M155.804,205.902c-27.625,0-50.098,22.473-50.098,50.098s22.473,50.098,50.098,50.098			c28.788,0,52.979-23.076,77.68-50.098C208.782,228.978,184.593,205.902,155.804,205.902z"/>	</g></g><g>	<g>		<path d="M356.196,205.902c-28.788,0-52.979,23.076-77.68,50.098c24.7,27.022,48.891,50.098,77.68,50.098			c27.625,0,50.098-22.473,50.098-50.098S383.821,205.902,356.196,205.902z"/>	</g></g><g>	<g>		<path d="M256,0C114.844,0,0,114.839,0,256s114.844,256,256,256s256-114.839,256-256S397.156,0,256,0z M356.196,339.496			c-41.465,0-71.896-27.919-100.196-58.632c-28.3,30.713-58.73,58.632-100.196,58.632c-46.042,0-83.496-37.454-83.496-83.496			c0-46.042,37.454-83.496,83.496-83.496c41.465,0,71.896,27.919,100.196,58.632c28.3-30.713,58.73-58.632,100.196-58.632			c46.042,0,83.496,37.454,83.496,83.496C439.692,302.042,402.238,339.496,356.196,339.496z"/>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
                         <svg title="Número de valores distintos" @click="clickFunc('DISTINCT',$event)" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;;zoom:0.6;float:left;margin-top:-2px" class="" xml:space="preserve"><g>	<g>		<path d="M256,0C114.844,0,0,114.839,0,256s114.844,256,256,256s256-114.839,256-256S397.156,0,256,0z M389.594,317.231H244.592
@@ -53,14 +51,16 @@
                             <option value="AVG">MEDIA</option>
                             <option value="DISTINCT" selected>MEDIA</option>
                         </select>
+                        <div class="search-field" contentEditable="true" @keydown="keyDownSearchField($event,i)" @focus="focusSearchField($event,i)" @blur="focusSearchField($event,i,true)" >{{getParamSearchString(i)}}</div>
                     </div>
+                    
                 </div>
             </div>
             <Ly grow=1 style="background:;position:relative;padding-top:0px">
                 <button v-show="admin" @click="show.queryEditor=!show.queryEditor" style="position:absolute;width:18px;top:2px;right:0px;background:;padding: 3px;z-index:1">
                      <div :class="{'arrow-up':show.queryEditor,'arrow-down':!show.queryEditor}"></div>
                 </button>
-                <SimpleTable style="background:white" height="100%" :hiddenKeys="['PK_ID']" :rows="grid.rows" overflow="scroll" ref="Tabla" v-on:orderBy="orderBy" v-on:rowClick="rowClick" v-on:checkClick="checkClick" v-on:scrollHeaders="scrollHeaders" v-on:resizeHeaders="resizeHeaders" :checkable="true" :checkedRows="checkedIndexes"/>
+                <SimpleTable style="background:white" height="100%" :hiddenKeys="['PK_ID']" :rows="grid.rows" overflow="scroll" ref="Tabla" v-on:orderBy="orderBy" v-on:rowClick="rowClick" v-on:checkClick="checkClick" v-on:scrollHeaders="scrollHeaders" v-on:resizeHeaders="resizeHeaders" :checkable="true" :checkedRows="checkedIndexes" v-on:headerClick="headerClick"/>
             </Ly>
         </Ly>
 </template>
@@ -220,9 +220,12 @@ export default {
                 , _extendKey : false
                 , _orderby: '-'
             } ) ))
+            qeParams[0].text = ""
+            qeParams[0].value = ""
             let actualQeParams = this.$store.getters.qeParams(this.ventana.index)
             if ( ! actualQeParams ) actualQeParams = []
-            const newParams = actualQeParams.concat(qeParams)
+            //const newParams = actualQeParams.concat(qeParams)
+            const newParams = qeParams.concat(actualQeParams)
             this.$store.commit ( 'Ventana_injectQE' , {indexVentana:this.ventana.index,qeParams:newParams} )
         }
     },
@@ -257,6 +260,9 @@ export default {
             get(){
                 const params = this.$store.state.ventanas.data[this.ventana.index].queryeditor.parameters
                 return params
+            },
+            set(newParams){
+                this.$store.commit ( 'Ventana_injectQE' , {indexVentana:this.ventana.index,qeParams:newParams} )
             }
         },
          columns () {
@@ -375,7 +381,7 @@ export default {
             $(this.$refs.computer).css({'margin-left':leftScroll*-1})
         },
         resizeHeaders ( widths ) {
-            const $cols = $(this.$refs.computer).find('div')
+            const $cols = $(this.$refs.computer).find('div.header-cell')
             this.grid.columns.widths=widths
             $cols.each ( function(i) {
                 $(this).css({'max-width':(widths[i+1]+12)+'px','min-width':(widths[i+1]+12)+'px','width':(widths[i+1]+12)+'px'})
@@ -383,6 +389,7 @@ export default {
         },
         qeParamUpdate (params) {
             this.$store.commit ( 'Ventana_injectQE' , {indexVentana:this.ventana.index,qeParams:params} )
+
         },
         tabulator ( jsonRecordset ) {
            if ( !jsonRecordset.length ) return ""
@@ -441,6 +448,11 @@ export default {
         },
         containerResize () {
             this.$refs.Tabla.resizeHeaders()
+        },
+        headerClick ( {key, target, index } ) {
+            const reference = this.qeParams[index].reference
+            console.log(reference)
+            window.contextDialog({key, target, reference })
         },
         checkClick(checklist){
             //console.log(checklist)
@@ -629,6 +641,34 @@ export default {
             this.grid.rows = uniqueArray
             this.$store.state.ventanas.data[this.ventana.index].queryeditor.distinct = true
         },
+        keyDownSearchField (event,i) {
+            if(event.keyCode === 13){  event.preventDefault(); return false }
+        },
+        alterSearchString (event,i) {
+            const val = event.target.innerHTML
+            , qep = JSON.cc ( this.qeParams )
+            qep[i].text = val
+            qep[i].value = val
+            this.qeParams = qep
+        },
+        focusSearchField (event,i,remove) {
+            const $field = $(event.target)
+            if (remove) {
+                $field.removeClass('focused')
+                window.contextList.closeContext()
+                this.alterSearchString(event,i)
+            } else {
+                $field.addClass('focused')
+                this.$refs.qe.openContext(i,event,this.$refs.qe.parameters.data[i])
+            }
+
+        },
+        getParamSearchString ( i ) {
+            let str = this.$refs.qe.parameters.data[i].text
+            if ( str == "[]" ) str = ""
+            return str
+
+        },
         loadList (o,cb) {
             
             //this.grid.rows = []
@@ -761,6 +801,7 @@ export default {
                 //this.grid.columns.types = [2]
                // console.log(JSON.cc(this.filter))
                 this.telon(0)
+                window.circus.showHelpBox ({title:`Cargados ${loadedRecsNumber} registros`,text:`Se han cargado los siguientes ${loadedRecsNumber} registros`} )
                 if ( cb ) cb()
                 /*
                 if ( loadedRecsNumber == this.grid.rowCount ) {
@@ -793,5 +834,33 @@ export default {
     }
     .hide {
         display:none
+    }
+    .header-cell {
+        float:left;
+        border:0px solid grey;
+        padding:5px;
+        box-sizing:border-box;
+        white-space:nowrap;
+        overflow:hidden;
+        white-space:nowrap;
+    }
+    .search-field {
+        background: white; 
+        padding: 2px; 
+        border:1px solid lightgray; 
+        margin-top: 5px; 
+        max-width:100%;
+        min-width:50px;
+        clear:both; 
+        float:left; 
+        overflow: hidden;
+        white-space: nowrap;
+    }
+    .search-field.focused {
+        position: absolute;
+        width: auto;
+        min-width: 100px;
+        top: 17px;
+        box-shadow: 1px 1px 5px 2px gray;
     }
 </style>

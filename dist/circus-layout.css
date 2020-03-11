@@ -291,3 +291,14 @@ div[contenteditable="true"].highlight-text-strong
 li.param {
     max-width: 99%;
 }
+[data-component="Listado"] .simple-table-vue .header td{
+    cursor:pointer;
+}
+button, button * {
+    cursor: pointer;
+}
+button:focus {
+    border: none;
+    outline: none;
+
+}

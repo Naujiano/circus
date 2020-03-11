@@ -179,6 +179,7 @@ export default {
             param._active=!param._active;
             //if(param.value==='%')param.value='%%'
             this.emitParameters()
+            if ( ! event ) return false
             const $textField = $(event.target).closest('li').find('.highlight-text')//="search-parameter-value"]')
             console.log($textField)
             setTimeout ( ()=>$textField.eq(1).focus(), 100)

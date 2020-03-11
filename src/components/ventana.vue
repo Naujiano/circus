@@ -357,7 +357,6 @@ export default {
             return itemTableName
         },
         formFilter ( filterState ) {
-            console.log(filterState)
             this.formFilterState.data = filterState
         },
         fieldUniqueId ( field ) {
@@ -411,7 +410,7 @@ export default {
         })
         const that = this
         $(window.document).on('keyup',function(e){
-          if(e.keyCode==13) that.$refs.listado.alterSearchString(e)
+          if(e.keyCode==13) that.$refs.listado.loadPage()
         })
   }
   ,updated: function () {

@@ -1,5 +1,5 @@
 <template>
-    <div class="context-field-editor-container">
+    <div class="context-field-edit-list">
         <div class="encabezado">
             <div style="text-transform:uppercase">Cambiar modelo de lista desplegable<br></div>
             <b>{{componentProps.reference}}</b>
@@ -21,10 +21,9 @@
     </div>
 </template>
 <script>
-import Toolbar from '../tool-bar.vue'
 import SimpleTable from 'D:/data/iis/simple-table/src/components/simple-table.vue'
 export default {
-    components: { Toolbar, SimpleTable },
+    components: { SimpleTable },
     props: {
         componentProps: { type: Object, required: true }
     },
@@ -78,8 +77,8 @@ export default {
 }
 </script>
 <style>
-    .context-field-editor-container {
-        height: 100%;
+    .context-field-edit-list {
+        height: ;
         max-height: 100%;
         display: flex;
         flex-direction: column;

@@ -20,7 +20,7 @@
                     <svg v-show="!param._inlist" :style="{height:'13px','margin-bottom':'-2px','margin-left':'-2px'}" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 viewBox="0 0 469.44 469.44" style="enable-background:new 0 0 469.44 469.44;" xml:space="preserve"><g>	<g>		<g>			<path d="M231.147,160.373l67.2,67.2l0.32-3.52c0-35.307-28.693-64-64-64L231.147,160.373z"/>			<path d="M234.667,117.387c58.88,0,106.667,47.787,106.667,106.667c0,13.76-2.773,26.88-7.573,38.933l62.4,62.4				c32.213-26.88,57.6-61.653,73.28-101.333c-37.013-93.653-128-160-234.773-160c-29.867,0-58.453,5.333-85.013,14.933l46.08,45.973				C207.787,120.267,220.907,117.387,234.667,117.387z"/>			<path d="M21.333,59.253l48.64,48.64l9.707,9.707C44.48,145.12,16.64,181.707,0,224.053c36.907,93.653,128,160,234.667,160				c33.067,0,64.64-6.4,93.547-18.027l9.067,9.067l62.187,62.293l27.2-27.093L48.533,32.053L21.333,59.253z M139.307,177.12				l32.96,32.96c-0.96,4.587-1.6,9.173-1.6,13.973c0,35.307,28.693,64,64,64c4.8,0,9.387-0.64,13.867-1.6l32.96,32.96				c-14.187,7.04-29.973,11.307-46.827,11.307C175.787,330.72,128,282.933,128,224.053C128,207.2,132.267,191.413,139.307,177.12z"				/>		</g>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
                 </button>
                 <button @click="changeOperator(i)" v-show="param._extended&&param._active" data-help-code="search-parameter-operator" style="width:auto;padding:0 3px" v-html="param.operator=='AND'?'Y':'O'"></button>
-                <button v-show="param._active" @click="negateParam(parameters.data[i])" data-help-code="search-parameter-negated" style="padding:0;">
+                <button v-show="param._active" @click="negateParam(i)" data-help-code="search-parameter-negated" style="padding:0;">
                     <svg :style="{height:'11px','margin-bottom':'-1px','margin-left':'-2px',fill:(param.leftText.toLowerCase().indexOf('not')!=-1?'red':'')}" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 width="46px" height="46px" viewBox="0 0 46 46" style="enable-background:new 0 0 46 46;" xml:space="preserve"><g>	<g>		<path d="M32.294,19H13.706c-2.209,0-4,1.791-4,4s1.791,4,4,4h18.588c2.209,0,4-1.791,4-4S34.503,19,32.294,19z"/>		<path d="M23,0C10.298,0,0,10.298,0,23c0,12.703,10.298,23,23,23s23-10.297,23-23C46,10.298,35.702,0,23,0z M23,40			c-9.374,0-17-7.625-17-17c0-9.373,7.626-17,17-17s17,7.627,17,17C40,32.375,32.374,40,23,40z"/>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
                 </button>
                 <!--
@@ -45,7 +45,7 @@
                     <div :class="{'arrow-left':param._extended,'arrow-right':!param._extended}" style="display:block;float:left;zoom:0.42;margin-top:10px;margin-left:8px;opacity:0.5"></div>&nbsp;
                 </button>
                 <div contenteditable="true" @blur="editKeyName(i,$event)" data-help-code="search-parameter-key" v-show="param._extendKey" v-html="param.key"></div>
-                <button  @click="parameters.data[i]._extendKey=!param._extendKey;emitParameters()" v-show="param._extended" style="width: 16px;border:0" data-help-code="search-parameter-extend-key">
+                <button  @click="extendParam(i)" v-show="param._extended" style="width: 16px;border:0" data-help-code="search-parameter-extend-key">
                     <div :class="{'arrow-left':param._extendKey,'arrow-right':!param._extendKey}" style="display:block;float:left;zoom:0.42;margin-top:10px;margin-left:8px;opacity:0.5"></div>&nbsp;
                 </button>
             </li>
@@ -137,7 +137,7 @@ export default {
         emitParameters(params) {
             this.$emit('paramUpdate',JSON.cc(this.parameters.data))
         },
-        openContext(i,event,param) {
+        openContext(i,event,param,cbWhenClose) {
             let parVal = param.value
             //if ( typeof parVal == 'object' ) parVal = JSON.stringify ( parVal )
             //$(event.target).text(parVal)
@@ -146,34 +146,55 @@ export default {
             , type = param.data_type
             this.focusedParamIndex = i
             const [dbname,ownername,tablename,fieldname] = param.reference.split('.')
+            let searchString = val
+            /*
             let searchString = ""
             try {
                 const obj = JSON.parse ( val )
             } catch ( err ) {searchString = val}
-            window.contextList.openContext(keyName,$(event.target),val,type,this.contextListCheckClick,false,false,{dbname,ownername,tablename,fieldname,dbID: this.dbID, searchString})
+            */
+            window.contextList.openContext(keyName,$(event.target),val,type,this.contextListCheckClick,false,false,{dbname,ownername,tablename,fieldname,dbID: this.dbID, searchString, cbWhenClose } )
         },
-        contextListCheckClick(checkedRows){
+        contextListCheckClick(checkedRows,operation,removedElement){
+            const removedLiteral = removedElement?removedElement[Object.keys(removedElement)[1]] : ""
             //console.log(checkedRows)
             const i = this.focusedParamIndex
             , par = this.parameters.data[i]
             var checkedLiterals
+            let newLiteralsArr
             if ( ! par ) return 
             if ( checkedRows.map ) {
-                checkedLiterals = JSON.stringify ( checkedRows.map ( row => row[Object.keys(row)[1]] ) )
+                newLiteralsArr = checkedRows.map ( row => row[Object.keys(row)[1]] )
+                checkedLiterals = JSON.stringify ( newLiteralsArr )
             } else {
                 checkedLiterals = checkedRows
             }
             //console.log(checkedLiterals)
+            try {
+                let arr = JSON.parse ( par.text )
+                , set = new Set ( arr )
+                if ( operation == "add" ) {
+                    set = new Set ( arr.concat ( newLiteralsArr ) )
+                } else {
+                    set.delete ( removedLiteral )
+                }
+                checkedLiterals = JSON.stringify ( [...set] )
+                //console.log(arr)
+            } catch {}
             par.value = checkedLiterals
             par.text = checkedLiterals
+            //return
+            window.contextList.searchString = checkedLiterals
+            window.contextList.firstSearchString = checkedLiterals
+            //window.contextList.checkedRows = window.contextList.getCheckedRowsFromInput(checkedLiterals,window.contextList.rows) 
             this.emitParameters()
         },
         deleteParam (i) {
-            //$(this.$refs.lista).find('li').eq(i).remove();
+            //return
             this.parameters.data.splice(i,1)
             this.emitParameters()
-            //this.sortableStop();
-            //this.$emit('paramSplice',i)
+            this.$nextTick(function(){this.$emit('paramDelete',i)})
+            
         },
         activateParam (param,event) {
             param._active=!param._active;
@@ -185,12 +206,14 @@ export default {
             setTimeout ( ()=>$textField.eq(1).focus(), 100)
             //this.$emit('paramSplice',i)
         },
-        negateParam (param) {
+        negateParam (i) {
+            const param = this.parameters.data[i]
             if(param.leftText.toLowerCase().indexOf('not')!=-1){
                 param.leftText=param.leftText.toLowerCase().replace('not','')
             }else{
                 param.leftText = 'not' + param.leftText
             }
+            this.emitParameters()
         },
         likeParam (i) {
             this.parameters.data[i].like = this.parameters.data[i].like ? ! this.parameters.data[i].like : 1
@@ -249,6 +272,7 @@ export default {
             $(this.$refs.lista).sortable('cancel')
             this.parameters.data = params//_.reverse(params)
             this.emitParameters()
+            this.$emit ( 'paramUpdate', 'resorted' )
         },
         filter () {
 
@@ -290,6 +314,10 @@ export default {
             this.parameters.data[i][o] = val
             this.emitParameters()
             //this.$emit('paramUpdate',JSON.cc(this.parameters.data))
+        },
+        extendParam(i) {
+            this.parameters.data[i]._extendKey=!this.parameters.data[i]._extendKey;
+            this.emitParameters()
         },
         textKeyPress (event,o,paramIndex) {
             //return
@@ -374,28 +402,6 @@ export default {
     }
     div[value]{
         //background:#f2f2f2;
-    }
-    span.grippy {
-      content: '....';
-      width: 20px;
-      height: 20px;
-      display: inline-block;
-      overflow: hidden;
-      line-height: 5px;
-      padding: 3px 4px;
-      cursor: move;
-      vertical-align: middle;
-      margin-top: -.2em;
-      margin-right: .3em;
-      font-size: 12px;
-      font-family: sans-serif;
-      letter-spacing: 2px;
-      color: #cccccc;
-      text-shadow: 1px 0 1px black;
-      white-space: normal;
-    }
-    span.grippy:after {
-      content: '.. .. .. ..';
     }
     .param:hover {
         background: #fafafa;

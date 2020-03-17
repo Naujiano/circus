@@ -1,6 +1,24 @@
 <template>
     <div id="circus" style="overflow:hidden; background: #292C3A; background:transparent">
-        <contextDialog componentName="contextFieldEditor" :componentProps="contextDialog.props" v-show="contextDialog.show"/>
+        <div class="login-container" style="" v-show="!sessionId">
+            <div class="login-form" style="">
+                <h1>CIRCUS - Login</h1>
+                <form onsubmit="return false">
+                <div class="form-group">
+                    <label>Usuaurio</label>
+                    <input class="form-control" ref="controlUsuario" :value="getLoginCookie('usr')">
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" class="form-control" ref="controlContrasena" :value="getLoginCookie('pass')">
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary" @click="login()">Login</button>
+                </div>
+                </form>
+            </div>
+        </div>
+        <contextDialog :components="contextDialog.components" :componentProps="contextDialog.componentProps" v-show="contextDialog.show"/>
         <!--<contextDialog componentName="contextFieldEditor" :componentProps="{key:'CLI_Estado',target:{}}" />-->
         <!--<SimpleTable style="z-index:1000;position:absolute;width:100px;height:100px;background:green" :rows="[{nombre:'juan'},{nombre:'raul'}]" :searchable="true"/>-->
             <div v-show="showHelpState" class="panel-envelope" style=";height:auto;width:auto;background: transparent;color:;font-weight:500;font-size:11px;position:absolute;bottom:0;z-index:100;display:; align-self: flex-end">
@@ -163,19 +181,7 @@ export default {
                 bottom: true
             },
             treedata_tables: [],
-            /*
-            [
-                {
-                    label: 'cot'
-                    , content: ['juan','pablo']
-                },
-                {
-                    label: 'cot'
-                    , content: ['juan']
-                }
-            ],
-            */
-
+            sessionId: sessionStorage["logged"],
             helpText: ""
             , showHelpState: false
             , logText: []
@@ -193,8 +199,9 @@ export default {
                 , comparation: 0
                 , leftVal: ""
                 , rightVal: ""
+                , searchString: ""
             }
-            , contextDialog: {show: false, props: {} } 
+            , contextDialog: {show: false, componentProps: {} } 
             , show: {queries:true,list:true,formlist:true}
             , buttons: [
                 { 
@@ -327,6 +334,22 @@ export default {
         }
     },
     methods: {
+        login() {
+            const usr = this.$refs.controlUsuario.value
+            , pass = this.$refs.controlContrasena.value
+            if ( usr != "nauj" || pass != "juan" ) {
+                alert( "Usuario no válido." )
+                return false
+            } else {
+                this.sessionId = true
+                localStorage["usr"] = "nauj"
+                localStorage["pass"] = "juan"
+                sessionStorage["logged"] = true
+            }
+        },
+        getLoginCookie (cookie) {
+            return localStorage[cookie]
+        },
         autoShowForm (event) {
         
             //console.log(event.target)
@@ -467,9 +490,15 @@ export default {
             that.logText.forEach ( (t,i) => that.logText[i] = t.replace ( "blink_me", "" ) )
             that.logText.unshift ( `${currentTime}<br><span class="${color} blink_me">${msg}</span>` ) 
         }
-        window.contextDialog = function (props) {
-            that.contextDialog.props = props
+        window.contextDialog = function (props,components) {
+            that.contextDialog.componentProps = props
+            that.contextDialog.components = components
             that.contextDialog.show = true
+            console.log('aadfasdf fadf')
+        }
+        window.logout = function () {
+            sessionStorage.removeItem("logged");
+            that.sessionId = false
         }
         this.loadQueries()
         //this.api.getTablesList((tables)=>{this.treedata_tables = tables })
@@ -631,5 +660,32 @@ export default {
     }
     #circusContextList button:hover {
         background-color:#ddd;
+    }
+    .login-container {
+        position:absolute;
+        z-index:9999999;
+        top:0;
+        left:0;
+        width:100vw;
+        height:100vh;
+        background:rgba(0,0,0,0.6);
+        display:flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .login-form {
+        width:300px;
+        border:1px solid #ddd;
+        background:white;
+        padding:20px;
+        margin:;
+        box-shadow: 2px 2px 20px 2px #444;
+    }
+    .login-form input {
+        padding: 10px;
+    }
+    .login-form label {
+        padding: 0px;
+        font-size: 14px;
     }
 </style>

@@ -31,6 +31,10 @@
             </select>
             <Toolbar :buttons="buttons" style="width:auto;float:left;margin:0px 0 -2px 3px" />
         </div>
+        <div class="toolbar-box">
+            <div class="toolbar-box-title">Salir</div>
+            <button @click="logout()">SALIR</button>
+        </div>
     </div>
     <!--
     <div style="padding:7px 5px;min-height:32px">
@@ -235,6 +239,9 @@ export default {
    },
    methods: {
       ...mapActions(['setVentana']),
+    logout() {
+        window.logout()
+    },
     loadConfigFile ( fileName ) {
         //const fileName = $(target).find('option:selected').text()
         this.api.loadConfig ( fileName )
@@ -357,7 +364,41 @@ export default {
             return itemTableName
         },
         formFilter ( filterState ) {
+            const that = this
+            if ( parameterExists () ) {
+                window.circus.showHelpBox ({title:'Este campo ya está en el listado',text:'El campo que está intentando añadir ya está presente en el listado.'})
+                return false
+            }
+            function parameterExists () {
+                const params = that.$refs.listado.$refs.qe.parameters.data
+                , key = Object.keys(filterState)[0]
+                let exists = false
+                params.forEach ( par => {
+                    if ( par.reference == key ) exists = true
+                })
+                return exists
+            }
             this.formFilterState.data = filterState
+            const actualRows = this.$refs.listado.grid.rows
+            if ( ! actualRows ) return false
+
+            //AÑADO UNA COLUMNA AL LISTADO PROVISONALMENTE
+
+            const rows = []//JSON.cc ( this.grid.rows )
+            actualRows.forEach ( fila => {
+                //const fila = JSON.cc ( row )
+                const newLine = {}
+                Object.keys(fila).forEach ( (key,i)=>{
+                    if ( i == 1 ) newLine[Object.keys(filterState)[0].split(".")[3]] = ""
+                    newLine[key] = fila[key]
+                })
+                rows.push ( newLine )
+            })
+            this.$refs.listado.grid.rows = rows
+            //this.$refs.listado.grid = JSON.cc(this.$refs.listado.grid)
+            //this.$refs.listado.compute()
+            this.$nextTick(function(){this.$refs.listado.compute()})
+
         },
         fieldUniqueId ( field ) {
             const table_name = field.table_name

@@ -302,3 +302,34 @@ button:focus {
     outline: none;
 
 }
+    span.grippy {
+      content: '....';
+      width: 20px;
+      height: 20px;
+      display: inline-block;
+      overflow: hidden;
+      line-height: 5px;
+      padding: 3px 4px;
+      cursor: move;
+      vertical-align: middle;
+      margin-top: -.2em;
+      margin-right: .3em;
+      font-size: 12px;
+      font-family: sans-serif;
+      letter-spacing: 2px;
+      color: #cccccc;
+      text-shadow: 1px 0 1px black;
+      white-space: normal;
+    }
+    span.grippy:after {
+        content: '.. .. .. ..';
+     }
+     [data-component="Listado"] .simple-table-vue tfoot td {
+        min-width: 70px;
+        
+    }
+    [data-component="Listado"] .simple-table-vue tfoot td:first-child {
+        min-width: 1px;
+        
+    }
+            

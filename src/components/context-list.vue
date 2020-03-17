@@ -34,32 +34,34 @@
                 <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 viewBox="0 0 300 300" style="enable-background:new 0 0 300 300;;zoom:0.5;margin-left:-4px;margin-top:4px" xml:space="preserve"><path d="M150,0C67.29,0,0,67.29,0,150s67.29,150,150,150s150-67.29,150-150S232.71,0,150,0z M150,270c-66.169,0-120-53.832-120-120	S83.831,30,150,30s120,53.832,120,120S216.168,270,150,270z"/><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
                 -->
             </button>
-            <!--
-            <select
-                ref="comparation"
-                v-if="type=='date'||type=='number'"
-                style="margin-top:1px;margin-left:4px;;border-color:#ccc;float:left;"
-                @change="contextListSwitchComparation"
-            >
-                <option value="0">Rango</option>
-                <option value="1">Igual a</option>
-            </select>
-            -->
             &nbsp;
         </div>
+            <div style="height: auto;width:100%;border:1px solid #ddd; padding: 2px 5px; min-height:21px">
+                {{firstSearchString}}
+            </div>
+            <input 
+                contenteditable="true" 
+                style="height: 21px;width:100%;border:1px solid #ddd; padding: 2px 5px; margin: 0px; background: white;cursor:text;"
+                v-model = "searchString"
+                @keyup = "updateContext($event)"
+            >
+                
+            
         <SimpleTable
             v-if="type=='list'"
             :rows="rows"
             :hiddenKeys="hiddenKeys"
             :checkable="true"
-            :searchable="true"
+            :searchable="searchable"
             :selectable="false"
             :showHeaders="false"
             :checkedRows="checkedRows"
             :singlecheck="singlecheck"
+            :searchString="searchString"
+            :showSearchField="false"
             v-on:rowClick="contextListRowClick"
             v-on:checkClick="contextListCheckClick"
-            :searchString="searchString"
+            v-on:search="contextListSearch"
         />
         <div
             v-else-if="type=='date'||type=='number'"
@@ -102,12 +104,27 @@ export default {
             , leftVal: ""
             , rightVal: ""
             , searchString: ""
+            , firstSearchString: ""
+            , searchable: true
+        }
+    },
+    watch: {
+        searchString () {
+            this.searchString = this.simpleTableSearchString()
         }
     }
     , mounted () {
         window.contextList = this
     }
     , methods: {
+        simpleTableSearchString () {
+            try {
+                const obj = JSON.parse ( this.searchString )
+                if( !obj.length ) return this.searchString
+            } catch ( err ) {return this.searchString }
+            return "";
+
+        },
         contextListKeyUp(){
             const desde = this.$refs.desde.value
             , hasta = this.$refs.hasta.value
@@ -137,23 +154,57 @@ export default {
                 return false
             })
             const checkedIds = JSON.stringify(checkedRows.map ( row => row[Object.keys(row)[1]] ))
-            this.onChange(checkedRows)
+            let operation = "none"
+            , differenceIndex
+            , removedElement
+            if ( !this.oldCheckedIndexes ) this.oldCheckedIndexes = this.checkedRows//checkedIndexes
+            if ( checkedIndexes.length > this.oldCheckedIndexes.length ) operation = "add"
+            if ( checkedIndexes.length < this.oldCheckedIndexes.length ) operation = "remove"
+            differenceIndex = this.oldCheckedIndexes.filter(x => !checkedIndexes.includes(x))[0];
+            removedElement = JSON.cc ( this.rows )[differenceIndex]
+            this.oldCheckedIndexes = checkedIndexes
+            //this.checkedRows = checkedRows
+            this.onChange(checkedRows,operation,removedElement)
             //this.onChange(checkedRows)
         },      
-        updateContext ({searchString}) {
-            this.searchString = searchString
+        contextListSearch(searchStrings) {
+            console.log(searchStrings)
+            const searchString = searchStrings[0]
+            //if ( ! searchString ) return false
+            //this.openContextParameters.searchString = searchString
+            //this.reloadContext ( )
         },
-        openContext (keyName,$field,val,type,onChange,cb, singlecheck, {dbname,ownername,tablename,fieldname,dbID, searchString} ) {
+        updateContext (event) {
+            //this.searchString = event.target.innerHTML//searchString
+            this.openContextParameters.searchString = this.searchString
+            this.reloadContext ( )
+        },
+        reloadContext ( ) {
+            //const {keyName,$field,val,type,onChange,cb, singlecheck, dbname,ownername,tablename,fieldname,dbID, searchString} = this.openContextParameters
+            //this.openContext (keyName,$field,val,type,onChange,cb, singlecheck, {dbname,ownername,tablename,fieldname,dbID, searchString} )
+            this.open ( this.openContextParameters, true )
+        },
+        open ( {keyName,$field,val,type,onChange,cb, singlecheck, dbname,ownername,tablename,fieldname,dbID, searchString, cbWhenClose }, onlyReload ) {
+            this.openContext (keyName,$field,val,type,onChange,cb, singlecheck, {dbname,ownername,tablename,fieldname,dbID, searchString,cbWhenClose}, onlyReload )
+        },
+        openContext (keyName,$field,val,type,onChange,cb, singlecheck, {dbname,ownername,tablename,fieldname,dbID, searchString,cbWhenClose}, onlyReload ) {
+            this.openContextParameters = {keyName,$field,val,type,onChange,cb, singlecheck, dbname,ownername,tablename,fieldname,dbID, searchString,cbWhenClose}
+            //this.searchString = val
             this.singlecheck = singlecheck
-        	this.contextListFocused = true
+        	
             this.searchString = searchString
-            this.onChange = (val) => {
-                onChange(val)
+            if ( ! onlyReload ) {
+                this.firstSearchString = searchString
+                this.contextListFocused = true
+            }
+            this.onChange = (val,operation,removedElement) => {
+                onChange(val,operation,removedElement)
                 setTimeout(this.positionContext,0)
             }
             this.$field = $field
         	const contextList = this
             contextList.rows = []
+            //return
         	const listModel = this.api.getListModel(keyName)
         	if ( listModel ) { 
         		let contextListData, contextListHiddenKeys
@@ -173,7 +224,7 @@ export default {
         				, orderbyColumns
                         , dbID: connection
         			}
-                    console.log(dbqParams)
+                    //console.log(dbqParams)
         			this.api.$dbq ( dbqParams, data => {
         				contextListData = data
         				contextListHiddenKeys = [columns[0]]
@@ -191,7 +242,7 @@ export default {
         		function feedList() {
         			const top = $field.offset().top + $field.outerHeight()
         			, left = $field.offset().left
-                    , checkedRows = getCheckedRowsFromInput(val,contextListData)
+                    , checkedRows = getCheckedRowsFromInput(contextList.firstSearchString,contextListData)
                     /*
         			, checkedRows = []
         			let json = false
@@ -205,6 +256,7 @@ export default {
         			contextList.rows = contextListData
         			contextList.hiddenKeys = contextListHiddenKeys
         			contextList.checkedRows = checkedRows
+                    contextList.searchable = true
         			open('list')
         		}
         	} else {
@@ -234,22 +286,25 @@ export default {
                 if ( type == "text" ) {
                      const dbqParams = {
         				operation: 'request'
-        				, sqlSyntax: `SELECT distinct top 20  1 AS _ROW_NUMBER,${fieldname} FROM ${tablename} WHERE ${fieldname} IS NOT NULL AND ${fieldname} <> '' AND ${fieldname} LIKE '%${val}%' ORDER BY ${fieldname}`
+        				, sqlSyntax: `SELECT distinct top 20  1 AS _ROW_NUMBER,${fieldname} FROM ${tablename} WHERE ${fieldname} IS NOT NULL AND ${fieldname} <> '' AND ${fieldname} LIKE '%${searchString}%' ORDER BY ${fieldname}`
                         , dbID
         			}
                     //console.log(dbqParams)
         			this.api.$dbq ( dbqParams, data => {
                     //console.log(data)
         				contextList.rows = data
-                        contextList.checkedRows = getCheckedRowsFromInput ( val, data )
+                        contextList.checkedRows = getCheckedRowsFromInput ( contextList.firstSearchString, data )
         				contextList.hiddenKeys = ['_ROW_NUMBER']
         				//feedList()
         			}, true, true)
+                    this.searchable = false
                     type="list"
                 }
                 
         		open(type)
         	}
+            const that = this
+            //this.getCheckedRowsFromInput = getCheckedRowsFromInput
             function getCheckedRowsFromInput ( val, contextListData ) {
         			const checkedRows = []
         			let json = false
@@ -270,20 +325,22 @@ export default {
                 //$field.css({'background-color':'red'}).before($list)
                 contextList.opened = true
                 contextList.positionContext()
+                //$(contextList.$refs.contextList).find('[contenteditable="true"]').focus()
                 $('body').click(showContext)
         		if ( cb ) cb ( )
         	}
-            const that = this
             function showContext (event){
                 //return
                 const ae = document.activeElement
                 , isContextList = $(ae).closest('#circusContextList').length || $(event.target).closest('#circusContextList').length
+                //console.log(that.contextListFocused)
                 if(!isContextList && !that.contextListFocused) {
                     const menu = $(that.$refs.contextList)
                     menu.hide()
                     //$(window).off('click',showContext)
                     contextList.opened = false
                     $('body').off()
+                    if ( cbWhenClose ) cbWhenClose ()
                 }
             }
         },

@@ -114,8 +114,26 @@ function createStore (storedVuexStore) {
 		const estado = {...state}
 		localStorage["vuexStore"] = JSON.stringify(estado)
 		resetApiStore()
+		saveConfigFile ()
 		console.log( JSON.cc ( estado ) )
 	})
+}
+function saveConfigFile () {
+	let fileName = parsedSearch.reset
+	if ( !fileName ) fileName = 'circus.json'
+	$.ajax({
+		url: apiURL + 'writeFile',
+		data: { json: localStorage["vuexStore"], fileName },
+		method: "POST",
+		//async: false,
+		success: (storedVuexStore) => {
+			//console.log('tree saved!')
+			//window.circus.showHelpBox ( {title:'Configuración Guardada',text:'Se ha guardado automáticamente la configuración actual en el archivo ' + fileName })
+		},
+		error: (respuesta) => {
+			console.log('error ajax saveConfigFile')
+		}
+	});
 }
 //alterTree()
 function alterTree () {

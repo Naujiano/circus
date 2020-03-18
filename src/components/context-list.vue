@@ -55,7 +55,7 @@
             :searchable="searchable"
             :selectable="false"
             :showHeaders="false"
-            :checkedRows="checkedRows"
+            :checkedRows="checkedRows.map(ele=>ele.i)"
             :singlecheck="singlecheck"
             :searchString="searchString"
             :showSearchField="false"
@@ -109,20 +109,30 @@ export default {
         }
     },
     watch: {
-        searchString () {
+        searchString (object,oldVal) {
             this.searchString = this.simpleTableSearchString()
+            /*
+            const simpleSS = this.simpleTableSearchString()
+            if ( simpleSS != "" ) {
+                this.searchString = simpleSS
+            } else {
+                this.searchString = oldVal
+            }
+            */
         }
     }
     , mounted () {
         window.contextList = this
     }
     , methods: {
-        simpleTableSearchString () {
+        simpleTableSearchString (searchString) {
+            const st = searchString ? searchString : this.searchString
+            let obj = false
             try {
-                const obj = JSON.parse ( this.searchString )
-                if( !obj.length ) return this.searchString
-            } catch ( err ) {return this.searchString }
-            return "";
+                obj = JSON.parse ( st )
+                if( !obj.length ) return st
+            } catch ( err ) {return st }
+            if ( obj ) return "";
 
         },
         contextListKeyUp(){
@@ -148,50 +158,58 @@ export default {
         contextListRowClick(row){
             
         },
-        contextListCheckClick(checkedIndexes){
+        contextListCheckClick(checkedRows){
+            /*
+            console.log(checkedIndexes)
             const checkedRows = JSON.cc(this.rows).filter ( (ele,i) => {
-                if ( checkedIndexes.indexOf(i) != -1 ) return true
-                return false
+                const exists = checkedIndexes.filter ( cr => {
+                    if ( cr._ROW_NUMBER == ele._ROW_NUMBER ) return true
+                })
+                //if ( checkedIndexes._ROW_NUMBER == ele._ROW_NUMBER ) return true
+                return exists.length
             })
-            const checkedIds = JSON.stringify(checkedRows.map ( row => row[Object.keys(row)[1]] ))
+            console.log(checkedRows)
+            */
+            //const checkedRows = checkedIndexs
+            const checkedIds = checkedRows.map ( row => row[Object.keys(row)[0]] )
+            , oldCheckedRows = contextList.checkedRows.map ( ele => ele.row )
+            , oldCheckedIds = oldCheckedRows.map ( row => row[Object.keys(row)[0]] )
             let operation = "none"
             , differenceIndex
             , removedElement
-            if ( !this.oldCheckedIndexes ) this.oldCheckedIndexes = this.checkedRows//checkedIndexes
-            if ( checkedIndexes.length > this.oldCheckedIndexes.length ) operation = "add"
-            if ( checkedIndexes.length < this.oldCheckedIndexes.length ) operation = "remove"
-            differenceIndex = this.oldCheckedIndexes.filter(x => !checkedIndexes.includes(x))[0];
-            removedElement = JSON.cc ( this.rows )[differenceIndex]
-            this.oldCheckedIndexes = checkedIndexes
-            //this.checkedRows = checkedRows
+            //if ( !this.oldCheckedRows ) this.oldCheckedRows = checkedRows
+            if ( checkedRows.length > oldCheckedRows.length ) operation = "add"
+            if ( checkedRows.length < oldCheckedRows.length ) operation = "remove"
+            differenceIndex = oldCheckedIds.filter(x => !checkedIds.includes(x))[0];
+            removedElement = JSON.cc ( this.rows ).filter( row => row[Object.keys(row)[0]] == differenceIndex )[0]
+            //debugger
+            this.oldCheckedIds = checkedIds
+            contextList.checkedRows = checkedRows.map ( row => ({ row, i: row._rowIndex }) )
             this.onChange(checkedRows,operation,removedElement)
             //this.onChange(checkedRows)
         },      
         contextListSearch(searchStrings) {
-            console.log(searchStrings)
+            //console.log(searchStrings)
             const searchString = searchStrings[0]
-            //if ( ! searchString ) return false
-            //this.openContextParameters.searchString = searchString
-            //this.reloadContext ( )
         },
         updateContext (event) {
-            //this.searchString = event.target.innerHTML//searchString
-            this.openContextParameters.searchString = this.searchString
-            this.reloadContext ( )
+            if ( this.searchTimer ) clearTimeout ( this.searchTimer )
+            const that = this
+            this.searchTimer = setTimeout ( function () {
+                that.openContextParameters.searchString = that.searchString
+                that.reloadContext ( )
+            } , 300 )
         },
         reloadContext ( ) {
-            //const {keyName,$field,val,type,onChange,cb, singlecheck, dbname,ownername,tablename,fieldname,dbID, searchString} = this.openContextParameters
-            //this.openContext (keyName,$field,val,type,onChange,cb, singlecheck, {dbname,ownername,tablename,fieldname,dbID, searchString} )
             this.open ( this.openContextParameters, true )
         },
-        open ( {keyName,$field,val,type,onChange,cb, singlecheck, dbname,ownername,tablename,fieldname,dbID, searchString, cbWhenClose }, onlyReload ) {
-            this.openContext (keyName,$field,val,type,onChange,cb, singlecheck, {dbname,ownername,tablename,fieldname,dbID, searchString,cbWhenClose}, onlyReload )
+        open ( {keyName,$field,val,type,onChange,cb, singlecheck, pkName,dbname,ownername,tablename,fieldname,dbID, searchString, cbWhenClose }, onlyReload ) {
+            this.openContext (keyName,$field,val,type,onChange,cb, singlecheck, {pkName,dbname,ownername,tablename,fieldname,dbID, searchString,cbWhenClose}, onlyReload )
         },
-        openContext (keyName,$field,val,type,onChange,cb, singlecheck, {dbname,ownername,tablename,fieldname,dbID, searchString,cbWhenClose}, onlyReload ) {
-            this.openContextParameters = {keyName,$field,val,type,onChange,cb, singlecheck, dbname,ownername,tablename,fieldname,dbID, searchString,cbWhenClose}
-            //this.searchString = val
+        openContext (keyName,$field,val,type,onChange,cb, singlecheck, {pkName,dbname,ownername,tablename,fieldname,dbID, searchString,cbWhenClose}, onlyReload ) {
+            this.openContextParameters = {keyName,$field,val,type,onChange,cb, singlecheck, pkName,dbname,ownername,tablename,fieldname,dbID, searchString,cbWhenClose}
             this.singlecheck = singlecheck
-        	
+        	//if ( this.simpleTableSearchString(searchString) != "" )  
             this.searchString = searchString
             if ( ! onlyReload ) {
                 this.firstSearchString = searchString
@@ -209,7 +227,6 @@ export default {
         	if ( listModel ) { 
         		let contextListData, contextListHiddenKeys
         		if ( !listModel.length ) { //Es lista dinámica
-                    //console.log(dbqParams)
         			const {sqlListGrid,connection} = listModel
         			, sql = sqlListGrid.toLowerCase()
         			, columns = sql.substring ( sql.indexOf('select') + 6, sql.indexOf('from') ).trim().split(",")
@@ -224,11 +241,12 @@ export default {
         				, orderbyColumns
                         , dbID: connection
         			}
-                    //console.log(dbqParams)
+                    window.working(1)
         			this.api.$dbq ( dbqParams, data => {
         				contextListData = data
         				contextListHiddenKeys = [columns[0]]
         				feedList()
+                        window.working(0)
         			})
         		} else { //Es lista estática
         			const data = listModel.map ( ele => ({
@@ -263,7 +281,6 @@ export default {
         		const parsedHandy = qe.parseHandy ( val )
         		, leftVal = parsedHandy.leftVal
         		, operator = parsedHandy.operator
-        		//console.log(parsedHandy)
         		if ( ! operator ) {
         			contextList.leftVal = parsedHandy.val1
         			contextList.rightVal = parsedHandy.val2
@@ -279,26 +296,26 @@ export default {
         				contextList.rightVal = parsedHandy.val1
         			}
         		}
-        		//console.log(type)
-        		//contextList.rows = []
 
                 // SELECTOR DE COINCIDENCIAS EN CAMPO DE TEXTO
                 if ( type == "text" ) {
-                     const dbqParams = {
-        				operation: 'request'
-        				, sqlSyntax: `SELECT distinct top 20  1 AS _ROW_NUMBER,${fieldname} FROM ${tablename} WHERE ${fieldname} IS NOT NULL AND ${fieldname} <> '' AND ${fieldname} LIKE '%${searchString}%' ORDER BY ${fieldname}`
-                        , dbID
-        			}
-                    //console.log(dbqParams)
-        			this.api.$dbq ( dbqParams, data => {
-                    //console.log(data)
-        				contextList.rows = data
-                        contextList.checkedRows = getCheckedRowsFromInput ( contextList.firstSearchString, data )
-        				contextList.hiddenKeys = ['_ROW_NUMBER']
-        				//feedList()
-        			}, true, true)
-                    this.searchable = false
-                    type="list"
+                    if ( fieldname ) { // Los computed fields no tienen fieldname y por el momento me los salto de la funcionalidad de context-list.
+                        let likeExpression = this.simpleTableSearchString()
+                        likeExpression = likeExpression == "" ? "" : ` AND ${fieldname} LIKE '%${likeExpression}%' ` 
+                        const dbqParams = {
+        			    	operation: 'request'
+        			    	, sqlSyntax: `SELECT distinct top 20  ${pkName} AS _ROW_NUMBER,${fieldname} FROM ${tablename} WHERE ${fieldname} IS NOT NULL AND ${fieldname} <> '' ${likeExpression} ORDER BY ${fieldname}`
+                            , dbID
+        			    }
+                        console.log(dbqParams)
+        			    this.api.$dbq ( dbqParams, data => {
+        			    	contextList.rows = data
+                            contextList.checkedRows = getCheckedRowsFromInput ( contextList.firstSearchString, data )
+        			    	contextList.hiddenKeys = ['_ROW_NUMBER']
+        			    }, true, true)
+                        this.searchable = false
+                        type="list"
+                    }
                 }
                 
         		open(type)
@@ -311,7 +328,7 @@ export default {
         			try {
         				const checkedLiterals = JSON.parse ( val )
         				contextListData.forEach ( (row,i) => {
-        					if ( checkedLiterals.indexOf(row[Object.keys(row)[1]]) != -1 ) checkedRows.push ( i ) 
+        					if ( checkedLiterals.indexOf(row[Object.keys(row)[1]]) != -1 ) checkedRows.push ( {row,i} ) 
         				})
         			} catch (err){ }
                     return checkedRows
@@ -330,14 +347,11 @@ export default {
         		if ( cb ) cb ( )
         	}
             function showContext (event){
-                //return
                 const ae = document.activeElement
                 , isContextList = $(ae).closest('#circusContextList').length || $(event.target).closest('#circusContextList').length
-                //console.log(that.contextListFocused)
                 if(!isContextList && !that.contextListFocused) {
                     const menu = $(that.$refs.contextList)
                     menu.hide()
-                    //$(window).off('click',showContext)
                     contextList.opened = false
                     $('body').off()
                     if ( cbWhenClose ) cbWhenClose ()
@@ -356,27 +370,24 @@ export default {
                 $(this.$refs.contextList).hide()
             else 
                 $(this.$refs.contextList).show()
-            //console.log(inView)
+
             function isScrolledIntoView($elem,$container) {
                 var docViewTop = $container.offset().top //$container.scrollTop();
                 var docViewBottom = docViewTop + $container.height();
 
                 var elemTop = $elem.offset().top;
                 var elemBottom = elemTop + $elem.height();
-//console.log({docViewTop,docViewBottom,elemTop,elemBottom})
+
                 return ((elemBottom <= docViewBottom) && (elemTop >= docViewTop));
             }
             
         },
         closeContext() {
             this.contextListFocused = false
-            //console.log('aa')
             return
             const $aux = $('#contextList_auxiliar')
             const $list = $(contextList.$refs.contextList).hide().detach()
             $('body').append($list)
-            //$aux.remove()
-
         }
     }
 }

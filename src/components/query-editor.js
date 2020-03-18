@@ -32,7 +32,7 @@ export default class queryEditor {
         return this.params
     }
     getColumns ( ) {
-        const columns = _.uniq(this.params.filter(param=>param._inlist).map(param=>{
+        const columns = (this.params.filter(param=>param._inlist).map(param=>{
             let key = param.key
             //, dbID = this.api.getTableConnectionId ( key )
             //key = dbID + '.dbo.' + key

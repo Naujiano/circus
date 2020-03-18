@@ -45,7 +45,7 @@
                     <div :class="{'arrow-left':param._extended,'arrow-right':!param._extended}" style="display:block;float:left;zoom:0.42;margin-top:10px;margin-left:8px;opacity:0.5"></div>&nbsp;
                 </button>
                 <div contenteditable="true" @blur="editKeyName(i,$event)" data-help-code="search-parameter-key" v-show="param._extendKey" v-html="param.key"></div>
-                <button  @click="extendParam(i)" v-show="param._extended" style="width: 16px;border:0" data-help-code="search-parameter-extend-key">
+                <button  @click="parameters.data[i]._extendKey=!param._extendKey;emitParameters()" v-show="param._extended" style="width: 16px;border:0" data-help-code="search-parameter-extend-key">
                     <div :class="{'arrow-left':param._extendKey,'arrow-right':!param._extendKey}" style="display:block;float:left;zoom:0.42;margin-top:10px;margin-left:8px;opacity:0.5"></div>&nbsp;
                 </button>
             </li>
@@ -106,9 +106,9 @@ export default {
     methods: {
         positionContext(i,event,param) {
             window.contextList.positionContext()
+            window.contextList.searchString = event.target.innerHTML
             window.contextList.updateContext({searchString:event.target.innerHTML})
-            //this.editParameter(i,event)
-            this.openContext(i,event,param)
+            //this.openContext(i,event,param)
             //setEndOfContenteditable(event.target)
             /*
             this.$nextTick ( function setEndOfContenteditable()
@@ -147,17 +147,33 @@ export default {
             this.focusedParamIndex = i
             const [dbname,ownername,tablename,fieldname] = param.reference.split('.')
             let searchString = val
+            , pkName
             /*
             let searchString = ""
             try {
                 const obj = JSON.parse ( val )
             } catch ( err ) {searchString = val}
             */
-            window.contextList.openContext(keyName,$(event.target),val,type,this.contextListCheckClick,false,false,{dbname,ownername,tablename,fieldname,dbID: this.dbID, searchString, cbWhenClose } )
+            const that = this
+            //$("*").css("cursor", "progress");
+            const listModel = this.api.getListModel(keyName)
+            if ( ! listModel && type=="text" ) {
+                window.working(1)
+                this.api.getFieldsForTable ( tablename, function( { fields, identities } ) {
+                    pkName = identities[0]
+                    //console.log(identities)
+                    //debugger
+                    window.contextList.openContext(keyName,$(event.target),val,type,that.contextListCheckClick,false,false,{pkName,dbname,ownername,tablename,fieldname,dbID:   that.dbID, searchString, cbWhenClose } )
+                    window.working(0)
+                } )
+            } else {
+                window.contextList.openContext(keyName,$(event.target),val,type,that.contextListCheckClick,false,false,{pkName,dbname,ownername,tablename,fieldname,dbID:   that.dbID, searchString, cbWhenClose } )
+            }
+            //console.log(pkName)
+
         },
         contextListCheckClick(checkedRows,operation,removedElement){
             const removedLiteral = removedElement?removedElement[Object.keys(removedElement)[1]] : ""
-            //console.log(checkedRows)
             const i = this.focusedParamIndex
             , par = this.parameters.data[i]
             var checkedLiterals
@@ -184,7 +200,8 @@ export default {
             par.value = checkedLiterals
             par.text = checkedLiterals
             //return
-            window.contextList.searchString = checkedLiterals
+            //if ( window.contextList.simpleTableSearchString (searchString) )
+            //window.contextList.searchString = checkedLiterals
             window.contextList.firstSearchString = checkedLiterals
             //window.contextList.checkedRows = window.contextList.getCheckedRowsFromInput(checkedLiterals,window.contextList.rows) 
             this.emitParameters()
@@ -316,8 +333,7 @@ export default {
             //this.$emit('paramUpdate',JSON.cc(this.parameters.data))
         },
         extendParam(i) {
-            this.parameters.data[i]._extendKey=!this.parameters.data[i]._extendKey;
-            this.emitParameters()
+
         },
         textKeyPress (event,o,paramIndex) {
             //return

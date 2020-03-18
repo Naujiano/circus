@@ -341,9 +341,11 @@ export default {
           }
         const newTable = event.target.value
         this.$store.commit ( 'Ventana_setTable' , {indexVentana:this.index,tableName:newTable} )
+        window.working(1)
         this.api.getFieldsForTable ( newTable, ( { fields, identities } ) => {
             this.$store.commit ( 'Ventana_setFields', {indexVentana: this.ventana.index, fields, identities})
             this.form.data = this.formDataBlanked()
+            window.working(0)
         } )
         //this.$store.state.
       },
@@ -365,9 +367,10 @@ export default {
         },
         formFilter ( filterState ) {
             const that = this
+            console.log(filterState)
             if ( parameterExists () ) {
                 window.circus.showHelpBox ({title:'Este campo ya está en el listado',text:'El campo que está intentando añadir ya está presente en el listado.'})
-                return false
+                //return false
             }
             function parameterExists () {
                 const params = that.$refs.listado.$refs.qe.parameters.data
@@ -395,9 +398,8 @@ export default {
                 rows.push ( newLine )
             })
             this.$refs.listado.grid.rows = rows
-            //this.$refs.listado.grid = JSON.cc(this.$refs.listado.grid)
-            //this.$refs.listado.compute()
             this.$nextTick(function(){this.$refs.listado.compute()})
+            //this.$refs.listado.compute()
 
         },
         fieldUniqueId ( field ) {

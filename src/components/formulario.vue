@@ -254,6 +254,7 @@ export default {
         },
         addField(campo){
             const fs = JSON.cc(this.filterState())
+            //console.log(JSON.cc(fs))
             this.onFilter(fs)
             this.clean()
         },

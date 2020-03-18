@@ -261,12 +261,6 @@ div[contenteditable="true"].highlight-text-strong
     background:rgb(137, 143, 153);
     color:white;
 }
-.simple-table-vue tr:nth-child(even) td {
-    background:#f2f2f2;
-}
-.simple-table-vue tr:hover td {
-    background:#ddd;
-}
 .toolbar-box {
     border: 0 solid lightgray;
     border-width: 0 1px; 
@@ -325,11 +319,27 @@ button:focus {
         content: '.. .. .. ..';
      }
      [data-component="Listado"] .simple-table-vue tfoot td {
-        min-width: 70px;
+        min-width: 110px;
         
     }
     [data-component="Listado"] .simple-table-vue tfoot td:first-child {
         min-width: 1px;
         
     }
-            
+body.progress-on * {
+    cursor: progress;
+}
+.simple-table-vue tr.rowChecked:nth-child(even) td, .simple-table-vue tr.rowChecked, .simple-table-vue tr.rowChecked:hover td {
+    background: #f2f5c2;
+}
+.simple-table-vue tr:nth-child(even) td {
+    background:#f2f2f2;
+}
+.simple-table-vue tr:hover td {
+    background:#ddd;
+}
+.clearfix:after {
+    content:"";
+    clear:both;
+    display:table;
+}

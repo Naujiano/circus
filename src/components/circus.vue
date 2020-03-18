@@ -127,6 +127,8 @@ plugin.install = function (Vue, options) {
             , number = 'number'
             , date = 'date'
             switch ( data_type ) {
+                case 'number':
+                    return number
                 case 'int':
                     return number
                 case 'float':
@@ -499,6 +501,12 @@ export default {
         window.logout = function () {
             sessionStorage.removeItem("logged");
             that.sessionId = false
+        }
+        window.working = function (state) {
+            if ( state ) 
+                $('body').addClass('progress-on')
+            else
+                $('body').removeClass('progress-on')
         }
         this.loadQueries()
         //this.api.getTablesList((tables)=>{this.treedata_tables = tables })

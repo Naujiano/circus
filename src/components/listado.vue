@@ -34,7 +34,7 @@
             <!--
                 <div style="float:left;height:15px;width:14px;padding:0px 0 0 1px;border:0px solid red;position:absolute;z-index:2;"><button data-help-code="list-distinct" title="Funciones" @click="set_distinct()" :style="{'background':distinct?'red':''}">/</button></div>
             -->                 
-                <div style="width:25px;float:left;padding-top:68px;position:relative;z-index:1"><button @click="extendParams()" style="background;border:1px solid #ddd" data-help-Code="show-advanced-params">+</button></div>
+                <div v-show="qeParams.length" style="width:25px;float:left;padding-top:68px;position:relative;z-index:1"><button @click="extendParams()" style="background;border:1px solid #ddd" data-help-Code="show-advanced-params">+</button></div>
                 <div ref="computer" style="display:flex;width: ; height:; padding:0 0 0 25px;position:absolute;white-space:nowrap">
                     <div v-for="(col,i) in grid.columns.names" v-if="qeParams[i]" :ref="'computed_'+col.label" class="header-cell" :key="'cont_'+col.label" :type="grid.columns.types[i]" :param="JSON.stringify(getParam(i))">
 
@@ -44,7 +44,7 @@
                             <option value="DISTINCT" selected>MEDIA</option>
                         </select>
                 <div style="display:flex; width: 100%;flex-direction:column">
-<div class="cell-title" style="clear:both;float:none;font-weight:bold;padding:4px;width:100%;background: #898F99;border-radius: 10px; color:white;font-weight:normal;text-align:center">{{getParam(i).reference.split(".")[3]}}</div>
+<div class="cell-title" style="clear:both;float:none;font-weight:bold;padding:4px;width:100%;background: #898F99;border-radius: 10px; color:white;font-weight:normal;text-align:center" contenteditable="true" @dblclick="editAlias($event,i)" @blur="saveAlias($event,i)">{{getParam(i).alias}}</div>
 
 </div>
 
@@ -101,6 +101,8 @@
 
                         <!--<div style="float:none;height:20px;width:100%">-->
                         <div :class="{'search-field':true,'search-field-inactive':qeParams[i]?!qeParams[i]._active:false}" contentEditable="true" @keydown="keyDownSearchField      ($event,i)" @keyup="$refs.qe.positionContext(i,$event,getParam(i));" @focus="focusSearchField($event,i)" @blur="focusSearchField($event,i,true)" v-html="getParamSearchString(i)" ></div>
+
+                        <div class="clearfix"></div>
 
                         <button @click="changeOperator(i)" v-show="getParam(i)._active && getParam(i)._extended" data-help-code="search-parameter-operator" style="width:auto;padding:0 3px;background: transparent; border:0;font-size:12px;float:left;" v-html="qeParams[i].operator=='AND'?'Y':'O'"></button>
 
@@ -166,6 +168,7 @@ export default {
                         if ( ! confirm ( '¿Borrar los parámetros de filtrado?' ) ) return false
                         this.$store.commit ( 'Ventana_injectQE' , {indexVentana:this.ventana.index,qeParams:[]} )
                         this.$refs.qe.clear() 
+                        this.clearSimpleTable()
                     }.bind(this)
                     //, title: "Borrar los parámetros de filtrado"
                 },
@@ -190,6 +193,7 @@ export default {
                         , qeParams = JSON.cc(query.queryEditor.params)
                         let actualQeParams = this.$store.getters.qeParams(this.ventana.index)
                         if ( ! actualQeParams ) actualQeParams = []
+                        this.clearSimpleTable()
                         //this.$refs.qe.setQuery(qeParams)
                         this.$store.commit ( 'Ventana_injectQE' , {indexVentana:this.ventana.index,qeParams:actualQeParams.concat(qeParams)} )
                     }.bind(this)
@@ -267,6 +271,7 @@ export default {
     },
     watch: {
         filter: function (object, oldVal ) {
+            console.log(JSON.cc(object))
             //convierto objeto con campos del formulario a array para el QE.
             const qeParams = Object.keys(object).map ( key => ( Object.assign ( {}, object[key], { 
                 key: this.api.getListColumnSql ( key )
@@ -279,21 +284,42 @@ export default {
                 , _inlist: true
                 , data_type: this.utils.getBasicDataType(object[key].data_type) 
                 , _extended : false
-                , _extendKey : false
+                , _extendKey : this.showAdvanced
                 , _orderby: '-'
             } ) ))
+
             qeParams[0].text = ""
             qeParams[0].value = ""
             let actualQeParams = this.$store.getters.qeParams(this.ventana.index)
             if ( ! actualQeParams ) actualQeParams = []
             //const newParams = actualQeParams.concat(qeParams)
             const newParams = qeParams.concat(actualQeParams)
+            //RENOMBRO LOS ALIAS REPETIDOS
+            const aliases = []
+            _.reverse(newParams)
+            newParams.forEach ( column => {
+                while ( aliases.indexOf ( column.alias ) != -1 ) {
+                    column.alias += "_2"
+                }
+                //if ( aliases.indexOf ( alias ) != -1 ) column.alias += "_2"
+                aliases.push ( column.alias )
+            })
+            _.reverse(newParams)
             this.$store.commit ( 'Ventana_injectQE' , {indexVentana:this.ventana.index,qeParams:newParams} )
+            //alert('c')
         },
         qeParams(){
-            this.compute()
+            this.$nextTick(function(){this.compute()})
+            //this.compute()
+            //alert('b')
             //console.log('asdfa')
         }
+        /*
+        , ventana(){
+            this.compute()
+            alert('a')
+        }
+        */
     },
     computed : {
         series_parameters() {
@@ -340,11 +366,11 @@ export default {
             , columns = distinct ? ['1 as PK_ID'] : [table+'.'+idField+' as PK_ID']
             const qeColumns = this.$refs.qe.settings.columns
             qeColumns.forEach ( key => {
-                if ( columns.indexOf(key.toLowerCase()) == -1 ) 
+                //if ( columns.indexOf(key.toLowerCase()) == -1 ) 
                 
                     columns.push ( key  )
             })
-            return _.uniq(columns)
+            return (columns)
         },
         pkName(){
             const tarr = this.ventana.data.table.split(".")
@@ -389,6 +415,14 @@ export default {
             this.$refs.qe.emitParameters() 
             this.showAdvanced=newState
         },
+        editAlias(event,i) {
+            $(event.target).focus()
+        },
+        saveAlias(event,i) {
+            this.$refs.qe.parameters.data[i].alias = event.target.innerHTML
+            this.$refs.qe.emitParameters() 
+
+        },
         clearSimpleTable(){
             /*
             if ( ! this.grid.rows.length ) return false
@@ -424,9 +458,9 @@ export default {
                 rows.push ( newLine )
             })
             this.grid.rows = rows
-            //this.$nextTick(function(){
-                //this.compute()
-                //})
+
+            if ( rows.length && Object.keys(rows[0]).length < 2 )  //Ha eliminado todos los parámetros por lo que limpio la tabla.
+                this.clearSimpleTable()
         },
         activateParam (i) {
             this.$refs.qe.activateParam(this.$refs.qe.parameters.data[i])
@@ -603,6 +637,7 @@ export default {
             )
         },
         checkClick(checklist){
+            return
             //console.log(checklist)
             const checked_pk_id = []
             /*
@@ -689,14 +724,17 @@ export default {
             const buttons = $(this.$refs.toolbar).find('button')
             , butSel = buttons.eq(1).add(buttons.eq(2)).add(buttons.eq(6))
             if ( show ) {
-                butSel.prop('disabled',true).css({cursor:'progress','text-decoration':'line-through'})
-                $(this.$refs.listado).css({cursor:'progress'})
-                $('body').css({cursor:'progress'})
+                butSel.prop('disabled',true).css({'text-decoration':'line-through'})
+                //$(this.$refs.listado).css({cursor:'progress'})
+                //$('body').css({cursor:'progress'})
+                window.working(1)
+
             } else {
                 //butSel.each ( () => {$(this).text('this.value');console.log(this)} )
-                butSel.prop('disabled',false).css({cursor:'default','text-decoration':'none'})
-                $(this.$refs.listado).css({cursor:'default'})
-                $('body').css({cursor:'default'})
+                butSel.prop('disabled',false).css({'text-decoration':'none'})
+                //$(this.$refs.listado).css({cursor:'default'})
+                //$('body').css({cursor:'default'})
+                window.working(0)
             }
             //$('body').css({cursor:'pointer'})
         },
@@ -793,9 +831,9 @@ export default {
             if(event.keyCode === 13){  event.preventDefault(); return false }
         },
         alterSearchString (event,i) {
-            const val = event.target.innerHTML
+            const val = $(event.target).text() //event.target.innerHTML
             , qep = JSON.cc ( this.$refs.qe.parameters.data)
-            //event.target.innerHTML = ""
+            //console.log($(event.target).text())
             qep[i].text = val
             qep[i].value = val
             this.$refs.qe.parameters.data = qep
@@ -861,7 +899,7 @@ export default {
             , selectSql = `SELECT ${this.distinct?'DISTINCT ':''} ${this.columns} FROM ${joinSyntax}  ${qeSyntax?'WHERE '+qeSyntax:''}`
             this.grid.loadedRecsNumber = 0
             
-            //console.log(selectSql)
+            console.log(selectSql)
             //this.qeHasChanged.changed = true
             this.api.$dbq ({
                 sqlSyntax: "SELECT COUNT(*) as recnum FROM (" + selectSql + ") as a"
@@ -926,6 +964,7 @@ export default {
             if ( ! this.grid.rowCount ) {
                 //this.grid.rows = [{[' ']:'No hay coincidencias'}]
                 this.telon(0)
+                window.circus.showHelpBox ( {title:'No hay resultados', text:'La consulta no ha devuelto ningún resultado.'})
                 return false
             }
             if ( this.grid.rowCount == this.grid.loadedRecsNumber ) {
@@ -1069,12 +1108,10 @@ export default {
         overflow-y: hidden;
         min-height: 130px;
     }
+    .computer-container.sorting .header-cell .search-field {
+        max-width: 200px;
+    }
     svg:hover {
         fill: brown;
-    }
-    .clearfix:after {
-        content:"";
-        clear:both;
-        display:table;
     }
 </style>

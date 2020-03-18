@@ -179,11 +179,19 @@ export function getLiteral ( id ) {
 }
 
 export function getFieldsForTable ( table, cb ) {
+	table = getCaseSensitiveTableName ( table )
 	    $fieldsForTable (table,fields => {
 			const identities = fields.filter ( (field,index) => field.is_identity ).map ( field => field.column_name )
 			//if ( table == "v_dif_produccion" ) console.log(fields)
 			cb ( { fields,identities })
 		})
+}
+function getCaseSensitiveTableName (tableName) {
+	let csTableName
+	Object.keys ( store.database.tables ).forEach ( key => {
+		if ( key.toLowerCase() == tableName.toLowerCase() ) csTableName = key
+	})
+	return csTableName
 }
 
 export function getIdentitiesForTableSet ( table, cb ) {
@@ -475,8 +483,9 @@ export function $dbq (
   		success: (respuesta) => {
 			  const jsonRespuesta = JSON.parse(respuesta)
 			  if ( jsonRespuesta.length && jsonRespuesta[0].Error ){
-			  	console.log(JSON.stringify(jsonRespuesta[0]))
-			  	alert(JSON.stringify(jsonRespuesta[0]))
+				  console.log(JSON.stringify(jsonRespuesta[0]))
+				  window.circus.showHelpBox ( {title:'Error en consulta SQL', text:JSON.stringify(jsonRespuesta[0])}, true)
+			  	//alert(JSON.stringify(jsonRespuesta[0]))
 			  }
 			if ( cb ) cb(jsonRespuesta)
 		},

@@ -24,7 +24,7 @@
             <Toolbar :buttons="buttons2" style="width:auto;float:left;margin:0px 0 -2px 3px" />
         </div>
         <div class="toolbar-box">
-            <div class="toolbar-box-title">Configuración</div>
+            <div class="toolbar-box-title">Archivo de Configuración</div>
             <select id="configFileSelect" class="form-control" style="display:inline;width:auto;font-size:11px;margin-bottom:-2px;margin-top:1px; float:left">
                 <option value="">Importar Config...</option>
                 <option v-for="fn in configFilesList" :value="fn" :selected="fn==api.parsedSearch.reset">{{fn}}</option>
@@ -321,7 +321,9 @@ export default {
             that.$refs.parentTable.selectedIndex=0
             let actualQeParams = that.$store.getters.qeParams(indexVentana)
             if ( ! actualQeParams ) actualQeParams = []
-            that.$store.commit ( 'Ventana_injectQE' , {indexVentana,qeParams:actualQeParams.concat([param])} )
+            const newParams = [param].concat(actualQeParams)
+            that.utils.unifyObjectKey ( {array: newParams, key: 'alias'} )
+            that.$store.commit ( 'Ventana_injectQE' , {indexVentana,qeParams:newParams} )
             that.switchVentana(indexVentana)
         })
       },

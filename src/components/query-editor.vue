@@ -139,15 +139,27 @@ export default {
         },
         openContext(i,event,param,cbWhenClose) {
             let parVal = param.value
+            try {
+                const json = JSON.parse ( parVal )
+                if ( typeof json == 'object' && !json.length ) { //es select con descripcion. Cancelo la contextList.
+                    const sql = json.sql
+                    , descripcion = json.descripcion
+                    if(cbWhenClose) cbWhenClose()
+                    return false
+                } 
+            } catch ( err ) {  }
+
             //if ( typeof parVal == 'object' ) parVal = JSON.stringify ( parVal )
             //$(event.target).text(parVal)
             const keyName = param.reference
             , val = $(event.target).text()
             , type = param.data_type
             this.focusedParamIndex = i
-            const [dbname,ownername,tablename,fieldname] = param.reference.split('.')
+            let [dbname,ownername,tablename,fieldname] = param.reference.split('.')
             let searchString = val
             , pkName
+            //fieldname = param.reference
+            //tablename = `${dbname}.${ownername}.${tablename}`
             /*
             let searchString = ""
             try {

@@ -304,7 +304,7 @@ export default {
                         likeExpression = likeExpression == "" ? "" : ` AND ${fieldname} LIKE '%${likeExpression}%' ` 
                         const dbqParams = {
         			    	operation: 'request'
-        			    	, sqlSyntax: `SELECT distinct top 20  ${pkName} AS _ROW_NUMBER,${fieldname} FROM ${tablename} WHERE ${fieldname} IS NOT NULL AND ${fieldname} <> '' ${likeExpression} ORDER BY ${fieldname}`
+        			    	, sqlSyntax: `SELECT distinct top 20  ${pkName} AS _ROW_NUMBER,${fieldname} FROM ${dbname}.${ownername}.${tablename} WHERE ${fieldname} IS NOT NULL AND ${fieldname} <> '' ${likeExpression} ORDER BY ${fieldname}`
                             , dbID
         			    }
                         console.log(dbqParams)

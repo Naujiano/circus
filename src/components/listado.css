@@ -1,0 +1,82 @@
+.qe {
+    width:100%;min-height:50px;border:0 solid red;border-width:0 0 0px 0;position:;float:left;
+    background-color:white;
+    padding: 2px;
+    background: repeating-linear-gradient(
+        -35deg,
+          #fff,
+          #fff 10px,
+          #f8f8f8 10px,
+          #f8f8f8 20px
+        );
+        
+}
+.hide {
+    display:none
+}
+.header-cell {
+    float:left;
+    border:1px solid #ddd;
+    border-width: 0 1px 0 0;
+    padding:5px;
+    box-sizing:border-box;
+    white-space:nowrap;
+    overflow:hidden;
+    white-space:nowrap;
+}
+.search-field {
+    background: white; 
+    padding: 2px; 
+    border:1px solid lightgray; 
+    margin-top: 3px; 
+    margin-bottom: 4px; 
+    max-width:100%;
+    min-width:50px;
+    clear:both; 
+    float:left; 
+    overflow: hidden;
+    white-space: nowrap;
+    width: 100%;
+}
+.search-field.focused {
+    position: absolute;
+    width: auto;
+    max-width: 500px;
+    min-width: 100px;
+    //top: 22px;
+    box-shadow: 1px 1px 5px 2px gray;
+}
+.search-field-inactive {
+    background: #ddd;
+}
+.button-operation * {
+    cursor: pointer
+}
+.cell-title {
+    cursor: move;
+}
+.ui-state-highlight {
+    height: 90px;
+    position: absolute;
+}
+.computer-container {
+    width: 100%;
+    overflow: hidden;
+    border: 0px solid red;
+    position: relative;
+    min-height: 95px;
+}
+.computer-container-advanced {
+    min-height: 115px
+}
+.computer-container.sorting {
+    overflow: scroll;
+    overflow-y: hidden;
+    min-height: 130px;
+}
+.computer-container.sorting .header-cell .search-field {
+    max-width: 200px;
+}
+svg:hover {
+    fill: brown;
+}

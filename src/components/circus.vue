@@ -165,6 +165,19 @@ plugin.install = function (Vue, options) {
         	hh = Math.round(hh)
         	if ( hh < 18 ) hh = 18
         	ta.style.height=(hh)+'px'
+        },
+        unifyObjectKey: function ({array,key}) {
+            const keyValues = []
+            _.reverse(array)
+            array.forEach ( column => {
+                while ( keyValues.indexOf ( column[key] ) != -1 ) {
+                    column[key] += "_2"
+                }
+                //if ( aliases.indexOf ( alias ) != -1 ) column.alias += "_2"
+                keyValues.push ( column[key] )
+            })
+            _.reverse(array)
+            return array
         }
     }
     Vue.prototype.uniqueid = uuidV1
@@ -472,6 +485,7 @@ export default {
         panelSwitch(panel){
             //console.log(this.panels[panel])
             this.panels[panel] = ! this.panels[panel]
+            window.compute()
         }
     },
     mounted: function () {
@@ -602,7 +616,8 @@ export default {
         }
         window.showForm = showForm
         function showForm() {
-            window.circus.panels.form = true
+            //window.circus.panels.form = true
+            window.circus.panelSwitch('form')
             //console.log(  $('[data-component="Formulario"]').find('input').eq(1).val())
             setTimeout(function(){
                 $('[data-component="Formulario"]').find('input').eq(1).focus()

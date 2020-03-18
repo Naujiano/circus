@@ -58,7 +58,7 @@
             </div>
             -->
             <Listado :rows="ventana.data.list.data" :ventana="ventana" :filter="formFilterState.data" :overflow="overflow" :formSetValues="formSetValues"
-              :keysSettings="keysSettings" v-on:rowClick="rowClick" ref="listado" style="background:#f4f4f4;padding:5px;box-sizing:border-box"/>
+              :keysSettings="keysSettings" v-on:rowClick="rowClick" :resetVentana="setFieldsForTable" ref="listado" style="background:#f4f4f4;padding:5px;box-sizing:border-box"/>
           </Ly>
           
       </div>
@@ -340,14 +340,22 @@ export default {
               return false
           }
         const newTable = event.target.value
-        this.$store.commit ( 'Ventana_setTable' , {indexVentana:this.index,tableName:newTable} )
+        this.setFieldsForTable (newTable)
+      },
+      setFieldsForTable (tableName) {
+        //return
         window.working(1)
-        this.api.getFieldsForTable ( newTable, ( { fields, identities } ) => {
+        if ( ! tableName ) {
+            tableName = this.ventana.data.table
+            
+        }
+        tableName = tableName ? tableName : this.ventana.data.table
+        this.$store.commit ( 'Ventana_setTable' , {indexVentana:this.index,tableName} )
+        this.api.getFieldsForTable ( tableName, ( { fields, identities } ) => {
             this.$store.commit ( 'Ventana_setFields', {indexVentana: this.ventana.index, fields, identities})
             this.form.data = this.formDataBlanked()
             window.working(0)
         } )
-        //this.$store.state.
       },
       toolbarClick (buttonLabel) {
           const key = (buttonLabel != 'formver') ? buttonLabel.toLowerCase() : 'formver'
@@ -367,6 +375,7 @@ export default {
         },
         formFilter ( filterState ) {
             const that = this
+            /*
             console.log(filterState)
             if ( parameterExists () ) {
                 window.circus.showHelpBox ({title:'Este campo ya está en el listado',text:'El campo que está intentando añadir ya está presente en el listado.'})
@@ -381,6 +390,7 @@ export default {
                 })
                 return exists
             }
+            */
             this.formFilterState.data = filterState
             const actualRows = this.$refs.listado.grid.rows
             if ( ! actualRows ) return false

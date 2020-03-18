@@ -113,6 +113,7 @@ function createStore (storedVuexStore) {
 	vuexStore.subscribe((mutation, state) => {
 		const estado = {...state}
 		localStorage["vuexStore"] = JSON.stringify(estado)
+		resetApiStore()
 		console.log( JSON.cc ( estado ) )
 	})
 }
@@ -127,7 +128,12 @@ function alterTree () {
 	saveTree("circus.json")
 }
 
-const store = JSON.parse(localStorage["vuexStore"])//vuexStore.state
+let store //= JSON.parse(localStorage["vuexStore"])//vuexStore.state
+resetApiStore()
+
+function resetApiStore () {
+	store = JSON.parse(localStorage["vuexStore"])
+}
 
 
 

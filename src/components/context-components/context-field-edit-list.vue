@@ -29,8 +29,8 @@ export default {
     },
     data () {
         return {
-            listsModels : JSON.cc(this.$store.state.database.listsModels)
-            , lists : JSON.cc(this.$store.state.database.lists)
+            listsModels : this.$store.state.database.listsModels
+            , lists : this.$store.state.database.lists
         }
     },
     computed: {
@@ -59,15 +59,18 @@ export default {
             const  reference = this.componentProps.reference
             let listModelName = false
             if ( checklist.length )
-                listModelName = this.rows[checklist].nombre
+                listModelName = checklist[0].nombre //this.rows[checklist.].nombre
+//                debugger
 
-            if ( ! confirm ( 'Asignar modelo de lista\n\n' + reference + ' = ' + listModelName ) ) {
+            if ( ! confirm ( 'Asignar modelo de lista\n\n' + reference + ' = ' + listModelName + '\n\nATENCIÓN! Para ver los cambios deberá hacer F5 y luego eliminar y volver a añadir los parámetros que lleven esta configuración.' ) ) {
                 this.$refs.simpleTable.reset()
                 return false
             } else {
                 this.$store.commit ( 'setKey' , {path:['database','lists',`${reference}`],val:listModelName})
                 this.api.saveCircusConfig()
+                
                 window.circus.showHelpBox({title:'Modelo de lista cambiado',text:`Se ha canbiado el modelo de lista asignado al campo ${reference} a ${listModelName}`})
+                if ( this.componentProps.cb ) this.componentProps.cb()
             }
         },
     },

@@ -100,7 +100,7 @@
 
 
                         <!--<div style="float:none;height:20px;width:100%">-->
-                        <div :class="{'search-field':true,'search-field-inactive':qeParams[i]?!qeParams[i]._active:false}" contentEditable="true" @keydown="keyDownSearchField      ($event,i)" @keyup="$refs.qe.positionContext(i,$event,getParam(i));" @focus="focusSearchField($event,i)" @blur="focusSearchField($event,i,true)" v-html="getParamSearchString(i)" ></div>
+                        <div :class="{'search-field':true,'search-field-inactive':qeParams[i]?!qeParams[i]._active:false}" contentEditable="true" @keydown="keyDownSearchField      ($event,i)" @keyup="$refs.qe.positionContext(i,$event,getParam(i));" @focus="focusSearchField($event,i)" @blur="focusSearchField($event,i,true)" v-html="getParamSearchString(i)" :title="getParamSearchString(i)" ></div>
 
                         <div class="clearfix"></div>
 
@@ -143,7 +143,8 @@ export default {
         filter: Object,
         overflow: Boolean,
         formSetValues: Function,
-        keysSettings: Object
+        keysSettings: Object,
+        resetVentana: Function
     },
     data: function () {
         return {
@@ -464,6 +465,7 @@ export default {
         },
         activateParam (i) {
             this.$refs.qe.activateParam(this.$refs.qe.parameters.data[i])
+            if ( this.$refs.qe.parameters.data[i]._active ) $('.search-field').eq(i).focus()
         },
         setNewOrder (i) {
             this.$refs.qe.setNewOrder(i)
@@ -626,12 +628,18 @@ export default {
         headerClick ( index, event ) {
             const reference = this.qeParams[index].reference
             , qe = this.$refs.qe
+            , that = this
             console.log(reference)
             event.stopPropagation();
+
             window.contextDialog (
                 { reference, value: qe.parameters.data[index].key, cb: function(txt){
-                    qe.parameters.data[index].key = txt
-                    qe.emitParameters()
+                    if ( txt ) { //VIENE DEL COMPONENTE contextFieldEditKey
+                        qe.parameters.data[index].key = txt
+                        qe.emitParameters()
+                    } else { // viene dl componente contextFieldEditList
+                        //that.resetVentana()
+                    }
                 } }
                 , [ {componentName: "contextFieldEditList", componentLabel: "Configuración de lista"}, {componentName: "contextFieldEditKey", componentLabel: "Configuración SQL"} ]
             )

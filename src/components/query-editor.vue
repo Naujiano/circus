@@ -84,13 +84,14 @@ export default {
     computed : {
         settings() {
             // ATENCIÓN: Misteriosamente, si no defino esta variable 'params' y luego la vuelvo a copiar con JSON.cc al instanciar el Queryeditor, algo se lía y llega mal la información de data_type de los parámetros
+            //debugger
             const params = JSON.cc(this.parameters.data)
             const qe = new queryEditor ( JSON.cc(params), this.$store.state.queries )
-            , localParams = qe.getParams()
-            , sqlSyntax = qe.getSqlSyntax()
-            , whereText = qe.getWhereText()
-            , orderBy = qe.getOrderBy()
-            , columns = qe.getColumns()
+            const localParams = qe.getParams()
+            const sqlSyntax = qe.getSqlSyntax()
+            const whereText = qe.getWhereText()
+            const orderBy = qe.getOrderBy()
+            const columns = qe.getColumns()
             const sett = {sqlSyntax,params,whereText,columns,orderBy}
             return sett
         }
@@ -155,7 +156,12 @@ export default {
             , val = $(event.target).text()
             , type = param.data_type
             this.focusedParamIndex = i
-            let [dbname,ownername,tablename,fieldname] = param.reference.split('.')
+            //let [dbname,ownername,tablename,fieldname] = param.reference.split('.')
+            const dbname = param.table_catalog
+            , ownername = param.table_schema
+            , tablename = param.table_name
+            , table_config_keyname = param.table_config_keyname
+            , fieldname = param.key
             let searchString = val
             , pkName
             //fieldname = param.reference
@@ -168,20 +174,25 @@ export default {
             */
             const that = this
             //$("*").css("cursor", "progress");
-            const listModel = this.api.getListModel(keyName)
+            const listModel = param.listModel //this.api.getListModel(param)
+            //debugger
+            pkName = param.table_pkname
+                /*
             if ( ! listModel && type=="text" ) {
                 window.working(1)
-                this.api.getFieldsForTable ( tablename, function( { fields, identities } ) {
+                //debugger
+                this.api.getFieldsForTable ( table_config_keyname, function( { fields, identities } ) {
                     pkName = identities[0]
                     //console.log(identities)
-                    //debugger
-                    window.contextList.openContext(keyName,$(event.target),val,type,that.contextListCheckClick,false,false,{pkName,dbname,ownername,tablename,fieldname,dbID:   that.dbID, searchString, cbWhenClose } )
+                    window.contextList.openContext(keyName,$(event.target),val,type,that.contextListCheckClick,false,false,{pkName,dbname,ownername,tablename,fieldname,dbID:   that.dbID, searchString, cbWhenClose, qeParam: param } )
                     window.working(0)
                 } )
             } else {
-                window.contextList.openContext(keyName,$(event.target),val,type,that.contextListCheckClick,false,false,{pkName,dbname,ownername,tablename,fieldname,dbID:   that.dbID, searchString, cbWhenClose } )
+                window.contextList.openContext(keyName,$(event.target),val,type,that.contextListCheckClick,false,false,{pkName,dbname,ownername,tablename,fieldname,dbID:   that.dbID, searchString, cbWhenClose, qeParam: param } )
             }
-            //console.log(pkName)
+                */
+            
+            window.contextList.openContext(keyName,$(event.target),val,type,that.contextListCheckClick,false,false,{pkName,dbname,ownername,tablename,fieldname,dbID:   that.dbID, searchString, cbWhenClose, qeParam: param } )
 
         },
         contextListCheckClick(checkedRows,operation,removedElement){
@@ -227,13 +238,10 @@ export default {
         },
         activateParam (param,event) {
             param._active=!param._active;
-            //if(param.value==='%')param.value='%%'
             this.emitParameters()
             if ( ! event ) return false
             const $textField = $(event.target).closest('li').find('.highlight-text')//="search-parameter-value"]')
-            console.log($textField)
             setTimeout ( ()=>$textField.eq(1).focus(), 100)
-            //this.$emit('paramSplice',i)
         },
         negateParam (i) {
             const param = this.parameters.data[i]

@@ -34,8 +34,6 @@ export default class queryEditor {
     getColumns ( ) {
         const columns = (this.params.filter(param=>param._inlist).map(param=>{
             let key = param.key
-            //, dbID = this.api.getTableConnectionId ( key )
-            //key = dbID + '.dbo.' + key
             if(param.data_type=="date"){
                 key = `(convert(char(10),${key},103))`
             }
@@ -60,7 +58,8 @@ export default class queryEditor {
                     isInlineSelect = {sql,descripcion}
                 }
             } catch ( err ) {}
-            if ( vista != "" ) {
+            //debugger
+            if ( vista && vista != "" ) {
                 console.log('motito'+vista+'--')
                 const campo = param.campo
                 , query = this.getQueryByName ( vista )
@@ -71,7 +70,7 @@ export default class queryEditor {
             } else if (isInlineSelect) {
                 val = ` ${param.key} IN ( ${isInlineSelect.sql} )`
             } else {
-                if ( param.list ) {
+                if ( param.list && param.list.length ) {
                     const listElements = this.matchListElements(param.list,param.text) // Ej: [[1,'alta'],[2,'baja']]
                     let valor = ""
                     listElements.forEach ( ele => {
@@ -154,8 +153,8 @@ export default class queryEditor {
         //log(this.keysSettings)
         let matchedEles = []
         if ( keyList ) {
-            const values = keyList.values
-            matchedEles = values.filter ( val => {
+            //const values = keyList.values
+            matchedEles = keyList.filter ( val => {
                 if ( val[1].indexOf(searchedValue) != -1 ) return true
             })
         }

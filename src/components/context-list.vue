@@ -16,7 +16,8 @@
             background: '#f2f2f2',
             'box-sizing':'border-box',
             background:'#f2f2f2',
-            height:'auto'
+            height:'auto',
+            'box-shadow' : '2px 2px 6px 2px gray'
             //float:'left'
         }"
     >
@@ -203,11 +204,11 @@ export default {
         reloadContext ( ) {
             this.open ( this.openContextParameters, true )
         },
-        open ( {keyName,$field,val,type,onChange,cb, singlecheck, pkName,dbname,ownername,tablename,fieldname,dbID, searchString, cbWhenClose }, onlyReload ) {
-            this.openContext (keyName,$field,val,type,onChange,cb, singlecheck, {pkName,dbname,ownername,tablename,fieldname,dbID, searchString,cbWhenClose}, onlyReload )
+        open ( {keyName,$field,val,type,onChange,cb, singlecheck, pkName,dbname,ownername,tablename,fieldname,dbID, searchString, cbWhenClose, qeParam  }, onlyReload ) {
+            this.openContext (keyName,$field,val,type,onChange,cb, singlecheck, {pkName,dbname,ownername,tablename,fieldname,dbID, searchString,cbWhenClose, qeParam }, onlyReload )
         },
-        openContext (keyName,$field,val,type,onChange,cb, singlecheck, {pkName,dbname,ownername,tablename,fieldname,dbID, searchString,cbWhenClose}, onlyReload ) {
-            this.openContextParameters = {keyName,$field,val,type,onChange,cb, singlecheck, pkName,dbname,ownername,tablename,fieldname,dbID, searchString,cbWhenClose}
+        openContext (keyName,$field,val,type,onChange,cb, singlecheck, {pkName,dbname,ownername,tablename,fieldname,dbID, searchString,cbWhenClose, qeParam }, onlyReload ) {
+            this.openContextParameters = {keyName,$field,val,type,onChange,cb, singlecheck, pkName,dbname,ownername,tablename,fieldname,dbID, searchString,cbWhenClose, qeParam }
             this.singlecheck = singlecheck
         	//if ( this.simpleTableSearchString(searchString) != "" )  
             this.searchString = searchString
@@ -223,7 +224,8 @@ export default {
         	const contextList = this
             contextList.rows = []
             //return
-        	const listModel = this.api.getListModel(keyName)
+        	//const listModel = this.api.getListModel(keyName)
+        	const listModel = qeParam.list
         	if ( listModel ) { 
         		let contextListData, contextListHiddenKeys
         		if ( !listModel.length ) { //Es lista dinámica
@@ -304,7 +306,8 @@ export default {
                         likeExpression = likeExpression == "" ? "" : ` AND ${fieldname} LIKE '%${likeExpression}%' ` 
                         const dbqParams = {
         			    	operation: 'request'
-        			    	, sqlSyntax: `SELECT distinct top 20  ${pkName} AS _ROW_NUMBER,${fieldname} FROM ${dbname}.${ownername}.${tablename} WHERE ${fieldname} IS NOT NULL AND ${fieldname} <> '' ${likeExpression} ORDER BY ${fieldname}`
+        			    	//, sqlSyntax: `SELECT distinct top 20  ${pkName} AS _ROW_NUMBER,${fieldname} FROM ${dbname}.${ownername}.${tablename} WHERE ${fieldname} IS NOT NULL AND ${fieldname} <> '' ${likeExpression} ORDER BY ${fieldname}`
+        			    	, sqlSyntax: `SELECT distinct top 20  ${pkName} AS _ROW_NUMBER,${fieldname} FROM ${qeParam.table_full_name} AS ${qeParam.table_alias} WHERE ${fieldname} IS NOT NULL AND ${fieldname} <> '' ${likeExpression} ORDER BY ${fieldname}`
                             , dbID
         			    }
                         console.log(dbqParams)

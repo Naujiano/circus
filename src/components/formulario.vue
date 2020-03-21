@@ -179,7 +179,7 @@ export default {
                     dynamicListModels[key] = model
             })
             */
-            Object.keys(formState).forEach ( key => {
+            Object.keys(formState).forEach ( (key,index) => {
                 let value = ( typeof formState[key].value == 'string' || typeof formState[key].value == 'number' ) ? formState[key].value.toString() : ''
                 , data_type = ( this.keysSettings && this.keysSettings[key] ) ? this.keysSettings[key].data_type : null
                 , list = ( this.keysSettings && this.keysSettings[key] ) ? this.keysSettings[key].list : null
@@ -200,7 +200,7 @@ export default {
                     data_type = "varchar"
                     text = value
                 }
-                if ( value && value != "" ) filterState[key] = { value, data_type, text, vista, campo, list:listModel }
+                if ( value && value != "" ) filterState[key] = { value, data_type, text, vista, campo, list:listModel, index }
 
             })
             //console.log(formState)
@@ -252,7 +252,7 @@ export default {
             formState.editorData = blankedEditorItem
             this.formState = formState
         },
-        addField(campo){
+        addField({campo,i}){
             const fs = JSON.cc(this.filterState())
             //console.log(JSON.cc(fs))
             this.onFilter(fs)

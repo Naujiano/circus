@@ -97,7 +97,7 @@ export default {
                     { key: "list" }
                 ]
             },
-            formFilterState: { data: {}, settings: this.keysSettings },
+            formFilterState: { data: [], settings: this.keysSettings },
             form: { data: this.formDataBlanked() }
             //, techButtons: this.api.parsedSearch.dev && this.api.parsedSearch.admin
             , admin: this.api.parsedSearch.admin
@@ -201,6 +201,7 @@ export default {
           return parentWindows
       },
       availableTables () {
+          return Array.from (window.tablesMap.keys())
           const tablesObj = this.$store.state.database.tables
           return Object.keys(tablesObj)
       },
@@ -393,7 +394,18 @@ export default {
                 return exists
             }
             */
-            this.formFilterState.data = filterState
+            //debugger
+            const filteredField =  filterState[Object.keys(filterState)[0]]
+            const index = filteredField.index
+            //console.log(this.$store.state.ventanas.data[this.index].fields[index])
+            //this.formFilterState.data = filterState
+            let fieldConfig = JSON.cc(this.$store.state.ventanas.data[this.index].fields[index])
+            
+            //fieldConfig = Object.assign ( fieldConfig, filteredField )
+            // debugger
+
+            this.formFilterState.data = [fieldConfig]
+            //console.log(this.formFilterState.data)
             const actualRows = this.$refs.listado.grid.rows
             if ( ! actualRows ) return false
 
@@ -437,8 +449,8 @@ export default {
           this.$store.state.ventanas.data[this.index].fields.forEach ( field => {
               formData[this.fieldUniqueId(field)] = ""
           })
-          //log(formData)
           return formData
+          //return JSON.cc ( this.$store.state.ventanas.data[this.index].fields )
       }
  },
  mounted: function () {

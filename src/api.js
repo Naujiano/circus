@@ -4,6 +4,7 @@ import Vuex from 'vuex'
 import actions from './actions.js'
 Vue.use(Vuex) 
 import queryString from 'query-string';
+import { _ } from 'core-js'
 const parsedSearch = queryString.parse(location.search)
 , apiURL = 	parsedSearch.api
 , connectionsModel = {};
@@ -137,12 +138,10 @@ function saveConfigFile () {
 }
 //alterTree()
 function alterTree () {
-	//loadFieldsForTables  ( vuexStore )
 	let tree = JSON.stringify({...vuexStore.state})
-	//vuexStore.state.database.listsModels = {}
-	//vuexStore.state.database.listsModels.CLI_Estado = vuexStore.state.database.lists.CLI_Estado
-	//vuexStore.state.ventanas.data[0].queryeditor.distinct=true
+	vuexStore.state.ventanas.data[0].table = "[212.170.175.192].vsegbas.dbo.clientes"
 	localStorage["vuexStore"] = JSON.stringify({...vuexStore.state})
+	console.log({...vuexStore.state})
 	saveTree("circus.json")
 }
 
@@ -161,13 +160,43 @@ function resetApiStore () {
 export function tablesFromConnection ( connection ) {
 	return [['clientes','clientes'],['polizas','polizas',],['recibos','recibos'],['colaboradores','colaboradores']]
 }
+setDatabaseMaps()
+function setDatabaseMaps () {
+	setTablesMap()
+	function setTablesMap () {
+		const tablesMap = new Map()
+		, tablesConfig = store.database.tables
+		Object.keys(tablesConfig).forEach ( ( key, i ) => {
+			const table = tablesConfig[key]
+			, connection = table.connection
+			, table_server = table.table_server
+			, table_catalog = table.table_catalog
+			, table_schema = table.table_schema ? table.table_schema : 'dbo'
+			, table_name = table.table_name
+			if ( connection && table_catalog && table_name ) {
+				table.table_alias = `table${i}`
+				table.table_reference = `[${table_catalog}].[${table_schema}].[${table_name}]` 
+				table.table_schema = table_schema
+				if ( table_server ) table.table_reference =  `[${table_server}].` + table.table_reference
+				tablesMap.set ( key, table )
+			}
+		})
+		console.log(tablesMap)
+		window.tablesMap = tablesMap
+	}
+}
+/*
 export function getListColumnSql ( key, options ) {
-	const listModel = getListModel(key)
-	if ( !listModel ) return key
-    if ( listModel.length ) { // Es Array. Lista estática
+	const list = getListModel(key)
+	if ( !list ) return key
+*/
+export function getListColumnSql ( qeParam, options ) {
+	const { list, field_full_name } = qeParam
+	if ( !list ) return field_full_name
+    if ( list.length ) { // Es Array. Lista estática
 		if ( !options ) {
-        	let newKey = `(case ${key}`
-        	listModel.forEach ( item => {
+        	let newKey = `(case ${field_full_name}`
+        	list.forEach ( item => {
         	    const val = item[0]
         	    , txt = item[1]
         	    newKey += ` when ${val} then '${txt}' `
@@ -175,16 +204,28 @@ export function getListColumnSql ( key, options ) {
         	newKey += `end)`
 			return newKey
 		} else {
-			return key
+			return field_full_name
 		}
     } 
-    if ( listModel && !listModel.length ) { // Es objeto. Lista dinámica
-        const sqlValueFromId = listModel.sqlValueFromId.replace ( "{{id}}", key )
+    if ( list && !list.length ) { // Es objeto. Lista dinámica
+        const sqlValueFromId = list.sqlValueFromId.replace ( "{{id}}", field_full_name )
         const newKey = `(${sqlValueFromId})`
 		return newKey
     }
 }
 export function getListModel ( listKey ) {
+//	if ( typeof listkey != "object" ) 
+		return getListModelFromOldModel ( listKey ) // compatibilidad con el modelo antiguo
+	const table_config_keyname = listKey.table_config_keyname
+	, tableConfig = window.tablesMap.get ( table_config_keyname )
+	, field_name = listKey.column_name
+	, field_list_model = _.get(tableConfig, `fields_config.${field_name}.listModel`)
+	if ( field_list_model ) {
+		return field_list_model
+	}
+	return false
+}
+function getListModelFromOldModel ( listKey ) {
 	const listsModels = store.database.listsModels
     , lists = store.database.lists
     , listModelName = lists[listKey]
@@ -206,7 +247,6 @@ export function getFieldsForTable ( table, cb ) {
 	table = getCaseSensitiveTableName ( table )
 	    $fieldsForTable (table,fields => {
 			const identities = fields.filter ( (field,index) => field.is_identity ).map ( field => field.column_name )
-			//if ( table == "v_dif_produccion" ) console.log(fields)
 			cb ( { fields,identities })
 		})
 }
@@ -225,22 +265,119 @@ export function getIdentitiesForTableSet ( table, cb ) {
 			cb ( identities )
 		})
 }
+function sp_circus_fields ( tableName, cb ) {
+	const tableConfig = window.tablesMap.get(tableName) //store.database.tables[tableName]
+	if ( !tableConfig ) {
+		console.log ( `api.js no encuentra la tabla '${tableName}'.` )
+		return false
+	}
+	const table_name = tableConfig.table_name
+	, table_schema = tableConfig.table_schema
+	, table_catalog = tableConfig.table_catalog
+	, table_server = tableConfig.table_server
+	, connection = tableConfig.connection
+	let sp_name = `[${table_catalog}].[${table_schema}].[sp_circus_fields] '${table_name}'`
+	if ( table_server ) sp_name = `[${table_server}].${sp_name}`
+	$dbq (
+		{
+			operation: 'sp'
+			, sp_name
+			, dbID: connection
+		}
+		, campos => { cb ( campos ) }
+	)
+
+}
 export function $fieldsForTable ( tableName, cb ) {
 	const tables = getTablesRelation(tableName).names
 	, finalCampos = []
 	, promises = []
-	//if ( tableName == "v_dif_produccion" ) console.log(tables)
+	//debugger
 	tables.forEach ( ( tableName ) => {
 		const tna = tableName.split ( "." )
-		, db = tna.length > 1 ? `${tna[0]}.${tna[1]}.` : ''
-		, tabla = tna.length > 1 ? tna[2] : tableName
+		, tableConfig = window.tablesMap.get(tableName) //store.database.tables[tableName]
 		, dbID = getTableConnectionId(tableName)
-		//console.log(db+'**'+dbID+'**'+tableName)
+		const { table_catalog, table_name, table_schema, table_server, table_alias, table_config_keyname, table_pkname, fields_config, table_reference } = tableConfig
+		/*
+		, table_catalog = tableConfig.table_catalog
+		, table_name = tableConfig.table_name
+		, table_schema = tableConfig.table_schema
+		, table_server = tableConfig.table_server
+		, table_alias = tableConfig.table_alias
+		, table_config_keyname = tableName
+		, pkname = tableConfig.pkname
+		, fields_config = tableConfig.fields_config
+		*/
+
+		/*
+		if ( tna.length > 1 ) {
+			_.reverse ( tna )
+			tabla = tna[0]
+			owner = tna[1]
+			db = tna[2]
+			server = _.join ( _.reverse ( _.takeRight ( tna , tna.length - 3 ) ) , "." ) 
+		}
+		*/
+		//console.log(`[${table_server}].[${table_catalog}].[${table_schema}].[sp_circus_fields] '${table_name}'`)
+		
 		const promise = new Promise ( ( resolve, reject ) => {
+			sp_circus_fields ( tableName, ( campos ) => {
+				const newCampos = JSON.parse ( JSON.stringify ( campos ) )
+				//, custom_pkname = store.database.tables[tableName].pkname ? store.database.tables[tableName].pkname : ''
+				//, custom_pkname = pkname ? pkname : ''
+				const computedFields = store.database.computedFields
+				computedFields.forEach ( cf => {
+					const cfTable = cf.table
+					if ( cfTable.toLowerCase() == table_name.toLowerCase() ) {
+						newCampos.push({
+							CHARACTER_MAXIMUM_LENGTH:10
+							, column_name: cf.sql
+							, data_type: cf.type
+							, is_identity: false
+							, table_name: tableName //tabla
+							, literal: cf.literal
+						})
+					}
+				})
+				newCampos.forEach ( ( campo ) => {
+					//const fieldSettings = getFieldSettings ( campo.column_name, campo.table_name )
+					let list = false, listModel = false
+					//if ( campo.column_name.toLowerCase() == "col_id_1" ) debugger
+					if ( fields_config ) {
+						const field_config = $$ ( fields_config ).getCI ( campo.column_name )
+						if ( field_config ) {
+							listModel = field_config.listModel
+							list = store.database.listsModels[listModel]
+						}
+					}
+					const field_full_name = `[${table_alias}].[${campo.column_name}]`
+					Object.assign ( 
+						campo
+						, { 
+							//dbsettings: fieldSettings 
+							 form: { group: 'grupo2'}
+							, list
+							, listModel
+							, table_schema 
+							, table_server 					
+							, table_alias 					
+							, table_config_keyname
+							, field_full_name
+							, table_full_name : table_reference
+							, table_pkname
+							, key: list ? getListColumnSql ( { list, field_full_name } ) : field_full_name
+						}
+					)
+					//if ( campo.column_name.toLowerCase() == custom_pkname.toLowerCase() ) campo.is_identity = true
+					//if ( campo.is_identity ) campo.list.position = "0" 
+				});
+				resolve ( newCampos )
+			} )
+			/*
             $dbq ({
                 operation: 'sp'
                 //, sp_name: `${db}sp_circus_fields '${tabla}'`
-                , sp_name: `sp_circus_fields '${tabla}'`
+                , sp_name: `[${table_server}].[${table_catalog}].[${table_schema}].[sp_circus_fields] '${table_name}'`
 				, dbID: dbID
             }, campos => {
 				const newCampos = JSON.parse ( JSON.stringify ( campos ) )
@@ -248,7 +385,7 @@ export function $fieldsForTable ( tableName, cb ) {
 				const computedFields = store.database.computedFields
 				computedFields.forEach ( cf => {
 					const cfTable = cf.table
-					if ( cfTable.toLowerCase() == tabla.toLowerCase() ) {
+					if ( cfTable.toLowerCase() == table_name.toLowerCase() ) {
 						newCampos.push({
 							CHARACTER_MAXIMUM_LENGTH:10
 							, column_name: cf.sql
@@ -261,12 +398,24 @@ export function $fieldsForTable ( tableName, cb ) {
 				})
 				newCampos.forEach ( ( campo ) => {
 					const fieldSettings = getFieldSettings ( campo.column_name, campo.table_name )
-					Object.assign ( campo, { dbsettings: fieldSettings , form: { group: 'grupo2'}, list: { order: "", position: "1" } } )
+					Object.assign ( 
+						campo
+						, { 
+							dbsettings: fieldSettings 
+							, form: { group: 'grupo2'}
+							, list: { order: "", position: "1" } 
+							, table_schema 
+							, table_server 					
+							, table_alias 					
+							, table_config_keyname
+						}
+					)
 					if ( campo.column_name.toLowerCase() == custom_pkname.toLowerCase() ) campo.is_identity = true
 					if ( campo.is_identity ) campo.list.position = "0" 
 				});
 				resolve ( newCampos )
-            })
+			})
+			*/
 		})
 		promises.push ( promise )
 	})
@@ -298,25 +447,25 @@ export function getTableConnectionId ( tableName, databasename ) {
 	let dbID = false
 	Object.keys ( store.database.tables ).forEach ( key => {
 		if ( key.toLocaleLowerCase() == tableName.toLocaleLowerCase() ) {
-			//dbID = store.database.tables[key].connection
 			const connID = store.database.tables[key].connection//.toLowerCase()
-			//console.log(services.connNameToDbName+connID)
-			//console.log(services.connNameToDbName[connID.toLowerCase()])
 			dbID = databasename ? services.connNameToDbName[connID.toLowerCase()] : connID
-			//dbID = connID
 		}
 	})
-	//const dbID = store.database.tables[tableName].connection
 	return dbID
 }
 export function getTablesRelation ( tableName ) {
 	const dbID = getTableConnectionId(tableName,1)
-	const relatedGroup = { names: [tableName], joinSyntax: cleanTableName(dbID)+'.dbo.'+cleanTableName(tableName) }
-	//let relatedNames = [tableName]
+	//const relatedGroup = { names: [tableName], joinSyntax: cleanTableName(dbID)+'.dbo.'+cleanTableName(tableName) }
+	const tableConfig = window.tablesMap.get ( tableName )
+	if ( ! tableConfig ) {
+		console.log(`api.js no ha encontrado la tabla '${tableName}' en el mapa de tablas.`)
+		return false
+	}
+	const joinSyntax = `${tableConfig.table_reference} as ${tableConfig.table_alias}`
+	const relatedGroup = { names: [tableName], joinSyntax: joinSyntax }
 	const relatedTables = getRelatedTables ( tableName )
 	relatedGroup.joinSyntax +=  relatedTables.joinSyntax
 	let nextRelatedNames = relatedTables.names
-	//console.log('tablename'+tableName)
 	do {
 		let relatedNames = nextRelatedNames
 		//_.pullAll(relatedNames, relatedGroup.names)
@@ -341,16 +490,23 @@ function getNextAlias ( ) {
 	return aliases[aliasIndex]
 }
 function getRelatedTables ( tableName, excludeNames=[] ) {
+	const remoteTableConfig = window.tablesMap.get ( tableName )
+	if ( ! remoteTableConfig ) return false
+
 	const res = { names: [], joinSyntax: "" }
 	const tables = store.database.tables
 	, table = tables[tableName]
 	, relatedTablesNames = []
-	//res.joinSyntax += tableName
+	, remote_table_reference = remoteTableConfig.table_reference
+	, remote_table_alias = remoteTableConfig.table_alias
 	if ( !table ) return res
 	let joinTables = ""
+	
 	const relatedTables = table.relatedTables ? table.relatedTables : {}
 	Object.keys(relatedTables).filter(tableName=>excludeNames.indexOf(tableName)==-1).forEach ( ( key, aliasIndex ) => {
-		//if ( relatedTables[key].relation == "* => 1" ) {
+		const tableConfig = window.tablesMap.get ( key )
+		if ( ! tableConfig ) return false
+
 		const relatedTable = relatedTables[key]
 		, remoteField = relatedTable.remoteField
 		, localField = relatedTable.localField
@@ -361,14 +517,20 @@ function getRelatedTables ( tableName, excludeNames=[] ) {
 		, t1fullname = `${dbID}.dbo.${cleanTableName(key)}`
 		, alias = isTableRepeated (key) ? getNextAlias() : ''
 		, alias2 = alias != '' ? alias : t1fullname
+		, local_table_reference = tableConfig.table_reference
+		, local_table_alias = tableConfig.table_alias
+
+
 		// AL FINAL HE DECIDIDO EXCLUIR CUALQUIER REPETICIÓN DE UNA TABLA EN LA SELECT. LA QUE LLEGUE PRIMERO SE LO QUEDA.
 		if ( ! isTableRepeated (key)  ) 
-			joinTables += ` ${joinType} ${t1fullname} ${alias} ON ${dbID2}.dbo.${cleanTableName(tableName)}.${localField} =  ${alias2}.${remoteField}`
+			joinTables += ` ${joinType} ${local_table_reference} AS ${local_table_alias} ON ${local_table_alias}.${localField} =  ${remote_table_alias}.${remoteField}`
+			//joinTables += ` ${joinType} ${t1fullname} ${alias} ON ${dbID2}.dbo.${cleanTableName(tableName)}.${localField} =  ${alias2}.${remoteField}`
 		relatedTablesNames.push ( key )
 		involvedTablesNames.push ( key )
 		function isTableRepeated (tn) {
 			return involvedTablesNames.indexOf (tn) != -1
 		}
+		//debugger
 	})
 	res.names = relatedTablesNames
 	res.joinSyntax = joinTables

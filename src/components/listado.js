@@ -4,13 +4,14 @@ import ItemEditor from './item-editor.vue'
 import Queryeditor  from './query-editor.vue'
 import Toolbar from './tool-bar.vue'
 import Series from './Series.vue'
+import { _ } from 'core-js'
 
 export default {
     components: { ItemEditor, SimpleTable, Queryeditor, Toolbar, Ly, Series },
     props: {
         multiline: String,
         ventana: Object,
-        filter: Object,
+        filter: Array,
         overflow: Boolean,
         formSetValues: Function,
         keysSettings: Object,
@@ -119,23 +120,36 @@ export default {
     },
     watch: {
         filter: function (object, oldVal ) {
-            console.log(JSON.cc(object))
+            object = JSON.cc(object)
             //convierto objeto con campos del formulario a array para el QE.
-            const qeParams = Object.keys(object).map ( key => ( Object.assign ( {}, object[key], { 
-                key: this.api.getListColumnSql ( key )
-                , alias: this.shortAlias ( this.api.getLiteral ( key ) )
-                , reference: key
-                , operator: "AND"
-                , leftText: ""
-                , rightText: ""
-                , _active: (object[key].value === '%' ? false : true)
-                , _inlist: true
-                , data_type: this.utils.getBasicDataType(object[key].data_type) 
-                , _extended : false
-                , _extendKey : this.showAdvanced
-                , _orderby: '-'
-            } ) ))
-
+            //const qeParams = Object.keys(object).map ( key => ( Object.assign ( {}, object[key], { 
+            const qeParams = object.map ( par => {
+                const key = par.column_name
+                , parKey = this.api.getListColumnSql ( par )
+                , alias = this.shortAlias ( this.api.getLiteral ( key ) )
+                , data_type = this.utils.getBasicDataType(par.data_type) 
+                const newPar = Object.assign ( 
+                    {}
+                    , par
+                    , { 
+                        alias
+                        //, key: parKey
+                        , reference: key
+                        , operator: "AND"
+                        , leftText: ""
+                        , rightText: ""
+                        //, _active: (object[key].value === '%' ? false : true)
+                        , _active: false //(object[key].value === '%' ? false : true)
+                        , _inlist: true
+                        //, data_type: this.utils.getBasicDataType(object[key].data_type) 
+                        , data_type
+                        , _extended : false
+                        , _extendKey : this.showAdvanced
+                        , _orderby: '-'
+                    }
+                ) 
+                return newPar
+            })
             qeParams[0].text = ""
             qeParams[0].value = ""
             let actualQeParams = this.$store.getters.qeParams(this.ventana.index)
@@ -210,11 +224,12 @@ export default {
         },
          columns () {
             const table = this.ventana.data.table
+            , tableConfig = window.tablesMap.get (table)
             , fields = this.ventana.data.fields
             , identities = this.ventana.data.identities
             , idField = identities[0]
             , distinct = this.distinct // this.$store.state.ventanas.data[this.ventana.index].queryeditor.distinct
-            , columns = distinct ? ['1 as PK_ID'] : [table+'.'+idField+' as PK_ID']
+            , columns = distinct ? ['1 as PK_ID'] : [tableConfig.table_alias+'.'+idField+' as PK_ID']
             const qeColumns = this.$refs.qe.settings.columns
             qeColumns.forEach ( key => {
                 //if ( columns.indexOf(key.toLowerCase()) == -1 ) 
@@ -225,7 +240,8 @@ export default {
         },
         pkName(){
             const tarr = this.ventana.data.table.split(".")
-            const table = tarr.length > 1 ? tarr[2] : tarr[0]
+            if ( tarr.length > 1 ) _.reverse ( tarr )
+            const table = tarr[0]
             const fields = this.ventana.data.fields
             , pkfield = fields.filter ( field => ( field.is_identity && field.table_name.toLowerCase() == table.toLowerCase() ) )
             if ( !pkfield[0] ) {
@@ -478,14 +494,13 @@ export default {
             this.$refs.Tabla.resizeHeaders()
         },
         headerClick ( index, event ) {
-            const reference = this.qeParams[index].reference
+            const qeParam = this.qeParams[index]//.field_full_name
             , qe = this.$refs.qe
             , that = this
-            console.log(reference)
             event.stopPropagation();
 
             window.contextDialog (
-                { reference, value: qe.parameters.data[index].key, cb: function(txt){
+                { qeParam, value: qe.parameters.data[index].key, cb: function(txt){
                     if ( txt ) { //VIENE DEL COMPONENTE contextFieldEditKey
                         qe.parameters.data[index].key = txt
                         qe.emitParameters()
@@ -601,8 +616,8 @@ export default {
         compute ( params ) {
             // COMPUTO
             // OBTENGO LOS NOMBRES DE LAS COLUMNAS
-            
-            this.grid.columns.names = this.columns.map ( column => {
+            //debugger
+            const colNames = this.columns.map ( column => {
                 const cSplit = column.toLowerCase().split ( " as " )
                 , sql = cSplit[0]
                 , label = cSplit.length > 1 ? cSplit[1] : cSplit[0]
@@ -616,22 +631,19 @@ export default {
                 })
                 return { sql:reference, label }
             })
-            this.grid.columns.names.splice(0,1) // quito pk_id (la primera columna que nunca se ve)
-            //console.log(JSON.cc(this.qeParams))
-            //console.log(JSON.cc(this.grid.columns.names))
-//return
-            //obtengo los data type de las columnas del listado
+            colNames.splice(0,1) // quito pk_id (la primera columna que nunca se ve)
+            
 
-            this.grid.columns.names.forEach ( (name,i) => {
+            //obtengo los data type de las columnas del listado
+            colNames.forEach ( (name,i) => {
                 this.grid.columns.types[i] = "text"
                 Object.keys(this.keysSettings).forEach ( key => {
                     if ( name.sql.toLowerCase() == key.toLowerCase() ) this.grid.columns.types[i] = this.utils.getBasicDataType(this.keysSettings[key].data_type)
                 })
             })
 
-
             const computedColumns = []
-            this.grid.columns.names.forEach ( (name,i) => {
+            colNames.forEach ( (name,i) => {
           //      if ( i > 0 ) {
                     //computedColumns.push ( "" )
                     const type = this.grid.columns.types[i]
@@ -656,11 +668,13 @@ export default {
                     }
           //      }
             })
+            this.grid.columns.names = colNames
 
             if (!computedColumns.length || !params) return false
-           
+
             const paramsComputedCols = JSON.cc(params)
             paramsComputedCols.columns = computedColumns
+            console.log(paramsComputedCols)
             this.api.$dbq (paramsComputedCols , data => {
                 const results = JSON.cc(data[0])
                 Object.keys(results).forEach ( key => {
@@ -870,8 +884,9 @@ export default {
                 
             }
             const pkName = this.pkName
+            , tableConfig = window.tablesMap.get(table)
             , whereListado = `pkname = '${table}.${pkName}'`
-            , orderbyStr = this.$refs.qe.settings.orderBy != "" ? this.$refs.qe.settings.orderBy:(table+'.'+pkName)
+            , orderbyStr = this.$refs.qe.settings.orderBy != "" ? this.$refs.qe.settings.orderBy:`[${tableConfig.table_alias}].[${pkName}]`
             , recXPag = this.grid.recXPag
             , offset = this.grid.page * recXPag
             , selectSql = `sql=SELECT ${this.distinct?'DISTINCT ':''} ${columns} FROM ${joinSyntax} ${this.grid.whereSql} ORDER BY ${orderbyStr} OFFSET ${offset} ROWS FETCH NEXT ${recXPag} ROWS ONLY`
@@ -893,7 +908,6 @@ export default {
             if ( o ) {
                 params.pageSize=999999999
             }
-
             this.api.$dbq (params , data => {
                 this.grid.rows =  this.grid.rows.concat(data)
                 this.grid.loadedRecsNumber = loadedRecsNumber

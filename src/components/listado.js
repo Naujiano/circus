@@ -174,7 +174,7 @@ export default {
             //alert('c')
         },
         qeParams(){
-            this.$nextTick(function(){this.compute()})
+            this.$nextTick(()=>{this.compute()})
             //this.compute()
             //alert('b')
             //console.log('asdfa')
@@ -239,6 +239,7 @@ export default {
             return (columns)
         },
         pkName(){
+            return this.ventana.data.identities[0]
             const tarr = this.ventana.data.table.split(".")
             if ( tarr.length > 1 ) _.reverse ( tarr )
             const table = tarr[0]
@@ -262,7 +263,7 @@ export default {
             handle: '.cell-title'
             , stop: this.sortableStop
             , placeholder: "ui-state-highlight"
-            , revert: true
+            , revert: 200
             , scroll: true
         })
 
@@ -342,7 +343,7 @@ export default {
             const aliasArr = alias.split(".") 
             return aliasArr[aliasArr.length-1]
         },
-        clickFunc ( func, event ) {
+        clickFunc ( func, event, i ) {
             console.log('target')
             event.stopPropagation()
             const target = event.target.tagName == "path" ? event.target.closest('svg') : event.target
@@ -360,14 +361,17 @@ export default {
                     break;
             }
             //func = func == "SUM" ? "AVG" : "SUM"
-            $slot.find('select').val(func)
+            //debugger
+            //$slot.find('select').val(func)
             if ( func == "SUM" )
-                $slot.find('.button-operation svg').addClass('hide').eq(0).removeClass('hide')
+                $slot.find('.button-operation svg').addClass('hidden').eq(0).removeClass('hidden')
             if ( func == "AVG" )
-                $slot.find('.button-operation svg').addClass('hide').eq(1).removeClass('hide')
+                $slot.find('.button-operation svg').addClass('hidden').eq(1).removeClass('hidden')
             if ( func == "DISTINCT" )
-                $slot.find('.button-operation svg').addClass('hide').eq(2).removeClass('hide')
+                $slot.find('.button-operation svg').addClass('hidden').eq(2).removeClass('hidden')
             //$(target).removeClass('hide')
+            this.$refs.qe.parameters.data[i].aggregate_function = func
+            this.$refs.qe.emitParameters()
             
         },
         open_serie ( event ) {
@@ -627,7 +631,7 @@ export default {
                 let reference
                 Object.keys(qeParams).forEach ( key => {
                     const alias = qeParams[key].alias
-                    if ( '['+alias.toLowerCase()+']' == label.toLowerCase() ) reference = qeParams[key].reference
+                    if ( '['+alias.toLowerCase()+']' == label.toLowerCase() ) reference = qeParams[key].field_full_name
                 })
                 return { sql:reference, label }
             })
@@ -646,9 +650,9 @@ export default {
             colNames.forEach ( (name,i) => {
           //      if ( i > 0 ) {
                     //computedColumns.push ( "" )
-                    const type = this.grid.columns.types[i]
-                    , func = $(this.$refs['computed_'+name.label]).find('select option:selected').val()
-                    
+                    const type = this.qeParams[i].basic_data_type //this.grid.columns.types[i]
+                    , func = this.qeParams[i].aggregate_function //$(this.$refs['computed_'+name.label]).find('select option:selected').val()
+                    //debugger
                     //console.log(name)
                     if ( name.sql.toLowerCase().indexOf ( 'select' ) == -1 ) { //SI TIENEN SELECT ES QUE ES UNA SUBQUERY DE UN CAMPO COMPUTADO. NO SE PUEDEN CONTAR LAS SUBQUERIES POR RESTRICCIÓN DE SQL SERVER.
                         if ( type == "number" ) {

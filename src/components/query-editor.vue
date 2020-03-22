@@ -219,6 +219,7 @@ export default {
             } else {
                 checkedLiterals = checkedRows
             }
+            if ( checkedLiterals == "[]" ) checkedLiterals = ""
             //console.log(checkedLiterals)
             par.value = checkedLiterals
             par.text = checkedLiterals

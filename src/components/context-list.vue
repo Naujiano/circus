@@ -3,32 +3,38 @@
         id="circusContextList"
         class="context-list"
         :style="{
-            left:left+'px',
+            left: right ? '' : ( left+'px' ),
+            right: right ? ( right+'px' ) : '',
             top:top+'px',
+            'max-height':maxheight+'px',
+            'margin-left': right ? '20px' : '',
+            'margin-right': ! right ? '20px' : '',
         }"
     >
         <!--<div style="position:absolute;border:1px solid red;min-width:50px;background:#f2f2f2;max-height:300px;">-->
+        <div style="padding: 4px 0 6px 6px;width:100%;background: #ccc; font-weight: bold;border:0px solid transparent;border-width-top:0px">{{qeParam.alias}}</div>
         <div style="clear:both;float:none;width:100%;border:0px solid red;height:21px;padding-top:1px">
+            <button @click='emptySearchString()' style="float:left;margin-left:4px" data-help-code="context-list-button-filled">
+                <svg height="50px" viewBox="-48 0 407 407" width="50px" style="width:12px; margin: -2px 0 0 -4px" xmlns="http://www.w3.org/2000/svg"><path d="m89.199219 37c0-12.132812 9.46875-21 21.601562-21h88.800781c12.128907 0 21.597657 8.867188 21.597657 21v23h16v-23c0-20.953125-16.644531-37-37.597657-37h-88.800781c-20.953125 0-37.601562 16.046875-37.601562 37v23h16zm0 0"/><path d="m60.601562 407h189.199219c18.242188 0 32.398438-16.046875 32.398438-36v-247h-254v247c0 19.953125 14.15625 36 32.402343 36zm145.597657-244.800781c0-4.417969 3.582031-8 8-8s8 3.582031 8 8v189c0 4.417969-3.582031 8-8 8s-8-3.582031-8-8zm-59 0c0-4.417969 3.582031-8 8-8s8 3.582031 8 8v189c0 4.417969-3.582031 8-8 8s-8-3.582031-8-8zm-59 0c0-4.417969 3.582031-8 8-8s8 3.582031 8 8v189c0 4.417969-3.582031 8-8 8s-8-3.582031-8-8zm0 0"/><path d="m20 108h270.398438c11.046874 0 20-8.953125 20-20s-8.953126-20-20-20h-270.398438c-11.046875 0-20 8.953125-20 20s8.953125 20 20 20zm0 0"/></svg>
+            </button>
             <button @click='contextListButton("empty")' data-help-code="context-list-button-empty" style="float:left">
                 <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 width="50.613px" height="50.613px" viewBox="0 0 50.613 50.613" style="enable-background:new 0 0 50.613 50.613;;zoom:0.6;margin-left:-4px;margin-top:3px"	 xml:space="preserve"><g>	<g>		<g><circle cx="22.724" cy="43.575" r="4.415"/>			<circle cx="41.406" cy="43.63" r="4.415"/>			<path d="M46.707,32.312H20.886L10.549,2.568H2.5c-1.381,0-2.5,1.119-2.5,2.5s1.119,2.5,2.5,2.5h4.493L17.33,37.312h29.377				c1.381,0,2.5-1.119,2.5-2.5S48.088,32.312,46.707,32.312z"/>		</g>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
-                <!--
-                <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"  viewBox="0 0 142.916 142.916" style="enable-background:new 0 0 142.916 142.916;zoom:0.6;margin-left:-4px;margin-top:3px"	 xml:space="preserve"><g>	<g>		<path d="M32.901,114.799l-12.015,16.507c-2.375,3.265-1.656,7.835,1.608,10.21c1.301,0.945,2.807,1.4,4.295,1.4			c2.261,0,4.487-1.043,5.917-3.006l12.11-16.638c7.951,4.239,17.019,6.651,26.644,6.651c31.342,0,56.84-25.499,56.84-56.842			c0-15.979-6.636-30.427-17.283-40.764l15.074-20.709c2.375-3.265,1.655-7.834-1.607-10.21c-3.273-2.377-7.84-1.651-10.209,1.608			L99.313,23.562c-8.241-4.655-17.739-7.323-27.856-7.323c-31.343,0-56.842,25.499-56.842,56.841			C14.615,89.557,21.665,104.409,32.901,114.799z M113.682,73.08c0,23.284-18.94,42.226-42.226,42.226			c-6.407,0-12.461-1.477-17.905-4.039l48.729-66.951C109.331,51.864,113.682,61.964,113.682,73.08z M71.457,30.856			c6.901,0,13.403,1.698,19.159,4.646l-49.043,67.381c-7.623-7.643-12.344-18.181-12.344-29.801			C29.232,49.798,48.173,30.856,71.457,30.856z"/>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
-                -->
             </button>
             <button @click='contextListButton("filled")' style="float:left" data-help-code="context-list-button-filled">
                 <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 width="50.613px" height="50.613px" viewBox="0 0 50.613 50.613" style="enable-background:new 0 0 50.613 50.613;;zoom:0.6;margin-left:-4px;margin-top:3px"	 xml:space="preserve"><g>	<g>		<g>			<path d="M49.569,11.145H20.055c-0.961,0-1.508,0.743-1.223,1.661l4.669,13.677c0.23,0.738,1.044,1.336,1.817,1.336h19.35				c0.773,0,1.586-0.598,1.814-1.336l4.069-14C50.783,11.744,50.344,11.145,49.569,11.145z"/>			<circle cx="22.724" cy="43.575" r="4.415"/>			<circle cx="41.406" cy="43.63" r="4.415"/>			<path d="M46.707,32.312H20.886L10.549,2.568H2.5c-1.381,0-2.5,1.119-2.5,2.5s1.119,2.5,2.5,2.5h4.493L17.33,37.312h29.377				c1.381,0,2.5-1.119,2.5-2.5S48.088,32.312,46.707,32.312z"/>		</g>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
-                <!--
-                <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 viewBox="0 0 300 300" style="enable-background:new 0 0 300 300;;zoom:0.5;margin-left:-4px;margin-top:4px" xml:space="preserve"><path d="M150,0C67.29,0,0,67.29,0,150s67.29,150,150,150s150-67.29,150-150S232.71,0,150,0z M150,270c-66.169,0-120-53.832-120-120	S83.831,30,150,30s120,53.832,120,120S216.168,270,150,270z"/><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
-                -->
             </button>
             &nbsp;
         </div>
-            <div style="height: auto;width:100%;border:1px solid #ddd; padding: 2px 5px; min-height:21px">
-                {{firstSearchString}}
+            <div style="height: auto;width:100%;border:0px solid #ddd; padding: 2px 5px; min-height:21px; max-width:500px;margin-bottom: 4px" class="blobs">
+                <div class="blob" v-for="blob in firstSearchStringArray" @click="uncheckRow(blob,$event)">
+                    {{blob}}
+                </div>
+                
             </div>
             <input 
                 contenteditable="true" 
                 style="height: 21px;width:100%;border:1px solid #ddd; padding: 15px 5px; margin: 0px; background: white;cursor:text;box-shadow: 0 0 5px 0px inset #ccc;border-radius:1px"
+                placeholder="Buscar..."
                 v-model = "searchString"
                 @keyup = "updateContext($event)"
             >
@@ -36,6 +42,7 @@
             
         <SimpleTable
             v-if="type=='list'"
+            ref="simpleTable"
             :rows="rows"
             :hiddenKeys="hiddenKeys"
             :checkable="true"
@@ -84,7 +91,9 @@ export default {
             , hiddenKeys: []
             , top: 400
             , left: 100
+            , right: false
             , height: 300
+            , maxheight: 300
             , checkedRows: []
             , type: "text"
             , comparation: 0
@@ -93,6 +102,7 @@ export default {
             , searchString: ""
             , firstSearchString: ""
             , searchable: true
+            , qeParam : {}
         }
     },
     watch: {
@@ -111,7 +121,42 @@ export default {
     , mounted () {
         window.contextList = this
     }
+    , computed : {
+        firstSearchStringArray(){
+            const firstSearchString = this.firstSearchString
+            let firstSearchStingArray
+            try {
+                const arr = JSON.parse(firstSearchString)
+                if ( arr.length ) return arr
+            } catch ( err ) {}
+            return [firstSearchString]
+        }
+    }
     , methods: {
+        emptySearchString(){
+            //this.searchString = ""
+            //const checkedRows = []
+            //this.checkedRows = checkedRows
+            this.checkedRows = []
+            this.onChange("")
+        },
+        uncheckRow ( label , event) {
+            $(event.target).addClass('removing')
+            setTimeout ( ()=> {
+                event.stopPropagation()
+                const simpleTable = this.$refs.simpleTable
+//contextLi     t.checkedRows = checkedRows.map ( row => ({ row, i: row._rowIndex }) )
+                //debugger
+                const labelKey = Object.keys(this.checkedRows[0].row)[1]
+                //const checkedRows = this.checkedRows.filter ( row => row.row[labelKey] != label ).map ( row => ( { i:1 , [labelKey] : row.row[labelKey] } ) )
+                const checkedRows = this.checkedRows.filter ( row => row.row[labelKey] != label )//.map ( row => row.row )
+                //getCheckedRowsFromInput ( val, contextList.rows ) {
+                this.checkedRows = checkedRows
+                this.onChange(checkedRows,"remove",label)
+                //this.contextListCheckClick ( checkedRows )
+                $(event.target).removeClass('removing')
+            }, 300)
+        },
         simpleTableSearchString (searchString) {
             const st = searchString ? searchString : this.searchString
             let obj = false
@@ -158,10 +203,11 @@ export default {
             console.log(checkedRows)
             */
             //const checkedRows = checkedIndexs
-            const checkedIds = checkedRows.map ( row => row[Object.keys(row)[0]] )
-            , oldCheckedRows = contextList.checkedRows.map ( ele => ele.row )
-            , oldCheckedIds = oldCheckedRows.map ( row => row[Object.keys(row)[0]] )
-            , checkedLiterals = checkedRows.map ( row => row[Object.keys(row)[1]] )
+            //debugger
+            //const checkedIds = checkedRows.map ( row => row[Object.keys(row)[0]] )
+            const oldCheckedRows = contextList.checkedRows.map ( ele => ele.row )
+            //, oldCheckedIds = oldCheckedRows.map ( row => row[Object.keys(row)[0]] )
+            const checkedLiterals = checkedRows.map ( row => row[Object.keys(row)[1]] )
             , oldCheckedLiterals = oldCheckedRows.map ( row => row[Object.keys(row)[1]] )
             let operation = "none"
             , differenceIndex
@@ -171,12 +217,11 @@ export default {
             //if ( !this.oldCheckedRows ) this.oldCheckedRows = checkedRows
             if ( checkedRows.length > oldCheckedRows.length ) operation = "add"
             if ( checkedRows.length < oldCheckedRows.length ) operation = "remove"
-            differenceIndex = oldCheckedIds.filter(x => !checkedIds.includes(x))[0];
+            //differenceIndex = oldCheckedIds.filter(x => !checkedIds.includes(x))[0];
             differenceLiteral = oldCheckedLiterals.filter(x => !checkedLiterals.includes(x))[0];
             //removedElement = JSON.cc ( this.rows ).filter( row => row[Object.keys(row)[0]] == differenceIndex )[0]
             removedElement = differenceLiteral
-            //debugger
-            this.oldCheckedIds = checkedIds
+            //this.oldCheckedIds = checkedIds
             contextList.checkedRows = checkedRows.map ( row => ({ row, i: row._rowIndex }) )
             this.onChange(checkedRows,operation,removedElement)
             //this.onChange(checkedRows)
@@ -201,6 +246,7 @@ export default {
         },
         openContext (keyName,$field,val,type,onChange,cb, singlecheck, {pkName,dbname,ownername,tablename,fieldname,dbID, searchString,cbWhenClose, qeParam }, onlyReload ) {
             this.openContextParameters = {keyName,$field,val,type,onChange,cb, singlecheck, pkName,dbname,ownername,tablename,fieldname,dbID, searchString,cbWhenClose, qeParam }
+            this.qeParam = qeParam
             this.singlecheck = singlecheck
         	//if ( this.simpleTableSearchString(searchString) != "" )  
             this.searchString = searchString
@@ -356,10 +402,16 @@ export default {
         },
         positionContext(event) {
             if ( !contextList.opened || !this.$field ) return
+            const ww = $(window).width();
+            const wh = $(window).height();
        		const top = this.$field.offset().top + this.$field.outerHeight()
-       		, left = this.$field.offset().left
+            , left = this.$field.offset().left
+            , right = left > ( ww / 2 ) ? ( ww - left - this.$field.outerWidth() ) : false
+            , maxheight = wh - top - 20
        		contextList.top = top
        		contextList.left = left
+       		contextList.right = right
+       		contextList.maxheight = maxheight
             if (!event || !$.contains (event.target,this.$field[0]))return
             const inView= isScrolledIntoView(this.$field,$(event.target))
             if ( !inView )

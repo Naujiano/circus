@@ -366,6 +366,29 @@ export function $fieldsForTable ( tableName, cb ) {
 							, table_full_name : table_reference
 							, table_pkname
 							, key: list ? getListColumnSql ( { list, field_full_name } ) : field_full_name
+							, aggregate_function : 'DISTINCT'
+							, basic_data_type: function ( data_type ) {
+								//console.log(data_type)
+								const text = 'text'
+								, number = 'number'
+								, date = 'date'
+								switch ( data_type ) {
+									case 'number':
+										return number
+									case 'int':
+										return number
+									case 'float':
+										return number
+									case 'money':
+										return number
+									case 'datetime':
+										return date
+									case 'date':
+										return date
+									default:
+										return text
+								}
+							}(campo.data_type)
 						}
 					)
 					//if ( campo.column_name.toLowerCase() == custom_pkname.toLowerCase() ) campo.is_identity = true

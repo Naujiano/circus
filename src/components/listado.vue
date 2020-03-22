@@ -39,31 +39,37 @@
             </div>
             <div :class="{'computer-container':true, 'sorting':!grid.rows.length, 'computer-container-advanced': showAdvanced }">
 
-            <div style="width:100%;height:4px;background:#ccc;"></div>
+            <div style="width:10000px;height:4px;background:#ccc;"></div>
 
-            <!--
-                <div style="float:left;height:15px;width:14px;padding:0px 0 0 1px;border:0px solid red;position:absolute;z-index:2;"><button data-help-code="list-distinct" title="Funciones" @click="set_distinct()" :style="{'background':distinct?'red':''}">/</button></div>
-            -->                 
-                <div v-show="qeParams.length" style="width:25px;float:left;padding-top:68px;position:relative;z-index:1"><button @click="extendParams()" style="background;border:1px solid #ddd" data-help-Code="show-advanced-params">+</button></div>
-                <div ref="computer" style="display:flex;width: ; height:; padding:0 0 0 25px;position:absolute;white-space:nowrap">
-                    <div v-for="(col,i) in grid.columns.names" v-if="qeParams[i]" :ref="'computed_'+col.label" class="header-cell" :key="'cont_'+col.label" :type="grid.columns.types[i]" :param="JSON.stringify(getParam(i))">
 
+                <div v-show="qeParams.length" style="width:25px;height:;float:left;padding-top:77px;position:relative;z-index:1"><button @click="extendParams()" style="background;border:1px solid #ddd;height:23px;" data-help-Code="show-advanced-params">+</button></div>
+
+
+                <div ref="computer" style="display:flex;width: ; height:; padding:0 0 0 25px;position:absolute;white-space:nowrap;border:0px solid red;border-width:0px">
+                    <div v-for="(col,i) in grid.columns.names" v-if="qeParams[i]" :ref="'computed_'+col.label" class="header-cell" :key="'cont_'+col.label" :type="getParam(i).basic_data_type" :param="JSON.stringify(getParam(i))">
+
+                        <!--
                         <select style="display:none">
                             <option value="SUM">SUMA</option>
                             <option value="AVG">MEDIA</option>
                             <option value="DISTINCT" selected>MEDIA</option>
                         </select>
+                        -->
+
                 <div style="display:flex; width: 100%;flex-direction:column">
-<div class="cell-title" style="clear:both;float:none;font-weight:bold;padding:4px;width:100%;background: #898F99;border-radius: 10px; color:white;font-weight:normal;text-align:center" contenteditable="true" @dblclick="editAlias($event,i)" @blur="saveAlias($event,i)">{{getParam(i).alias}}</div>
+            <div class="cell-title" style="clear:both;float:none;font-weight:bold;padding:4px 24px 4px 8px;width:100%;background: #898F99;border-radius: 10px; color:white;font-weight:normal;text-align:center" contenteditable="true" @dblclick="editAlias($event,i)" @blur="saveAlias($event,i)">
+                {{getParam(i).alias}}
+            </div>
+                <button v-show="admin" @click="deleteParam(i)" class="close closeButton" data-help-code="search-parameter-close" style="float:right;margin-top:-18px;margin-bottom:5px; margin-left: calc(100% - 18px);zoom:1.1"></button>
 
 </div>
 
 <!-- -------------------------------- RECUADRO CON RECUENTO Y BOTON DE OPERACIONES DE AGREGADO ------------------------------------- -->
-            <div style="position:relative;border:0px solid #ddd;border-width:0 0 0 0;padding:2px 4px 3px 0px; white-space: nowrap;margin-top:0px;clear:both;float:none:width:100%;height: 22px;top:3px">
-                <div style="position:absolute; cursor:pointer; border:0px solid blue; top: 3px;z-index:1000" class="button-operation">
-                        <svg title="SUMA" v-show="grid.columns.types[i]=='number'" class="hide" @click="clickFunc('SUM',$event)" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"  viewBox="0 0 512.002 512.002" style="color:red;zoom:0.6;float:left;margin-top:-2px" xml:space="preserve"><g>	<g>		<path style="background:blue" d="M437.108,74.898c-99.869-99.858-262.345-99.858-362.214,0c-99.858,99.858-99.858,262.34,0,362.203			c49.934,49.929,115.521,74.896,181.107,74.896s131.173-24.967,181.107-74.896C536.966,337.243,536.966,174.762,437.108,74.898z			 M373.067,166.895c0,9.229-7.484,16.707-16.707,16.707s-16.707-7.478-16.707-16.707v-16.826H191.01l77.923,95.294			c5.036,6.15,5.036,14.975,0,21.126l-77.923,95.204h148.643v-16.588c0-9.229,7.484-16.707,16.707-16.707			c9.223,0,16.707,7.478,16.707,16.707v33.414c0,9.229-7.601,16.588-16.824,16.588H155.758c-6.45,0-12.334-3.66-15.098-9.491			c-2.762-5.835-1.926-12.713,2.164-17.705l91.585-111.926L142.825,144.06c-4.09-4.992-4.927-11.959-2.164-17.795			c2.762-5.83,8.648-9.61,15.098-9.61h200.485c9.223,0,16.824,7.597,16.824,16.826V166.895z"/>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
-                        <svg title="MEDIA" v-show="grid.columns.types[i]=='number'" @click="clickFunc('AVG',$event)" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;zoom:0.6;float:left;margin-top:-2px" class="hide" xml:space="preserve"><g>	<g>		<path d="M155.804,205.902c-27.625,0-50.098,22.473-50.098,50.098s22.473,50.098,50.098,50.098			c28.788,0,52.979-23.076,77.68-50.098C208.782,228.978,184.593,205.902,155.804,205.902z"/>	</g></g><g>	<g>		<path d="M356.196,205.902c-28.788,0-52.979,23.076-77.68,50.098c24.7,27.022,48.891,50.098,77.68,50.098			c27.625,0,50.098-22.473,50.098-50.098S383.821,205.902,356.196,205.902z"/>	</g></g><g>	<g>		<path d="M256,0C114.844,0,0,114.839,0,256s114.844,256,256,256s256-114.839,256-256S397.156,0,256,0z M356.196,339.496			c-41.465,0-71.896-27.919-100.196-58.632c-28.3,30.713-58.73,58.632-100.196,58.632c-46.042,0-83.496-37.454-83.496-83.496			c0-46.042,37.454-83.496,83.496-83.496c41.465,0,71.896,27.919,100.196,58.632c28.3-30.713,58.73-58.632,100.196-58.632			c46.042,0,83.496,37.454,83.496,83.496C439.692,302.042,402.238,339.496,356.196,339.496z"/>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
-                        <svg title="Número de valores distintos" @click="clickFunc('DISTINCT',$event)" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;;zoom:0.6;float:left;margin-top:-2px" class="" xml:space="preserve"><g>	<g>		<path d="M256,0C114.844,0,0,114.839,0,256s114.844,256,256,256s256-114.839,256-256S397.156,0,256,0z M389.594,317.231H244.592
+            <div style="position:relative;border:0px solid #ddd;border-width:0 0 0 0;padding:2px 4px 3px 5px; white-space: nowrap;margin-top:0px;clear:both;float:none:width:100%;height: 24px;top:3px">
+                <div style="position:absolute; cursor:pointer; border:0px solid blue; top: 3px;z-index:1000;zoom:1.1;margin-left:-1px" class="button-operation">
+                        <svg title="SUMA" v-show="getParam(i).basic_data_type=='number'" :class="{hidden:getParam(i).aggregate_function!='SUM'}" @click="clickFunc('SUM',$event,i)" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"  viewBox="0 0 512.002 512.002" style="color:red;zoom:0.6;float:left;margin-top:-2px" xml:space="preserve"><g>	<g>		<path style="background:blue" d="M437.108,74.898c-99.869-99.858-262.345-99.858-362.214,0c-99.858,99.858-99.858,262.34,0,362.203			c49.934,49.929,115.521,74.896,181.107,74.896s131.173-24.967,181.107-74.896C536.966,337.243,536.966,174.762,437.108,74.898z			 M373.067,166.895c0,9.229-7.484,16.707-16.707,16.707s-16.707-7.478-16.707-16.707v-16.826H191.01l77.923,95.294			c5.036,6.15,5.036,14.975,0,21.126l-77.923,95.204h148.643v-16.588c0-9.229,7.484-16.707,16.707-16.707			c9.223,0,16.707,7.478,16.707,16.707v33.414c0,9.229-7.601,16.588-16.824,16.588H155.758c-6.45,0-12.334-3.66-15.098-9.491			c-2.762-5.835-1.926-12.713,2.164-17.705l91.585-111.926L142.825,144.06c-4.09-4.992-4.927-11.959-2.164-17.795			c2.762-5.83,8.648-9.61,15.098-9.61h200.485c9.223,0,16.824,7.597,16.824,16.826V166.895z"/>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
+                        <svg title="MEDIA" v-show="getParam(i).basic_data_type=='number'" :class="{hidden:getParam(i).aggregate_function!='AVG'}" @click="clickFunc('AVG',$event,i)" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;zoom:0.6;float:left;margin-top:-2px" xml:space="preserve"><g>	<g>		<path d="M155.804,205.902c-27.625,0-50.098,22.473-50.098,50.098s22.473,50.098,50.098,50.098			c28.788,0,52.979-23.076,77.68-50.098C208.782,228.978,184.593,205.902,155.804,205.902z"/>	</g></g><g>	<g>		<path d="M356.196,205.902c-28.788,0-52.979,23.076-77.68,50.098c24.7,27.022,48.891,50.098,77.68,50.098			c27.625,0,50.098-22.473,50.098-50.098S383.821,205.902,356.196,205.902z"/>	</g></g><g>	<g>		<path d="M256,0C114.844,0,0,114.839,0,256s114.844,256,256,256s256-114.839,256-256S397.156,0,256,0z M356.196,339.496			c-41.465,0-71.896-27.919-100.196-58.632c-28.3,30.713-58.73,58.632-100.196,58.632c-46.042,0-83.496-37.454-83.496-83.496			c0-46.042,37.454-83.496,83.496-83.496c41.465,0,71.896,27.919,100.196,58.632c28.3-30.713,58.73-58.632,100.196-58.632			c46.042,0,83.496,37.454,83.496,83.496C439.692,302.042,402.238,339.496,356.196,339.496z"/>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
+                        <svg title="Número de valores distintos" @click="clickFunc('DISTINCT',$event,i)" :class="{hidden:getParam(i).aggregate_function!='DISTINCT'}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;;zoom:0.6;float:left;margin-top:-2px" class="" xml:space="preserve"><g>	<g>		<path d="M256,0C114.844,0,0,114.839,0,256s114.844,256,256,256s256-114.839,256-256S397.156,0,256,0z M389.594,317.231H244.592
 			l-40.125,90.281c-2.772,6.219-8.872,9.92-15.275,9.92c-2.261,0-4.567-0.468-6.773-1.446c-8.425-3.745-12.221-13.612-8.48-22.043
 			l34.094-76.712h-85.627c-9.219,0-16.699-7.475-16.699-16.699c0-9.225,7.48-16.699,16.699-16.699h100.471l29.688-66.797H122.406v0
 			c-9.219,0-16.699-7.475-16.699-16.699c0-9.225,7.48-16.699,16.699-16.699h145.002l40.125-90.281
@@ -103,7 +109,6 @@
                 <!--<button style="background:transparent; border:0" @click="extendParam(i)">xxx</button>-->
                 </div>
 
-                <button v-show="admin" @click="deleteParam(i)" class="close closeButton" data-help-code="search-parameter-close" style="float:right;"></button>
     </div>
 <!-- -------------------------------- /BARRA DE HERRAMIENTAS ------------------------------------- -->
 
@@ -114,7 +119,7 @@
 
                         <div class="clearfix"></div>
 
-                        <button @click="changeOperator(i)" v-show="getParam(i)._active && getParam(i)._extended" data-help-code="search-parameter-operator" style="width:auto;padding:0 3px;background: transparent; border:0;font-size:12px;float:left;" v-html="qeParams[i].operator=='AND'?'Y':'O'"></button>
+                        <button @click="changeOperator(i)" v-show="getParam(i)._active && getParam(i)._extended" data-help-code="search-parameter-operator" style="width:auto;padding:0 3px;background: transparent; border:0;font-size:12px;float:left; margin-top: -2px; margin-right:2px;width:17px" v-html="qeParams[i].operator=='AND'?'Y':'O'"></button>
 
                         <div contenteditable="true" class="side-text" v-show="getParam(i)._active && getParam(i)._extended" v-html="qeParams[i].leftText" @blur="changeText(i,$event,'leftText')" @keyup="textKeyPress($event,'leftText',i)" data-help-code="search-parameter-parentesis-left" style="font-weight:bold;background:white;float:left;border:1px solid #ddd;min-width:20px; "/>
 

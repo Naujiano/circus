@@ -173,8 +173,8 @@ function setDatabaseMaps () {
 			, table_catalog = table.table_catalog
 			, table_schema = table.table_schema ? table.table_schema : 'dbo'
 			, table_name = table.table_name
-			if ( connection && table_catalog && table_name ) {
-				table.table_alias = `table${i}`
+			, table_alias = table.table_alias
+			if ( connection && table_catalog && table_name && table_alias ) {
 				table.table_reference = `[${table_catalog}].[${table_schema}].[${table_name}]` 
 				table.table_schema = table_schema
 				if ( table_server ) table.table_reference =  `[${table_server}].` + table.table_reference
@@ -297,7 +297,7 @@ export function $fieldsForTable ( tableName, cb ) {
 		const tna = tableName.split ( "." )
 		, tableConfig = window.tablesMap.get(tableName) //store.database.tables[tableName]
 		, dbID = getTableConnectionId(tableName)
-		const { table_catalog, table_name, table_schema, table_server, table_alias, table_config_keyname, table_pkname, fields_config, table_reference } = tableConfig
+		const { table_catalog, table_name, table_schema, table_server, table_alias, table_pkname, fields_config, table_reference } = tableConfig
 		/*
 		, table_catalog = tableConfig.table_catalog
 		, table_name = tableConfig.table_name
@@ -361,7 +361,7 @@ export function $fieldsForTable ( tableName, cb ) {
 							, table_schema 
 							, table_server 					
 							, table_alias 					
-							, table_config_keyname
+							, table_config_keyname: tableName
 							, field_full_name
 							, table_full_name : table_reference
 							, table_pkname

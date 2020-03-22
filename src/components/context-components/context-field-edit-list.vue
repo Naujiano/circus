@@ -56,7 +56,7 @@ export default {
     methods: {
         rowClick(){},
         checkClick(checklist){
-            const  field_full_name = this.componentProps.qeParam.field_full_name
+            const { field_full_name, table_config_keyname, column_name } = this.componentProps.qeParam
             let listModelName = false
             if ( checklist.length )
                 listModelName = checklist[0].nombre //this.rows[checklist.].nombre
@@ -66,7 +66,12 @@ export default {
                 this.$refs.simpleTable.reset()
                 return false
             } else {
-                this.$store.commit ( 'setKey' , {path:['database','lists',`${field_full_name}`],val:listModelName})
+                //this.$store.commit ( 'setKey' , {path:['database','lists',`${field_full_name}`],val:listModelName})
+                const store = this.$store.state
+                , path = ['database','tables',`${table_config_keyname}`,'fields_config',`${column_name}`,'listModel']
+                const CSpath = $$(store).getCI ( path, true )
+                //debugger
+                this.$store.commit ( 'setKey' , {path: CSpath,val:listModelName})
                 this.api.saveCircusConfig()
                 
                 window.circus.showHelpBox({title:'Modelo de lista cambiado',text:`Se ha canbiado el modelo de lista asignado al campo ${field_full_name} a ${listModelName}`})

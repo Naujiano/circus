@@ -195,8 +195,8 @@ export default {
             window.contextList.openContext(keyName,$(event.target),val,type,that.contextListCheckClick,false,false,{pkName,dbname,ownername,tablename,fieldname,dbID:   that.dbID, searchString, cbWhenClose, qeParam: param } )
 
         },
-        contextListCheckClick(checkedRows,operation,removedElement){
-            const removedLiteral = removedElement?removedElement[Object.keys(removedElement)[1]] : ""
+        contextListCheckClick(checkedRows,operation,removedLiteral){
+            //const removedLiteral = removedElement?removedElement[Object.keys(removedElement)[1]] : ""
             const i = this.focusedParamIndex
             , par = this.parameters.data[i]
             var checkedLiterals
@@ -205,21 +205,21 @@ export default {
             if ( checkedRows.map ) {
                 newLiteralsArr = checkedRows.map ( row => row[Object.keys(row)[1]] )
                 checkedLiterals = JSON.stringify ( newLiteralsArr )
+                try {
+                    let arr = JSON.parse ( par.text )
+                    , set = new Set ( arr )
+                    if ( operation == "add" ) {
+                        set = new Set ( arr.concat ( newLiteralsArr ) )
+                    } else {
+                        set.delete ( removedLiteral )
+                    }
+                    checkedLiterals = JSON.stringify ( [...set] )
+                    //console.log(arr)
+                } catch {}
             } else {
                 checkedLiterals = checkedRows
             }
             //console.log(checkedLiterals)
-            try {
-                let arr = JSON.parse ( par.text )
-                , set = new Set ( arr )
-                if ( operation == "add" ) {
-                    set = new Set ( arr.concat ( newLiteralsArr ) )
-                } else {
-                    set.delete ( removedLiteral )
-                }
-                checkedLiterals = JSON.stringify ( [...set] )
-                //console.log(arr)
-            } catch {}
             par.value = checkedLiterals
             par.text = checkedLiterals
             //return

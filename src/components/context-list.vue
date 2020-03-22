@@ -1,24 +1,10 @@
 <template>
     <div ref="contextList"
         id="circusContextList"
+        class="context-list"
         :style="{
-            'max-height':'300px',
-            border:'0px solid #ddd',
-            'border-width':'1px',
-            position:'absolute',
-            //width: 0,
-            //height:'100%',
-            //overflow:'visible',
-            'z-index':50000,
             left:left+'px',
             top:top+'px',
-            display:'none',
-            background: '#f2f2f2',
-            'box-sizing':'border-box',
-            background:'#f2f2f2',
-            height:'auto',
-            'box-shadow' : '2px 2px 6px 2px gray'
-            //float:'left'
         }"
     >
         <!--<div style="position:absolute;border:1px solid red;min-width:50px;background:#f2f2f2;max-height:300px;">-->
@@ -42,7 +28,7 @@
             </div>
             <input 
                 contenteditable="true" 
-                style="height: 21px;width:100%;border:1px solid #ddd; padding: 2px 5px; margin: 0px; background: white;cursor:text;"
+                style="height: 21px;width:100%;border:1px solid #ddd; padding: 15px 5px; margin: 0px; background: white;cursor:text;box-shadow: 0 0 5px 0px inset #ccc;border-radius:1px"
                 v-model = "searchString"
                 @keyup = "updateContext($event)"
             >
@@ -175,14 +161,20 @@ export default {
             const checkedIds = checkedRows.map ( row => row[Object.keys(row)[0]] )
             , oldCheckedRows = contextList.checkedRows.map ( ele => ele.row )
             , oldCheckedIds = oldCheckedRows.map ( row => row[Object.keys(row)[0]] )
+            , checkedLiterals = checkedRows.map ( row => row[Object.keys(row)[1]] )
+            , oldCheckedLiterals = oldCheckedRows.map ( row => row[Object.keys(row)[1]] )
             let operation = "none"
             , differenceIndex
+            , differenceLiteral
             , removedElement
+
             //if ( !this.oldCheckedRows ) this.oldCheckedRows = checkedRows
             if ( checkedRows.length > oldCheckedRows.length ) operation = "add"
             if ( checkedRows.length < oldCheckedRows.length ) operation = "remove"
             differenceIndex = oldCheckedIds.filter(x => !checkedIds.includes(x))[0];
-            removedElement = JSON.cc ( this.rows ).filter( row => row[Object.keys(row)[0]] == differenceIndex )[0]
+            differenceLiteral = oldCheckedLiterals.filter(x => !checkedLiterals.includes(x))[0];
+            //removedElement = JSON.cc ( this.rows ).filter( row => row[Object.keys(row)[0]] == differenceIndex )[0]
+            removedElement = differenceLiteral
             //debugger
             this.oldCheckedIds = checkedIds
             contextList.checkedRows = checkedRows.map ( row => ({ row, i: row._rowIndex }) )
@@ -307,14 +299,15 @@ export default {
                         const dbqParams = {
         			    	operation: 'request'
         			    	//, sqlSyntax: `SELECT distinct top 20  ${pkName} AS _ROW_NUMBER,${fieldname} FROM ${dbname}.${ownername}.${tablename} WHERE ${fieldname} IS NOT NULL AND ${fieldname} <> '' ${likeExpression} ORDER BY ${fieldname}`
-        			    	, sqlSyntax: `SELECT distinct top 20  ${pkName} AS _ROW_NUMBER,${fieldname} FROM ${qeParam.table_full_name} AS ${qeParam.table_alias} WHERE ${fieldname} IS NOT NULL AND ${fieldname} <> '' ${likeExpression} ORDER BY ${fieldname}`
+        			    	, sqlSyntax: `SELECT distinct top 20  1 AS _ROW_NUMBER,${fieldname} FROM ${qeParam.table_full_name} AS ${qeParam.table_alias} WHERE ${fieldname} IS NOT NULL AND ${fieldname} <> '' ${likeExpression} ORDER BY ${fieldname}`
                             , dbID
         			    }
-                        console.log(dbqParams)
+                        window.working(1)
         			    this.api.$dbq ( dbqParams, data => {
         			    	contextList.rows = data
                             contextList.checkedRows = getCheckedRowsFromInput ( contextList.firstSearchString, data )
-        			    	contextList.hiddenKeys = ['_ROW_NUMBER']
+                            contextList.hiddenKeys = ['_ROW_NUMBER']
+                            window.working(0)
         			    }, true, true)
                         this.searchable = false
                         type="list"
@@ -339,7 +332,7 @@ export default {
         	function open(type) {
         		const top = $field.offset().top + $field.outerHeight()
         		, left = $field.offset().left
-                , $list = $(contextList.$refs.contextList).show()
+                , $list = $(contextList.$refs.contextList).addClass('shown')//show()
                 //, $detach = $list.detach()
         		contextList.type = type
                 //$field.css({'background-color':'red'}).before($list)
@@ -354,7 +347,7 @@ export default {
                 , isContextList = $(ae).closest('#circusContextList').length || $(event.target).closest('#circusContextList').length
                 if(!isContextList && !that.contextListFocused) {
                     const menu = $(that.$refs.contextList)
-                    menu.hide()
+                    menu.removeClass('shown')//hide()
                     contextList.opened = false
                     $('body').off()
                     if ( cbWhenClose ) cbWhenClose ()
@@ -370,9 +363,9 @@ export default {
             if (!event || !$.contains (event.target,this.$field[0]))return
             const inView= isScrolledIntoView(this.$field,$(event.target))
             if ( !inView )
-                $(this.$refs.contextList).hide()
+                $(this.$refs.contextList).removeClass('shown') //hide()
             else 
-                $(this.$refs.contextList).show()
+                $(this.$refs.contextList).addClass('shown') //.show()
 
             function isScrolledIntoView($elem,$container) {
                 var docViewTop = $container.offset().top //$container.scrollTop();
@@ -389,7 +382,7 @@ export default {
             this.contextListFocused = false
             return
             const $aux = $('#contextList_auxiliar')
-            const $list = $(contextList.$refs.contextList).hide().detach()
+            const $list = $(contextList.$refs.contextList).removeClass('shown').detach()
             $('body').append($list)
         }
     }

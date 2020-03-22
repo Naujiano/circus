@@ -143,7 +143,7 @@ export default {
                         , _inlist: true
                         //, data_type: this.utils.getBasicDataType(object[key].data_type) 
                         , data_type
-                        , _extended : false
+                        , _extended : this.showAdvanced
                         , _extendKey : this.showAdvanced
                         , _orderby: '-'
                     }
@@ -333,7 +333,7 @@ export default {
         },
         activateParam (i) {
             this.$refs.qe.activateParam(this.$refs.qe.parameters.data[i])
-            if ( this.$refs.qe.parameters.data[i]._active ) $('.search-field').eq(i).focus()
+            this.$nextTick( () => { if ( this.$refs.qe.parameters.data[i]._active ) $('.search-field').eq(i).focus() } )
         },
         setNewOrder (i) {
             this.$refs.qe.setNewOrder(i)

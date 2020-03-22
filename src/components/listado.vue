@@ -5,7 +5,7 @@
             <Series :operation="series.operation" :fields="series_parameters" ref="popup" @operate="operate_serie"/>
             <div style="width:100%;display:block;min-height:40px;padding: 0px 0;background:#f4f4f4;margin:0">
                 <div style="float:left;display:block;padding:0px; width: 450px;" ref="toolbar">
-        <div class="toolbar-box">
+        <div class="toolbar-box toolbar1">
             <div class="toolbar-box-title" style="margin-top:-7px">&nbsp;</div>
             <Toolbar :buttons="admin?buttons:buttonsUser" style="float:left"/>
         </div>
@@ -38,6 +38,9 @@
                 </div>
             </div>
             <div :class="{'computer-container':true, 'sorting':!grid.rows.length, 'computer-container-advanced': showAdvanced }">
+
+            <div style="width:100%;height:4px;background:#ccc;"></div>
+
             <!--
                 <div style="float:left;height:15px;width:14px;padding:0px 0 0 1px;border:0px solid red;position:absolute;z-index:2;"><button data-help-code="list-distinct" title="Funciones" @click="set_distinct()" :style="{'background':distinct?'red':''}">/</button></div>
             -->                 
@@ -123,6 +126,7 @@
                     
                 </div>
             </div>
+            <div style="width:100%;height:5px;background:#ccc;"></div>
             <Ly grow=1 style="background:;position:relative;padding-top:0px">
             <!--
                 <button v-show="admin" @click="show.queryEditor=!show.queryEditor" style="position:absolute;width:18px;top:2px;right:0px;background:;padding: 3px;z-index:1">

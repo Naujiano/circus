@@ -39,15 +39,17 @@
     width: 100%;
 }
 .search-field.focused {
+    /*
     position: absolute;
     width: auto;
     max-width: 500px;
     min-width: 100px;
-    //top: 22px;
     box-shadow: 1px 1px 5px 2px gray;
+    */
 }
 .search-field-inactive {
     background: #ddd;
+    visibility: hidden;
 }
 .button-operation * {
     cursor: pointer

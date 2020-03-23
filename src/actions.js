@@ -72,8 +72,11 @@ const actions = {
             state.ventanas.data[indexVentana].visible = visible
         },
         Ventana_clone ( state, {index} ) {
-            state.ventanas.data.push ( JSON.cc(state.ventanas.data[index]) )
-            state.ventanas.data.push ( JSON.cc(state.ventanas.data[index]).queryeditor.parameters = [] )
+            const configVentana = JSON.cc(state.ventanas.data[index])
+            configVentana.queryeditor.parameters = []
+            configVentana.name = "[NUEVA]"
+            state.ventanas.data.push ( configVentana )
+            //state.ventanas.data.push ( JSON.cc(state.ventanas.data[index]).queryeditor.parameters = [] )
         },
         Ventana_delete ( state, {index} ) {
             state.ventanas.data.splice ( index , 1 )

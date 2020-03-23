@@ -10,6 +10,11 @@ export default {
     },
   components: { Ly, Ventana, Toolbar },
   props: ['containers','panels'],
+  data: function () {
+      return {
+          selectedIndex: 0
+      }
+  },
   computed: {
     ventanas () {
         return this.$store.state.ventanas.data
@@ -51,6 +56,7 @@ export default {
         this.visibleVentanas = new matriz ( visibleVentanas ).switch ( indexVentana )
         */
         //this.$store.commit ( 'Ventana_setVisibility' , {indexVentana,visible:true} )
+        this.selectedIndex = indexVentana
         const containers = $('.window-container')
         , pestanas = $('.pestanaVentana')
         containers.css({'z-index':-1})
@@ -82,8 +88,19 @@ export default {
             onClick: () => this.onButtonClick(ventana.index,container)
             , onClose: function () {
                 if ( ventanasDelContainer.length == 1 ) return
-                if(confirm('Eliminar pestaña?'))
-                 this.$store.commit ( 'Ventana_delete', {index: ventana.index} )
+                if(confirm('Eliminar pestaña?')) {
+                 const selectedIndex = this.selectedIndex
+                 let newIndexVentana
+                if ( selectedIndex == 0 ) 
+                    newIndexVentana = 0 
+                else if ( selectedIndex == this.ventanas.length - 1 ) 
+                    newIndexVentana = this.ventanas.length - 2
+                else
+                    newIndexVentana = selectedIndex - 1 
+
+                this.$store.commit ( 'Ventana_delete', {index: ventana.index} )
+                 this.onButtonClick ( newIndexVentana  )
+                }
             }.bind(this)
         }))
         buttons.push ({
@@ -91,6 +108,7 @@ export default {
                   onClick: function () {
                     const lastVentana = ventanasDelContainer[ventanasDelContainer.length-1]
                       this.$store.commit ( 'Ventana_clone', {index: lastVentana.index} )
+                      this.onButtonClick ( this.ventanas.length - 1 )
                   }.bind(this)
                   ,onClose: function(){}
                })

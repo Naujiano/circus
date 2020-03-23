@@ -238,6 +238,12 @@ export default {
           ]
       }
    },
+   watch: {
+       ventana() {
+           this.form.data = this.formDataBlanked()
+       }
+
+   },
    methods: {
       ...mapActions(['setVentana']),
     logout() {

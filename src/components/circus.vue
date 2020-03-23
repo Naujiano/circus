@@ -483,7 +483,7 @@ export default {
             this.queries = splicedQ
         },
         panelSwitch(panel){
-            //console.log(this.panels[panel])
+            //console.log('panel'+this.panels[panel])
             this.panels[panel] = ! this.panels[panel]
             window.compute()
         }
@@ -616,7 +616,7 @@ export default {
         }
         window.showForm = showForm
         function showForm() {
-            //window.circus.panels.form = true
+            if ( that.panels.form ) return
             window.circus.panelSwitch('form')
             //console.log(  $('[data-component="Formulario"]').find('input').eq(1).val())
             setTimeout(function(){

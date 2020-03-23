@@ -3,6 +3,15 @@ const actions = {
     strict: false,
     mutations: {
         setKey ( state, {path,val} ) {
+            if ( ! path.forEach ) {
+                console.error( 'actions.js / setKey / "path" is not an array.')
+                return false
+            }
+            if ( val )
+                _.set ( state , path, val )
+            else
+                _.unset ( state , path )
+            return
             var statePos = state
             path.forEach ( (p,i) => {
                 if ( i < path.length - 1 ) {

@@ -67,10 +67,12 @@ export default {
                 return false
             } else {
                 //this.$store.commit ( 'setKey' , {path:['database','lists',`${field_full_name}`],val:listModelName})
-                const store = this.$store.state
+                const store = JSON.cc(this.$store.state)
                 , path = ['database','tables',`${table_config_keyname}`,'fields_config',`${column_name}`,'listModel']
-                const CSpath = $$(store).getCI ( path, true )
+                //$$(store).setCI ( path )
+                const CSpath = $$(store).getCIpath ( path )
                 //debugger
+                //return
                 this.$store.commit ( 'setKey' , {path: CSpath,val:listModelName})
                 this.api.saveCircusConfig()
                 

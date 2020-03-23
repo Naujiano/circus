@@ -8,7 +8,6 @@ import { _ } from 'core-js'
 const parsedSearch = queryString.parse(location.search)
 , apiURL = 	parsedSearch.api
 , connectionsModel = {};
-console.log(apiURL)
 var storedVuexStore, vuexStore
 export {vuexStore, parsedSearch}
 
@@ -53,7 +52,7 @@ if ( parsedSearch.reset ) {
 		fileName = parsedSearch.reset
 	loadTree( treeModel=>{
 			createStore(treeModel);
-			console.log('Model loaded from ' + fileName );
+			//console.log('Model loaded from ' + fileName );
 	}, fileName )
 } else {
 	try {
@@ -65,7 +64,6 @@ if ( parsedSearch.reset ) {
 	}	
 	createStore(storedVuexStore)
 }
-//console.log ( JSON.parse ( localStorage["vuexStore"] ) )
 export 	function loadTree ( cb, fileName ) {
 	//var fileName = fileName ? fileName : 'circus.json'
 	$.ajax({
@@ -75,7 +73,6 @@ export 	function loadTree ( cb, fileName ) {
 		async: false,
 		  success: (jsonString) => {
 			  const obj = JSON.parse(jsonString)
-			  //console.log(JSON.parse(jsonString))
 			cb(obj)
 		}
 	});
@@ -90,9 +87,6 @@ export function deleteConfig ( fileName, cb ) {
 	  method: "POST",
 	  async: false,
 		success: (jsonString) => {
-			
-			//const obj = JSON.parse(jsonString)
-			//console.log(JSON.parse(jsonString))
 		  cb(jsonString)
 	  }
     });
@@ -109,14 +103,12 @@ function createStore (storedVuexStore) {
 	vuexStore = new Vuex.Store(vuexTree)
 	localStorage["vuexStore"] = JSON.stringify(vuexTree.state)
 
-	console.log(circusConfig)
-	//console.log(JSON.parse(JSON.stringify(vuexTree.state)))
 	vuexStore.subscribe((mutation, state) => {
 		const estado = {...state}
 		localStorage["vuexStore"] = JSON.stringify(estado)
 		resetApiStore()
 		saveConfigFile ()
-		console.log( JSON.cc ( estado ) )
+		window.vuex = JSON.cc ( estado ) 
 	})
 }
 function saveConfigFile () {
@@ -128,8 +120,6 @@ function saveConfigFile () {
 		method: "POST",
 		//async: false,
 		success: (storedVuexStore) => {
-			//console.log('tree saved!')
-			//window.circus.showHelpBox ( {title:'Configuración Guardada',text:'Se ha guardado automáticamente la configuración actual en el archivo ' + fileName })
 		},
 		error: (respuesta) => {
 			console.log('error ajax saveConfigFile')
@@ -141,7 +131,6 @@ function alterTree () {
 	let tree = JSON.stringify({...vuexStore.state})
 	delete vuexStore.state.ventanas.data[2] //.table = "hunter_personas"
 	localStorage["vuexStore"] = JSON.stringify({...vuexStore.state})
-	console.log({...vuexStore.state})
 	saveTree("circus.json")
 }
 
@@ -154,7 +143,6 @@ function resetApiStore () {
 
 
 
-//console.log(services.connNameToDbName)
 
 //----------------------------------------------------------------------------------------------------------
 export function tablesFromConnection ( connection ) {
@@ -181,7 +169,6 @@ function setDatabaseMaps () {
 				tablesMap.set ( key, table )
 			}
 		})
-		console.log(tablesMap)
 		window.tablesMap = tablesMap
 	}
 }

@@ -1,4 +1,5 @@
 function $$ ( obj ) {
+    if ( !obj ) return false
     const $$obj = {
         getCI ( searchKey, returnPath ) {
             if ( typeof obj != "object" ) return false
@@ -10,13 +11,6 @@ function $$ ( obj ) {
                 //SI NO ES ARRAY BUSCO LA PRIMERA CLAVE COINCIDENTE
                 return getCIele ( obj, searchKey, returnPath )
             }
-            function getCIele ( getObj, getKey, returnPath ) {
-                let CIele = false
-                Object.keys ( getObj ).forEach ( key => {
-                    if ( key.toLowerCase() == getKey.toLowerCase() ) CIele = returnPath ? key : getObj[key]
-                } )
-                return CIele
-            }
             function getCIeleFromArray ( searchArr, returnPath ) {
                 if ( searchArr.length ) {
                     let ele = obj
@@ -26,8 +20,7 @@ function $$ ( obj ) {
                             if ( !ele || typeof ele != "object" ) return ele
                         } else {
                             const CSkey = getCIele ( ele, pathEle, true )
-                            if ( !CSkey ) return false
-                            returnPathArr.push ( CSkey )
+                            returnPathArr.push ( CSkey ? CSkey : pathEle )
                         }
                         ele = getCIele ( ele, pathEle, false )
                     })
@@ -35,7 +28,29 @@ function $$ ( obj ) {
                 }
             }
         }
-        , returnCSpath ( searchKey ) {
+        , setCI ( searchArr, value ) {
+            if ( searchArr.length ) {
+                let ele = obj
+                , parentElement = false
+                , success = true
+                searchArr.forEach ( ( pathEle, i ) => {
+                    if ( typeof ele != "object" ) success = false
+                    ele = getCIele ( ele, pathEle, false )
+                    if ( !ele ) {
+                        ele = parentElement[pathEle] = {}
+                        //ele = parentElement[pathEle]
+                        //Object.assign ( obj , { [pathEle]: {} } )
+                    }
+                    if ( i == searchArr.length - 1 ) {
+                        ele = value
+                    }
+                    parentElement = ele
+                })
+
+                return success
+            }
+        }
+        , getCIpath ( searchKey ) {
             return $$obj.getCI ( searchKey , true )
         }
         , parse () {
@@ -45,5 +60,12 @@ function $$ ( obj ) {
             } catch ( err ) { return false }
         }
     } 
+    function getCIele ( getObj, getKey, returnPath ) {
+        let CIele = false
+        Object.keys ( getObj ).forEach ( key => {
+            if ( key.toLowerCase() == getKey.toLowerCase() ) CIele = returnPath ? key : getObj[key]
+        } )
+        return CIele
+    }
     return $$obj
 }

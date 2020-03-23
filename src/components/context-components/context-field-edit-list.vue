@@ -7,14 +7,16 @@
         <SimpleTable style=""
             ref="simpleTable"
             :rows="rows"
-            :hiddenKeys="[]"
+            :hiddenKeys="['listModelName']"
             :checkable="true"
             :searchable="true"
-            :selectable="false"
+            :selectable="true"
             :showHeaders="false"
             :checkedRows="checkedRows"
             :singlecheck="true"
+            :editablekeys="['nombre']"
             v-on:rowClick="rowClick"
+            v-on:rowEdit="rowEdit"
             v-on:checkClick="checkClick"
             searchString=""
         />
@@ -37,7 +39,7 @@ export default {
         rows () {
             const listsModels = this.listsModels
             , rows = Object.keys ( listsModels ).map ( key =>{
-                return {nombre:listsModels[key].alias ? listsModels[key].alias : key}
+                return {nombre:listsModels[key].alias ? listsModels[key].alias : key , listModelName: key }
             } )
             return rows
         }
@@ -55,27 +57,30 @@ export default {
     },
     methods: {
         rowClick(){},
+        rowEdit( row ){
+            const modifiedRowIndex = row.rowIndex
+            const editedKeyName =  row.__editedKeyName__
+            , listModelName = row.listModelName
+            , value = row[editedKeyName]
+            this.$store.commit ( 'set_listModelAlias' , {listModelName, value})
+
+        },
         checkClick(checklist){
             const { field_full_name, table_config_keyname, column_name } = this.componentProps.qeParam
             let listModelName = false
-            if ( checklist.length )
-                listModelName = checklist[0].nombre //this.rows[checklist.].nombre
+            if ( checklist.length ) {
+                listModelName = checklist[0].listModelName
+            }
+                //listModelName = checklist[0].nombre //this.rows[checklist.].nombre
 //                debugger
 
             if ( ! confirm ( 'Asignar modelo de lista\n\n' + field_full_name + ' = ' + listModelName + '\n\nATENCIÓN! Para ver los cambios deberá hacer F5 y luego eliminar y volver a añadir los parámetros que lleven esta configuración.' ) ) {
                 this.$refs.simpleTable.reset()
                 return false
             } else {
-                //this.$store.commit ( 'setKey' , {path:['database','lists',`${field_full_name}`],val:listModelName})
                 const store = JSON.cc(this.$store.state)
-                , path = ['database','tables',`${table_config_keyname}`,'fields_config',`${column_name}`,'listModel']
-                //$$(store).setCI ( path )
-                const CSpath = $$(store).getCIpath ( path )
                 //debugger
-                //return
-                this.$store.commit ( 'setKey' , {path: CSpath,val:listModelName})
-                this.api.saveCircusConfig()
-                
+                this.$store.commit ( 'set_listModelNameToField' , { listModelName, tableName: table_config_keyname, fieldName: column_name } )
                 window.circus.showHelpBox({title:'Modelo de lista cambiado',text:`Se ha canbiado el modelo de lista asignado al campo ${field_full_name} a ${listModelName}`})
                 if ( this.componentProps.cb ) this.componentProps.cb()
             }

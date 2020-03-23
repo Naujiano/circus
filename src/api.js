@@ -108,6 +108,7 @@ function createStore (storedVuexStore) {
 		localStorage["vuexStore"] = JSON.stringify(estado)
 		resetApiStore()
 		saveConfigFile ()
+		saveCircusConfig()
 		window.vuex = JSON.cc ( estado ) 
 	})
 }
@@ -178,11 +179,16 @@ export function getListColumnSql ( key, options ) {
 	if ( !list ) return key
 */
 export function getListColumnSql ( qeParam, options ) {
-	const { list, field_full_name } = qeParam
+	let { list, field_full_name, listType } = qeParam
 	if ( !list ) return field_full_name
-    if ( list.length ) { // Es Array. Lista estática
+	if ( listType == "dynamic" ) { // Lista dinámica
+        const sqlValueFromId = list.sqlValueFromId.replace ( "{{id}}", field_full_name )
+        const newKey = `(${sqlValueFromId})`
+		return newKey
+    } else { // Es Array. Lista estática
 		if ( !options ) {
-        	let newKey = `(case ${field_full_name}`
+			let newKey = `(case ${field_full_name}`
+			if ( !list.forEach ) debugger
         	list.forEach ( item => {
         	    const val = item[0]
         	    , txt = item[1]
@@ -194,11 +200,6 @@ export function getListColumnSql ( qeParam, options ) {
 			return field_full_name
 		}
     } 
-    if ( list && !list.length ) { // Es objeto. Lista dinámica
-        const sqlValueFromId = list.sqlValueFromId.replace ( "{{id}}", field_full_name )
-        const newKey = `(${sqlValueFromId})`
-		return newKey
-    }
 }
 export function getListModel ( listKey ) {
 //	if ( typeof listkey != "object" ) 
@@ -328,17 +329,21 @@ export function $fieldsForTable ( tableName, cb ) {
 				})
 				newCampos.forEach ( ( campo ) => {
 					//const fieldSettings = getFieldSettings ( campo.column_name, campo.table_name )
-					let list = false, listModel = false, listAlias = false
+					let list = false, listModel = false, listAlias = false, listType = false
 					//if ( campo.column_name.toLowerCase() == "col_id_1" ) debugger
 					if ( fields_config ) {
 						const field_config = $$ ( fields_config ).getCI ( campo.column_name )
 						if ( field_config ) {
 							listModel = field_config.listModel
 							list = store.database.listsModels[listModel]
+							//debugger
 							if ( list ) {
 								listAlias = list.alias
-								if ( list.valuesArray ) { //ES LISTA ESTÁTICA. ME QUEDO SÓLO CON EL ARRAY DE VALORES QUE ES CON LO QUE FUNCIONA EL RESTO DEL PROGRAMA.
-									list = list.valuesArray
+								if ( list.sqlListGrid ) { //ES LISTA DINÁMICA. 
+									listType = "dynamic"
+								} else {
+									listType = "static"
+									list = list.valuesArray ? list.valuesArray : list // ME QUEDO SÓLO CON EL ARRAY DE VALORES QUE ES CON LO QUE FUNCIONA EL RESTO DEL PROGRAMA.
 								}
 							}
 						}
@@ -352,6 +357,7 @@ export function $fieldsForTable ( tableName, cb ) {
 							, list
 							, listModel
 							, listAlias
+							, listType
 							, table_schema 
 							, table_server 					
 							, table_alias 					
@@ -359,7 +365,7 @@ export function $fieldsForTable ( tableName, cb ) {
 							, field_full_name
 							, table_full_name : table_reference
 							, table_pkname
-							, key: list ? getListColumnSql ( { list, field_full_name } ) : field_full_name
+							, key: list ? getListColumnSql ( { list, field_full_name, listType } ) : field_full_name
 							, aggregate_function : 'DISTINCT'
 							, basic_data_type: function ( data_type ) {
 								//console.log(data_type)
@@ -610,7 +616,7 @@ export function saveCircusConfig ( ) {
 		method: "POST",
 		//async: false,
   		success: (storedVuexStore) => {
-			console.log('Circus config saved.' )
+			//console.log('Circus config saved.' )
 		}
 	});
 	return fileName

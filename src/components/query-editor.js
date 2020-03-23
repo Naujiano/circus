@@ -79,7 +79,6 @@ export default class queryEditor {
                     })
                     if ( valor != "" ) {
                         valor = valor.substring ( 0, valor.length - 4 )
-                        console.log("valor"+valor)
                         param.value = valor
                     }
                 } else {

@@ -510,7 +510,6 @@ export default {
             that.contextDialog.componentProps = props
             that.contextDialog.components = components
             that.contextDialog.show = true
-            console.log('aadfasdf fadf')
         }
         window.logout = function () {
             sessionStorage.removeItem("logged");

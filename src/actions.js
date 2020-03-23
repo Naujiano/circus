@@ -1,14 +1,12 @@
 import {$dbq} from './api.js'
+const pathsMap = new Map()
 const actions = {
     strict: false,
     mutations: {
-        setKey ( state, {path,val} ) {
-            if ( ! path.forEach ) {
-                console.error( 'actions.js / setKey / "path" is not an array.')
-                return false
-            }
-            if ( val )
-                _.set ( state , path, val )
+        setKey ( state, {path ,value } ) {
+
+            if ( value )
+                _.set ( state , path, value )
             else
                 _.unset ( state , path )
             return
@@ -23,8 +21,17 @@ const actions = {
                         delete statePos[p];
                 }
             })
-        },
-        setContainerType ( state, {index,type} ) {
+        }
+        , set_listModelAlias ( state , { listModelName, value } ) { state.database.listsModels[listModelName].alias = value }
+        , set_listModelNameToField ( state , { listModelName, tableName, fieldName } ) { 
+            const path = ['database','tables',`${tableName}`,'fields_config',`${fieldName}`,'listModel']
+            , CSpath = $$(state).getCIpath ( path )
+            tableName = CSpath[2]
+            fieldName = CSpath[4]
+
+            state.database.tables[tableName].fields_config[fieldName].listModel = listModelName 
+        }
+        , setContainerType ( state, {index,type} ) {
             console.log({index,type})
             state.containers[index].type = type
             //return actions.getters.ventana(index)

@@ -328,13 +328,19 @@ export function $fieldsForTable ( tableName, cb ) {
 				})
 				newCampos.forEach ( ( campo ) => {
 					//const fieldSettings = getFieldSettings ( campo.column_name, campo.table_name )
-					let list = false, listModel = false
+					let list = false, listModel = false, listAlias = false
 					//if ( campo.column_name.toLowerCase() == "col_id_1" ) debugger
 					if ( fields_config ) {
 						const field_config = $$ ( fields_config ).getCI ( campo.column_name )
 						if ( field_config ) {
 							listModel = field_config.listModel
 							list = store.database.listsModels[listModel]
+							if ( list ) {
+								listAlias = list.alias
+								if ( list.valuesArray ) { //ES LISTA ESTÁTICA. ME QUEDO SÓLO CON EL ARRAY DE VALORES QUE ES CON LO QUE FUNCIONA EL RESTO DEL PROGRAMA.
+									list = list.valuesArray
+								}
+							}
 						}
 					}
 					const field_full_name = `[${table_alias}].[${campo.column_name}]`
@@ -345,6 +351,7 @@ export function $fieldsForTable ( tableName, cb ) {
 							 form: { group: 'grupo2'}
 							, list
 							, listModel
+							, listAlias
 							, table_schema 
 							, table_server 					
 							, table_alias 					
@@ -471,7 +478,7 @@ export function getTablesRelation ( tableName ) {
 		console.log(`api.js no ha encontrado la tabla '${tableName}' en el mapa de tablas.`)
 		return false
 	}
-	const joinSyntax = `${tableConfig.table_reference} as ${tableConfig.table_alias}`
+	const joinSyntax = `${tableConfig.table_reference} as [${tableConfig.table_alias}]`
 	const relatedGroup = { names: [tableName], joinSyntax: joinSyntax }
 	const relatedTables = getRelatedTables ( tableName )
 	relatedGroup.joinSyntax +=  relatedTables.joinSyntax
@@ -533,7 +540,7 @@ function getRelatedTables ( tableName, excludeNames=[] ) {
 
 		// AL FINAL HE DECIDIDO EXCLUIR CUALQUIER REPETICIÓN DE UNA TABLA EN LA SELECT. LA QUE LLEGUE PRIMERO SE LO QUEDA.
 		if ( ! isTableRepeated (key)  ) 
-			joinTables += ` ${joinType} ${local_table_reference} AS ${local_table_alias} ON ${local_table_alias}.${localField} =  ${remote_table_alias}.${remoteField}`
+			joinTables += ` ${joinType} ${local_table_reference} AS [${local_table_alias}] ON [${local_table_alias}].[${localField}] =  [${remote_table_alias}].[${remoteField}]`
 			//joinTables += ` ${joinType} ${t1fullname} ${alias} ON ${dbID2}.dbo.${cleanTableName(tableName)}.${localField} =  ${alias2}.${remoteField}`
 		relatedTablesNames.push ( key )
 		involvedTablesNames.push ( key )

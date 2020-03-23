@@ -37,7 +37,7 @@ export default {
         rows () {
             const listsModels = this.listsModels
             , rows = Object.keys ( listsModels ).map ( key =>{
-                return {nombre:key}
+                return {nombre:listsModels[key].alias ? listsModels[key].alias : key}
             } )
             return rows
         }

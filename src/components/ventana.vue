@@ -16,7 +16,7 @@
         <div class="toolbar-box">
             <div class="toolbar-box-title">Tabla Principal</div>
             <select @change="tableChange($event)" class="form-control" style="display:inline;width:auto;font-size:11px;margin-bottom:-2px;margin-top:1px" :data-help-code="getRelations(tabs.names,ventana.data.identities)">
-                <option v-for="table in availableTables" :value="table" :selected="table==ventana.data.table?'selected':''">{{table}}</option>
+                <option v-for="table in availableTables" :value="table[0]" :selected="table[0]==ventana.data.table?'selected':''">{{table[1].table_alias}}</option>
             </select>
         </div>
         <div class="toolbar-box">
@@ -201,8 +201,10 @@ export default {
           return parentWindows
       },
       availableTables () {
-          return Array.from (window.tablesMap.keys())
+          return Array.from (window.tablesMap)
+
           const tablesObj = this.$store.state.database.tables
+          return tablesObj.map ( ( o ) => o.table_alias )
           return Object.keys(tablesObj)
       },
       tabs () {

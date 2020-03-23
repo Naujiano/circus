@@ -229,7 +229,7 @@ export default {
             , identities = this.ventana.data.identities
             , idField = identities[0]
             , distinct = this.distinct // this.$store.state.ventanas.data[this.ventana.index].queryeditor.distinct
-            , columns = distinct ? ['1 as PK_ID'] : [tableConfig.table_alias+'.'+idField+' as PK_ID']
+            , columns = distinct ? ['1 as PK_ID'] : [`[${tableConfig.table_alias}].[${idField}] as PK_ID`]
             const qeColumns = this.$refs.qe.settings.columns
             qeColumns.forEach ( key => {
                 //if ( columns.indexOf(key.toLowerCase()) == -1 ) 

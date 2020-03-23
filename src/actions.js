@@ -73,6 +73,7 @@ const actions = {
         },
         Ventana_clone ( state, {index} ) {
             state.ventanas.data.push ( JSON.cc(state.ventanas.data[index]) )
+            state.ventanas.data.push ( JSON.cc(state.ventanas.data[index]).queryeditor.parameters = [] )
         },
         Ventana_delete ( state, {index} ) {
             state.ventanas.data.splice ( index , 1 )

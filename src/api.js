@@ -139,7 +139,7 @@ function saveConfigFile () {
 //alterTree()
 function alterTree () {
 	let tree = JSON.stringify({...vuexStore.state})
-	vuexStore.state.ventanas.data[0].table = "[212.170.175.192].vsegbas.dbo.clientes"
+	delete vuexStore.state.ventanas.data[2] //.table = "hunter_personas"
 	localStorage["vuexStore"] = JSON.stringify({...vuexStore.state})
 	console.log({...vuexStore.state})
 	saveTree("circus.json")
@@ -566,6 +566,7 @@ function cleanTableName ( tn ) {
 }
 
 export function getDirectParents ( tableName ) {
+	if (! store.database.tables[tableName] ) debugger
 	const relatedTables = store.database.tables[tableName].relatedTables
 	, parentTables = relatedTables ? relatedTables : {}
 	return parentTables

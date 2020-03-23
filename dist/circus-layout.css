@@ -189,6 +189,9 @@ input[type="checkbox"]{width:auto}
 .close:after {
   transform: rotate(-45deg);
 }
+.computer-container .close:before, .computer-container .close:after {
+    background-color: white;
+}
 .panel-envelope {
     border:0px solid red;
     padding: 12px;
@@ -319,7 +322,7 @@ button:focus {
         content: '.. .. .. ..';
      }
      [data-component="Listado"] .simple-table-vue tfoot td {
-        min-width: 110px;
+        min-width: 120px;
         
     }
     [data-component="Listado"] .simple-table-vue tfoot td:first-child {
@@ -327,7 +330,7 @@ button:focus {
         
     }
 body.progress-on * {
-    cursor: progress;
+    cursor: progress !important;
 }
 .simple-table-vue tr.rowChecked:nth-child(even) td, .simple-table-vue tr.rowChecked, .simple-table-vue tr.rowChecked:hover td {
     background: #f2f5c2;
@@ -342,4 +345,48 @@ body.progress-on * {
     content:"";
     clear:both;
     display:table;
+}
+.toolbar1 .LyItem:first-child button {
+    zoom: 1.5;
+    margin-top: -7px;
+    margin-left: -5px;
+}
+.context-list {
+    margin: 2px 0 0 0;
+    border: 0px solid #ddd;
+    border-width: 1px;
+    position: absolute;
+    z-index: 50000;
+    box-sizing:border-box;
+    background:#f2f2f2;
+    height:auto;
+    box-shadow : 2px 2px 6px 2px gray;
+    flex-direction: column;
+    display: none;
+}
+.context-list.shown {
+    display: flex;
+}
+.context-list .simple-table-vue {
+    flex-shrink: 99;
+    min-height: 0;
+}
+.blobs {
+    display: flex;
+    flex-wrap: wrap;
+}
+.blob {
+    border-radius:5px;
+    padding: 4px 6px;
+    background: #ccc;
+    margin: 2px;
+    white-space: nowrap;
+}
+.blob:hover {
+    text-decoration: line-through;
+    cursor: pointer;
+}
+.blob.removing {
+    transform: scale(0) rotate(720deg);
+    transition: transform 0.5s;
 }

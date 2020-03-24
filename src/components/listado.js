@@ -125,7 +125,7 @@ export default {
             //const qeParams = Object.keys(object).map ( key => ( Object.assign ( {}, object[key], { 
             const qeParams = object.map ( par => {
                 const key = par.column_name
-                , parKey = this.api.getListColumnSql ( par )
+                //, parKey = this.api.getListColumnSql ( par )
                 , alias = this.shortAlias ( this.api.getLiteral ( key ) )
                 , data_type = this.utils.getBasicDataType(par.data_type) 
                 const newPar = Object.assign ( 

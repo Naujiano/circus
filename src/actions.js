@@ -23,14 +23,6 @@ const actions = {
             })
         }
         , set_listModelAlias ( state , { listModelName, value } ) { state.database.listsModels[listModelName].alias = value }
-        , set_listModelNameToField ( state , { listModelName, tableName, fieldName } ) { 
-            const path = ['database','tables',`${tableName}`,'fields_config',`${fieldName}`,'listModel']
-            , CSpath = $$(state).getCIpath ( path )
-            tableName = CSpath[2]
-            fieldName = CSpath[4]
-
-            state.database.tables[tableName].fields_config[fieldName].listModel = listModelName 
-        }
         , setContainerType ( state, {index,type} ) {
             console.log({index,type})
             state.containers[index].type = type
@@ -110,7 +102,6 @@ const actions = {
             state.ventanas.data[indexVentana].table = tableName
         },
         Ventana_setFields ( state , {indexVentana, fields, identities} ) {
-            //console.log(index)
             state.ventanas.data[indexVentana].identities = identities
             state.ventanas.data[indexVentana].fields = fields
         },
@@ -172,6 +163,14 @@ const actions = {
           
             //commit( 'write' , { cursor: getters.ventana(id) , data: "juan" } )
             commit( 'setVentana' , { index: id , data: "juan" } )
+        },
+        set_listModelNameToField:  ( {commit,state} , { listModelName, tableName, fieldName } ) => { 
+            const path = ['database','tables',`${tableName}`,'fields_config',`${fieldName}`,'listModel']
+            , CSpath = $$(state).getCIpath ( path )
+            tableName = CSpath[2]
+            fieldName = CSpath[4]
+            commit ( 'setKey' , {path:CSpath , value: listModelName} )
+            //state.database.tables[tableName].fields_config[fieldName].listModel = listModelName 
         },
         "context-menu": ( {commit,state}, {action,item,cursor,title,branchs,keysSettings} ) => {
             switch ( action ) {

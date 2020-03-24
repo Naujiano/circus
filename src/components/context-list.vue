@@ -345,7 +345,7 @@ export default {
                         const dbqParams = {
         			    	operation: 'request'
         			    	//, sqlSyntax: `SELECT distinct top 20  ${pkName} AS _ROW_NUMBER,${fieldname} FROM ${dbname}.${ownername}.${tablename} WHERE ${fieldname} IS NOT NULL AND ${fieldname} <> '' ${likeExpression} ORDER BY ${fieldname}`
-        			    	, sqlSyntax: `SELECT distinct top 20  1 AS _ROW_NUMBER,${fieldname} FROM ${qeParam.table_full_name} AS ${qeParam.table_alias} WHERE ${fieldname} IS NOT NULL AND ${fieldname} <> '' ${likeExpression} ORDER BY ${fieldname}`
+        			    	, sqlSyntax: `SELECT distinct top 20  1 AS _ROW_NUMBER,${fieldname} FROM ${qeParam.table_full_name} AS [${qeParam.table_alias}] WHERE ${fieldname} IS NOT NULL AND ${fieldname} <> '' ${likeExpression} ORDER BY ${fieldname}`
                             , dbID
         			    }
                         window.working(1)

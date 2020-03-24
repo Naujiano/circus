@@ -462,6 +462,7 @@ export default {
       }
  },
  mounted: function () {
+        window.sft = this.setFieldsForTable
         this.api.getFieldsForTable ( this.ventana.data.table, ( { fields, identities } ) => {
             //console.log(JSON.cc(fields))
             this.$store.commit ( 'Ventana_setFields', {indexVentana: this.ventana.index, fields, identities})

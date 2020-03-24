@@ -188,7 +188,7 @@ export function getListColumnSql ( qeParam, options ) {
     } else { // Es Array. Lista estática
 		if ( !options ) {
 			let newKey = `(case ${field_full_name}`
-			if ( !list.forEach ) debugger
+			if ( !list.forEach ) return field_full_name
         	list.forEach ( item => {
         	    const val = item[0]
         	    , txt = item[1]

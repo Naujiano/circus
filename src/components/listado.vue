@@ -57,7 +57,7 @@
                         -->
 
                 <div style="display:flex; width: 100%;flex-direction:column">
-            <div class="cell-title" style="clear:both;float:none;font-weight:bold;padding:4px 24px 4px 8px;width:100%;background: #898F99;border-radius: 10px; color:white;font-weight:normal;text-align:center" contenteditable="true" @dblclick="editAlias($event,i)" @blur="saveAlias($event,i)">
+            <div class="cell-title" style="clear:both;float:none;font-weight:bold;padding:4px 24px 4px 8px;width:100%;background: #898F99;border-radius: 10px; color:white;font-weight:normal;text-align:center" contenteditable="true" title="Renómbralo haciendo doble click." @dblclick="editAlias($event,i)" @blur="saveAlias($event,i)">
                 {{getParam(i).alias}}
             </div>
                 <button v-show="admin" @click="deleteParam(i)" class="close closeButton" data-help-code="search-parameter-close" style="float:right;margin-top:-18px;margin-bottom:5px; margin-left: calc(100% - 18px);zoom:1.1"></button>

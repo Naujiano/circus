@@ -15,7 +15,7 @@
         </div>
         <div class="toolbar-box">
             <div class="toolbar-box-title">Tabla Principal</div>
-            <select @change="tableChange($event)" class="form-control" style="display:inline;width:auto;font-size:11px;margin-bottom:-2px;margin-top:1px" :data-help-code="getRelations(tabs.names,ventana.data.identities)">
+            <select @change="tableChange($event)" class="form-control" style="display:inline;width:auto;font-size:11px;margin-bottom:-2px;margin-top:1px" :data-help-code="getRelations(tabs.names,evaluatedFieldsOfVentana.identities)">
                 <option v-for="table in availableTables" :value="table[0]" :selected="table[0]==ventana.data.table?'selected':''">{{table[1].table_alias}}</option>
             </select>
         </div>
@@ -45,7 +45,7 @@
       <!--<Ly flexbox=1 height=1>-->
       <div style="display:flex;flex-grow:1;height:calc(100% - 0px);max-height:calc(100% - 50px);position:relative">
           <div v-show="panels.form&&admin" class="panel-envelope" style="height:100%;border:0px solid red" ref="Formulario">
-            <Formulario :item="form.data" :onFilter="formFilter" :overflow="overflow" :keysSettings="keysSettings" :ventana="ventana" style="min-width:150px;background:#f4f4f4;padding:0px"
+            <Formulario :item="form.data" :onFilter="formFilter" :overflow="overflow" :keysSettings="keysSettings" :ventana="evaluatedVentana" style="min-width:150px;background:#f4f4f4;padding:0px"
             />
           </div>
           
@@ -57,8 +57,8 @@
                 </button>
             </div>
             -->
-            <Listado :rows="ventana.data.list.data" :ventana="ventana" :filter="formFilterState.data" :overflow="overflow" :formSetValues="formSetValues"
-              :keysSettings="keysSettings" v-on:rowClick="rowClick" :resetVentana="setFieldsForTable" ref="listado" style="background:#f4f4f4;padding:5px;box-sizing:border-box"/>
+            <Listado :rows="ventana.data.list.data" :ventana="evaluatedVentana" :filter="formFilterState.data" :overflow="overflow" :formSetValues="formSetValues"
+              :keysSettings="keysSettings" v-on:rowClick="rowClick" ref="listado" style="background:#f4f4f4;padding:5px;box-sizing:border-box"/>
           </Ly>
           
       </div>
@@ -86,6 +86,7 @@ export default {
             configFilesList: [],
             parentTables: this.api.getDirectParents(this.ventana.data.table),
             childTables: this.api.getDirectSuns(this.ventana.data.table),
+            evaluatedFieldsOfVentana: { fields: [], identities: [] },
             tree: true,
             formver: true,
             list: true,
@@ -98,7 +99,7 @@ export default {
                 ]
             },
             formFilterState: { data: [], settings: this.keysSettings },
-            form: { data: this.formDataBlanked() }
+            form: { data: {} }
             //, techButtons: this.api.parsedSearch.dev && this.api.parsedSearch.admin
             , admin: this.api.parsedSearch.admin
             , buttons2: [
@@ -181,6 +182,15 @@ export default {
         }
     },
   computed: {
+      database(){
+                  return JSON.cc(this.$store.state.database)
+      },
+        evaluatedVentana () {
+            const evaluatedVentana = this.ventana
+            Object.assign ( evaluatedVentana.data , this.evaluatedFieldsOfVentana )
+
+            return evaluatedVentana
+        },
       childTablesWindows () {
           const childTableNames = Object.keys(this.api.getDirectSuns(this.ventana.data.table))
         const ventanas = this.$store.state.ventanas.data.map ( (win,index) => ({name:win.name,table:win.table,index}))
@@ -217,7 +227,7 @@ export default {
           //log('func')
           const keysSettings = {}
           var val
-          this.ventana.data.fields.forEach ( field => {
+          this.evaluatedFieldsOfVentana.fields.forEach ( field => {
               const list = field.dbsettings ? field.dbsettings.list : false
               val = { data_type: field.data_type }
               if ( list ) {
@@ -243,6 +253,20 @@ export default {
    watch: {
        ventana() {
            this.form.data = this.formDataBlanked()
+       },
+       database() {
+           const that = this
+           that.setFieldsForTable()
+           //return
+           that.$refs.listado.qeParams.forEach ( param => {
+               const fieldConfig = that.evaluatedFieldsOfVentana.fields[param.index]
+               , { list, listModel , listAlias, listType, key } = fieldConfig
+                , newListConfig = { list, listModel , listAlias, listType, key }
+                //debugger
+               Object.assign ( param, fieldConfig )
+
+           })
+           that.$refs.listado.qeParams = JSON.cc(that.$refs.listado.qeParams)
        }
 
    },
@@ -346,24 +370,22 @@ export default {
         this.$store.commit ( 'Ventana_setName' , {indexVentana:this.index,ventanaName:newName} )
       },
       tableChange ( event ) {
+          /*
           if ( ! confirm ( 'Cambiar a -' + event.target.value + '- la tabla asociada a esta ventana.' ) ) {
               event.target.value = this.ventana.data.table
               return false
           }
+          */
         const newTable = event.target.value
         this.setFieldsForTable (newTable)
       },
       setFieldsForTable (tableName) {
-        //return
         window.working(1)
-        if ( ! tableName ) {
-            tableName = this.ventana.data.table
-            
-        }
+        if ( tableName ) this.$store.commit ( 'Ventana_setTable' , {indexVentana:this.index,tableName} )
         tableName = tableName ? tableName : this.ventana.data.table
-        this.$store.commit ( 'Ventana_setTable' , {indexVentana:this.index,tableName} )
         this.api.getFieldsForTable ( tableName, ( { fields, identities } ) => {
-            this.$store.commit ( 'Ventana_setFields', {indexVentana: this.ventana.index, fields, identities})
+            //this.$store.commit ( 'Ventana_setFields', {indexVentana: this.ventana.index, fields, identities})
+            this.evaluatedFieldsOfVentana = { fields, identities }
             this.form.data = this.formDataBlanked()
             window.working(0)
         } )
@@ -374,7 +396,7 @@ export default {
           setTimeout(function(){this.$refs.listado.containerResize()}.bind(this),10)
       },
       fieldsOfVentana(ventana) {
-        return ventana.data.fields
+        return this.evaluatedFieldsOfVentana.fields
         //log(this.$store.state)
         //return this.$store.state.database.tables[ventana.data.table].fields
       },
@@ -407,7 +429,7 @@ export default {
             const index = filteredField.index
             //console.log(this.$store.state.ventanas.data[this.index].fields[index])
             //this.formFilterState.data = filterState
-            let fieldConfig = JSON.cc(this.$store.state.ventanas.data[this.index].fields[index])
+            let fieldConfig = JSON.cc (this.evaluatedFieldsOfVentana.fields[index])  //JSON.cc(this.$store.state.ventanas.data[this.index].fields[index])
             
             //fieldConfig = Object.assign ( fieldConfig, filteredField )
             // debugger
@@ -454,18 +476,18 @@ export default {
         },
       formDataBlanked() {
           const formData = {}
-          this.$store.state.ventanas.data[this.index].fields.forEach ( field => {
+          this.evaluatedFieldsOfVentana.fields.forEach ( field => {
               formData[this.fieldUniqueId(field)] = ""
           })
           return formData
           //return JSON.cc ( this.$store.state.ventanas.data[this.index].fields )
       }
  },
- mounted: function () {
-        window.sft = this.setFieldsForTable
+ created: function () {
         this.api.getFieldsForTable ( this.ventana.data.table, ( { fields, identities } ) => {
             //console.log(JSON.cc(fields))
-            this.$store.commit ( 'Ventana_setFields', {indexVentana: this.ventana.index, fields, identities})
+            //this.$store.commit ( 'Ventana_setFields', {indexVentana: this.ventana.index, fields, identities})
+            this.evaluatedFieldsOfVentana = { fields, identities }
             this.form.data = this.formDataBlanked()
         } )
         this.api.listFiles('./json/',(list)=>{

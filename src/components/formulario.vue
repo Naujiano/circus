@@ -27,6 +27,7 @@
                 v-on:focusField="focusField"
                 v-on:filter="updateShownNumber"
                 v-on:addField="addField"
+                :ventana ="ventana"
                 :filter="filter" 
                 :keysSettings="keysSettings"
                 :showFields="showFields"
@@ -265,6 +266,7 @@ export default {
             //window.bus.$emit('contextListBlur')
         },
         loadFields () {
+            return
             //log(this.items)
             //console.log(fields)
             getFieldsForTable ( this.ventana.data.table, ( { fields, identities } ) => {

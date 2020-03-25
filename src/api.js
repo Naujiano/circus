@@ -29,7 +29,7 @@ $.ajax({
 		console.log('error en services json')
   	}
 });
-let circusConfig = "puta"
+let circusConfig = ""
 $.ajax({
 	url: apiURL + 'circusConfig',
   	data: '',
@@ -107,6 +107,7 @@ function createStore (storedVuexStore) {
 		const estado = {...state}
 		localStorage["vuexStore"] = JSON.stringify(estado)
 		resetApiStore()
+		setDatabaseMaps()
 		saveConfigFile ()
 		saveCircusConfig()
 		window.vuex = JSON.cc ( estado ) 
@@ -121,6 +122,7 @@ function saveConfigFile () {
 		method: "POST",
 		//async: false,
 		success: (storedVuexStore) => {
+			console.log('Guardado ' + fileName )
 		},
 		error: (respuesta) => {
 			console.log('error ajax saveConfigFile')
@@ -153,7 +155,8 @@ setDatabaseMaps()
 function setDatabaseMaps () {
 	setTablesMap()
 	function setTablesMap () {
-		const tablesMap = new Map()
+		//const existingTablesMap = window.tablesMap
+		const tablesMap = window.tablesMap ? window.tablesMap : new Map()
 		, tablesConfig = store.database.tables
 		Object.keys(tablesConfig).forEach ( ( key, i ) => {
 			const table = tablesConfig[key]
@@ -167,7 +170,7 @@ function setDatabaseMaps () {
 				table.table_reference = `[${table_catalog}].[${table_schema}].[${table_name}]` 
 				table.table_schema = table_schema
 				if ( table_server ) table.table_reference =  `[${table_server}].` + table.table_reference
-				tablesMap.set ( key, table )
+				tablesMap.set ( key, Object.assign ( tablesMap.get ( key ) ? tablesMap.get ( key ) : {} , table ) )
 			}
 		})
 		window.tablesMap = tablesMap
@@ -286,161 +289,112 @@ export function $fieldsForTable ( tableName, cb ) {
 		, tableConfig = window.tablesMap.get(tableName) //store.database.tables[tableName]
 		, dbID = getTableConnectionId(tableName)
 		const { table_catalog, table_name, table_schema, table_server, table_alias, table_pkname, fields_config, table_reference } = tableConfig
-		/*
-		, table_catalog = tableConfig.table_catalog
-		, table_name = tableConfig.table_name
-		, table_schema = tableConfig.table_schema
-		, table_server = tableConfig.table_server
-		, table_alias = tableConfig.table_alias
-		, table_config_keyname = tableName
-		, pkname = tableConfig.pkname
-		, fields_config = tableConfig.fields_config
-		*/
-
-		/*
-		if ( tna.length > 1 ) {
-			_.reverse ( tna )
-			tabla = tna[0]
-			owner = tna[1]
-			db = tna[2]
-			server = _.join ( _.reverse ( _.takeRight ( tna , tna.length - 3 ) ) , "." ) 
+		let promise
+		if ( ! tableConfig.evaluatedFields ) {
+			promise = new Promise ( ( resolve, reject ) => {
+				sp_circus_fields ( tableName, ( campos ) => {
+					const newCampos = JSON.parse ( JSON.stringify ( campos ) )
+					//, custom_pkname = store.database.tables[tableName].pkname ? store.database.tables[tableName].pkname : ''
+					//, custom_pkname = pkname ? pkname : ''
+					const computedFields = store.database.computedFields
+					computedFields.forEach ( cf => {
+						const cfTable = cf.table
+						if ( cfTable.toLowerCase() == table_name.toLowerCase() ) {
+							newCampos.push({
+								CHARACTER_MAXIMUM_LENGTH:10
+								, column_name: cf.sql
+								, data_type: cf.type
+								, is_identity: false
+								, table_name: tableName //tabla
+								, literal: cf.literal
+							})
+						}
+					})
+					evaluateFields(newCampos)
+					resolve ( newCampos )
+				} )
+			})
+		} else {
+			promise = new Promise ( ( resolve, reject ) => {
+				const newCampos = tableConfig.evaluatedFields
+				evaluateFields(newCampos)
+				console.log('cache')
+				resolve ( newCampos )
+			})
 		}
-		*/
-		//console.log(`[${table_server}].[${table_catalog}].[${table_schema}].[sp_circus_fields] '${table_name}'`)
-		
-		const promise = new Promise ( ( resolve, reject ) => {
-			sp_circus_fields ( tableName, ( campos ) => {
-				const newCampos = JSON.parse ( JSON.stringify ( campos ) )
-				//, custom_pkname = store.database.tables[tableName].pkname ? store.database.tables[tableName].pkname : ''
-				//, custom_pkname = pkname ? pkname : ''
-				const computedFields = store.database.computedFields
-				computedFields.forEach ( cf => {
-					const cfTable = cf.table
-					if ( cfTable.toLowerCase() == table_name.toLowerCase() ) {
-						newCampos.push({
-							CHARACTER_MAXIMUM_LENGTH:10
-							, column_name: cf.sql
-							, data_type: cf.type
-							, is_identity: false
-							, table_name: tableName //tabla
-							, literal: cf.literal
-						})
-					}
-				})
-				newCampos.forEach ( ( campo ) => {
-					//const fieldSettings = getFieldSettings ( campo.column_name, campo.table_name )
-					let list = false, listModel = false, listAlias = false, listType = false
-					//if ( campo.column_name.toLowerCase() == "col_id_1" ) debugger
-					if ( fields_config ) {
-						const field_config = $$ ( fields_config ).getCI ( campo.column_name )
-						if ( field_config ) {
-							listModel = field_config.listModel
-							list = store.database.listsModels[listModel]
-							//debugger
-							if ( list ) {
-								listAlias = list.alias
-								if ( list.sqlListGrid ) { //ES LISTA DINÁMICA. 
-									listType = "dynamic"
-								} else {
-									listType = "static"
-									list = list.valuesArray ? list.valuesArray : list // ME QUEDO SÓLO CON EL ARRAY DE VALORES QUE ES CON LO QUE FUNCIONA EL RESTO DEL PROGRAMA.
-								}
+		promises.push ( promise )
+		function evaluateFields(newCampos) {
+			newCampos.forEach ( ( campo, i ) => {
+				//const fieldSettings = getFieldSettings ( campo.column_name, campo.table_name )
+				let list = false, listModel = false, listAlias = false, listType = false, favorite= false
+				//if ( campo.column_name.toLowerCase() == "col_id_1" ) debugger
+				if ( fields_config ) {
+					const field_config = $$ ( fields_config ).getCI ( campo.column_name )
+					if ( field_config ) {
+						listModel = field_config.listModel
+						list = store.database.listsModels[listModel]
+						favorite = field_config.favorite
+						//debugger
+						if ( list ) {
+							listAlias = list.alias
+							if ( list.sqlListGrid ) { //ES LISTA DINÁMICA. 
+								listType = "dynamic"
+							} else {
+								listType = "static"
+								list = list.valuesArray ? list.valuesArray : list // ME QUEDO SÓLO CON EL ARRAY DE VALORES QUE ES CON LO QUE FUNCIONA EL RESTO DEL PROGRAMA.
 							}
 						}
 					}
-					const field_full_name = `[${table_alias}].[${campo.column_name}]`
-					Object.assign ( 
-						campo
-						, { 
-							//dbsettings: fieldSettings 
-							 form: { group: 'grupo2'}
-							, list
-							, listModel
-							, listAlias
-							, listType
-							, table_schema 
-							, table_server 					
-							, table_alias 					
-							, table_config_keyname: tableName
-							, field_full_name
-							, table_full_name : table_reference
-							, table_pkname
-							, key: list ? getListColumnSql ( { list, field_full_name, listType } ) : field_full_name
-							, aggregate_function : 'DISTINCT'
-							, basic_data_type: function ( data_type ) {
-								//console.log(data_type)
-								const text = 'text'
-								, number = 'number'
-								, date = 'date'
-								switch ( data_type ) {
-									case 'number':
-										return number
-									case 'int':
-										return number
-									case 'float':
-										return number
-									case 'money':
-										return number
-									case 'datetime':
-										return date
-									case 'date':
-										return date
-									default:
-										return text
-								}
-							}(campo.data_type)
-						}
-					)
-					//if ( campo.column_name.toLowerCase() == custom_pkname.toLowerCase() ) campo.is_identity = true
-					//if ( campo.is_identity ) campo.list.position = "0" 
-				});
-				resolve ( newCampos )
-			} )
-			/*
-            $dbq ({
-                operation: 'sp'
-                //, sp_name: `${db}sp_circus_fields '${tabla}'`
-                , sp_name: `[${table_server}].[${table_catalog}].[${table_schema}].[sp_circus_fields] '${table_name}'`
-				, dbID: dbID
-            }, campos => {
-				const newCampos = JSON.parse ( JSON.stringify ( campos ) )
-				, custom_pkname = store.database.tables[tableName].pkname ? store.database.tables[tableName].pkname : ''
-				const computedFields = store.database.computedFields
-				computedFields.forEach ( cf => {
-					const cfTable = cf.table
-					if ( cfTable.toLowerCase() == table_name.toLowerCase() ) {
-						newCampos.push({
-							CHARACTER_MAXIMUM_LENGTH:10
-							, column_name: cf.sql
-							, data_type: cf.type
-							, is_identity: false
-							, table_name: tableName //tabla
-							, literal: cf.literal
-						})
+				}
+				const field_full_name = `[${table_alias}].[${campo.column_name}]`
+				Object.assign ( 
+					campo
+					, { 
+						//dbsettings: fieldSettings 
+						 form: { group: 'grupo2'}
+						 , favorite
+						, list
+						, listModel
+						, listAlias
+						, listType
+						, table_schema 
+						, table_server 					
+						, table_alias 					
+						, table_config_keyname: tableName
+						, field_full_name
+						, table_full_name : table_reference
+						, table_pkname
+						, index: i
+						, key: list ? getListColumnSql ( { list, field_full_name, listType } ) : field_full_name
+						, aggregate_function : 'DISTINCT'
+						, basic_data_type: function ( data_type ) {
+							//console.log(data_type)
+							const text = 'text'
+							, number = 'number'
+							, date = 'date'
+							switch ( data_type ) {
+								case 'number':
+									return number
+								case 'int':
+									return number
+								case 'float':
+									return number
+								case 'money':
+									return number
+								case 'datetime':
+									return date
+								case 'date':
+									return date
+								default:
+									return text
+							}
+						}(campo.data_type)
 					}
-				})
-				newCampos.forEach ( ( campo ) => {
-					const fieldSettings = getFieldSettings ( campo.column_name, campo.table_name )
-					Object.assign ( 
-						campo
-						, { 
-							dbsettings: fieldSettings 
-							, form: { group: 'grupo2'}
-							, list: { order: "", position: "1" } 
-							, table_schema 
-							, table_server 					
-							, table_alias 					
-							, table_config_keyname
-						}
-					)
-					if ( campo.column_name.toLowerCase() == custom_pkname.toLowerCase() ) campo.is_identity = true
-					if ( campo.is_identity ) campo.list.position = "0" 
-				});
-				resolve ( newCampos )
-			})
-			*/
-		})
-		promises.push ( promise )
+				)
+			});
+			tableConfig.evaluatedFields = newCampos
+			window.tablesMap.set(tableName,tableConfig)
+		}
 	})
 	function execPromises ( promiseNumber ) {
 		const promise = promises [promiseNumber]

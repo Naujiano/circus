@@ -175,14 +175,11 @@ export default {
         },
         qeParams(){
             this.$nextTick(()=>{this.compute()})
-            //this.compute()
-            //alert('b')
-            //console.log('asdfa')
         }
         /*
         , ventana(){
             this.compute()
-            alert('a')
+            console.log('a')
         }
         */
     },
@@ -268,6 +265,7 @@ export default {
         })
 
         window.compute = this.compute
+        this.compute()
 
      },
     methods: {
@@ -502,14 +500,14 @@ export default {
             , qe = this.$refs.qe
             , that = this
             event.stopPropagation();
-
+            that.$store.commit ( 'set_contextDialogProps', qeParam )
             window.contextDialog (
-                { qeParam, value: qe.parameters.data[index].key, cb: function(txt){
+                { qeParam, value: qe.parameters.data[index].key, cb: (txt)=>{
                     if ( txt ) { //VIENE DEL COMPONENTE contextFieldEditKey
                         qe.parameters.data[index].key = txt
                         qe.emitParameters()
                     } else { // viene dl componente contextFieldEditList
-                        //that.resetVentana()
+                        that.$store.commit ( 'set_contextDialogProps', qeParam )
                     }
                 } }
                 , [ {componentName: "contextFieldEditList", componentLabel: "Configuración de lista"}, {componentName: "contextFieldEditKey", componentLabel: "Configuración SQL"} ]

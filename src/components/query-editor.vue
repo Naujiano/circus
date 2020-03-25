@@ -72,12 +72,10 @@ export default {
     },
     watch: {
         params: function (val, oldVal ) {
-            //console.log(val)
             const fs = JSON.cc(val)
             Object.keys ( fs ).forEach ( key => {
                 fs[key].value = fs[key].value == "%" ? "" : fs[key].value
             })
-            //console.log(fs)
             this.parameters.data = fs
         }
     },
@@ -96,7 +94,7 @@ export default {
             return sett
         }
      },
-    mounted: function () {
+   mounted: function () {
         //jqui.sortable(this.$refs.lista)
         $(this.$refs.lista).sortable({
             handle: 'span'

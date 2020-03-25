@@ -4,7 +4,7 @@
             <div style="text-transform:uppercase">Cambiar sintaxis SQL<br></div>
             <b>{{componentProps.reference}}</b>
         </div>
-        <textarea ref="textarea" style="resize:none; overflow: hidden;" @input="oninput()" :value="componentProps.value"></textarea>  
+        <textarea ref="textarea" style="resize:none; overflow: hidden;" @input="oninput()" :value="qeParam.key"></textarea>  
     </div>
 </template>
 <script>
@@ -20,6 +20,9 @@ export default {
         }
     },
     computed: {
+        qeParam () {
+            return this.$store.state.contextDialog.props
+        },
         rows () {
             const listsModels = this.listsModels
             , rows = Object.keys ( listsModels ).map ( key =>{

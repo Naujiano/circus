@@ -73,17 +73,18 @@ export default {
             }
                 //listModelName = checklist[0].nombre //this.rows[checklist.].nombre
 //                debugger
-
-            if ( ! confirm ( 'Asignar modelo de lista\n\n' + field_full_name + ' = ' + listModelName + '\n\nATENCIÓN! Para ver los cambios deberá hacer F5 y luego eliminar y volver a añadir los parámetros que lleven esta configuración.' ) ) {
+/*
+            if ( ! confirm ( 'Asignar modelo de lista\n\n' + field_full_name + ' = ' + listModelName ) ) {
                 this.$refs.simpleTable.reset()
                 return false
             } else {
+                */
                 const store = JSON.cc(this.$store.state)
                 //debugger
                 this.$store.dispatch ( 'set_listModelNameToField' , { listModelName, tableName: table_config_keyname, fieldName: column_name } )
                 window.circus.showHelpBox({title:'Modelo de lista cambiado',text:`Se ha canbiado el modelo de lista asignado al campo ${field_full_name} a ${listModelName}`})
                 if ( this.componentProps.cb ) this.componentProps.cb()
-            }
+            //}
         },
     },
     mounted () {

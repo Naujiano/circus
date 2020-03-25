@@ -1,14 +1,16 @@
 import {$dbq} from './api.js'
-const pathsMap = new Map()
+function setKey ( state , {path ,value }) {
+    if ( value )
+        _.set ( state , path, value )
+    else
+        _.set ( state , path, false )
+    //_.unset ( state , path )
+}
 const actions = {
     strict: false,
     mutations: {
         setKey ( state, {path ,value } ) {
-
-            if ( value )
-                _.set ( state , path, value )
-            else
-                _.unset ( state , path )
+            setKey ( state, {path ,value } )
             return
             var statePos = state
             path.forEach ( (p,i) => {
@@ -101,10 +103,12 @@ const actions = {
         Ventana_setTable ( state, {indexVentana,tableName} ) {
             state.ventanas.data[indexVentana].table = tableName
         },
+/*
         Ventana_setFields ( state , {indexVentana, fields, identities} ) {
             state.ventanas.data[indexVentana].identities = identities
             state.ventanas.data[indexVentana].fields = fields
         },
+*/
         ContextMenu_open ( state, data ) {
             //console.log(data)
             state.contextMenu = JSON.cc(data)
@@ -146,6 +150,17 @@ const actions = {
             // British English uses day-month-year order and 24-hour time without AM/PM
             , fecha = event.toLocaleString('en-GB', { timeZone: 'UTC' })
             state.log.unshift ( fecha + '<br>' + msg ) 
+        },
+        set_favoriteToField ( state, {tableKeyName, fieldName} ) {
+            const path = ['database','tables',`${tableKeyName}`,'fields_config',`${fieldName}`,'favorite']
+            , CSpath = $$(state).getCIpath ( path )
+            , actualValue = $$(state).getCI ( path )
+            setKey ( state , { path: CSpath ,value: actualValue ? false :  true })
+        },
+        set_contextDialogProps ( state, value ) {
+            const path = ['contextDialog','props']
+            setKey ( state , { path, value } )
+
         }
     },
     getters: {
@@ -167,8 +182,6 @@ const actions = {
         set_listModelNameToField:  ( {commit,state} , { listModelName, tableName, fieldName } ) => { 
             const path = ['database','tables',`${tableName}`,'fields_config',`${fieldName}`,'listModel']
             , CSpath = $$(state).getCIpath ( path )
-            tableName = CSpath[2]
-            fieldName = CSpath[4]
             commit ( 'setKey' , {path:CSpath , value: listModelName} )
             //state.database.tables[tableName].fields_config[fieldName].listModel = listModelName 
         },

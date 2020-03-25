@@ -183,7 +183,7 @@ export default {
     },
   computed: {
       database(){
-                  return JSON.cc(this.$store.state.database)
+                   return JSON.cc(this.$store.state.database)
       },
         evaluatedVentana () {
             const evaluatedVentana = this.ventana

@@ -156,11 +156,11 @@ const actions = {
             , CSpath = $$(state).getCIpath ( path )
             , actualValue = $$(state).getCI ( path )
             setKey ( state , { path: CSpath ,value: actualValue ? false :  true })
+            state.database.literales = JSON.cc ( state.database.literales )
         },
         set_contextDialogProps ( state, value ) {
             const path = ['contextDialog','props']
             setKey ( state , { path, value } )
-
         }
     },
     getters: {

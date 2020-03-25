@@ -390,3 +390,34 @@ body.progress-on * {
     transform: scale(0) rotate(720deg);
     transition: transform 0.5s;
 }
+[data-component="Formulario"] tr:hover td {
+    background: red;
+    margin: 5px 0;
+}
+[data-component="Formulario"] tr:active td {
+    box-shadow: 0 0 2px 1px gray;
+}
+
+.star-row {
+    padding: 0 5px 0 0;
+}
+.star-row img {
+    width:20px;
+}
+.star-row, tr:hover td.star-row {
+    opacity: 1;
+    background: transparent;
+    box-shadow: none;
+}
+.star-row * {
+    cursor: pointer;
+}
+.full-star, .star-row-favorited .empty-star {
+    display: none;
+}
+.empty-star, .star-row-favorited .full-star {
+    display: block;
+}
+.star-row-favorited .highlight-text:last-child {
+    background: #60656d;
+}

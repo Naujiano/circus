@@ -20,13 +20,13 @@ function keepDBConnAlive () {
 	let fileName = parsedSearch.reset
 	if ( !fileName ) fileName = 'circus.json'
 	$.ajax({
-		url: apiURL + 'writeFile',
+		url: apiURL + 'ping',
 	data: { json: localStorage["vuexStore"], fileName },
 	method: "POST",
 	//async: false,
 		success: (storedVuexStore) => {
-		console.log('tree saved!')
-		window.circus.showHelpBox ( {title:'Configuración Guardada',text:'Se ha guardado automáticamente la configuración actual en el archivo ' + fileName })
+		console.log('keepDBConnAlive!')
+		//window.circus.showHelpBox ( {title:'Configuración Guardada',text:'Se ha guardado automáticamente la configuración actual en el archivo ' + fileName })
 	},
 	error: (respuesta) => {
 		console.log('error ajax ping')

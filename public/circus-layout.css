@@ -421,3 +421,6 @@ body.progress-on * {
 .star-row-favorited .highlight-text:last-child {
     background: #60656d;
 }
+.empty-star {
+    opacity: 0.2;
+}

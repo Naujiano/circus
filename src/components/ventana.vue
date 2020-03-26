@@ -261,7 +261,7 @@ export default {
            that.$refs.listado.qeParams.forEach ( param => {
                const fieldConfig = that.evaluatedFieldsOfVentana.fields[param.index]
                , { list, listModel , listAlias, listType, key } = fieldConfig
-                , newListConfig = { list, listModel , listAlias, listType, key }
+               , newListConfig = { list, listModel , listAlias, listType, key }
                 //debugger
                Object.assign ( param, fieldConfig )
 

@@ -108,7 +108,7 @@ function createStore (storedVuexStore) {
 		localStorage["vuexStore"] = JSON.stringify(estado)
 		resetApiStore()
 		setDatabaseMaps()
-		saveConfigFile ()
+		//saveConfigFile ()
 		saveCircusConfig()
 		window.vuex = JSON.cc ( estado ) 
 	})

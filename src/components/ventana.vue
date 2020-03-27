@@ -265,7 +265,7 @@ export default {
                , { list, listModel , listAlias, listType, key } = fieldConfig
                , newListConfig = { list, listModel , listAlias, listType, key }
                 //debugger
-               Object.assign ( param, fieldConfig )
+               Object.assign ( param, newListConfig )
 
            })
            that.$refs.listado.qeParams = JSON.cc(that.$refs.listado.qeParams)

@@ -289,7 +289,7 @@ export function $fieldsForTable ( tableName, cb ) {
 	const tables = getTablesRelation(tableName).names
 	, finalCampos = []
 	, promises = []
-	//debugger
+	let index = 0
 	tables.forEach ( ( tableName ) => {
 		const tna = tableName.split ( "." )
 		, tableConfig = window.tablesMap.get(tableName) //store.database.tables[tableName]
@@ -369,7 +369,7 @@ export function $fieldsForTable ( tableName, cb ) {
 						, field_full_name
 						, table_full_name : table_reference
 						, table_pkname
-						, index: i
+						, index
 						, key: list ? getListColumnSql ( { list, field_full_name, listType } ) : field_full_name
 						, aggregate_function : 'DISTINCT'
 						, basic_data_type: function ( data_type ) {
@@ -396,6 +396,7 @@ export function $fieldsForTable ( tableName, cb ) {
 						}(campo.data_type)
 					}
 				)
+				index++;
 			});
 			tableConfig.evaluatedFields = newCampos
 			window.tablesMap.set(tableName,tableConfig)

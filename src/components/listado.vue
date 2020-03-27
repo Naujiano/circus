@@ -39,13 +39,12 @@
             </div>
             <div :class="{'computer-container':true, 'sorting':!grid.rows.length, 'computer-container-advanced': showAdvanced }">
 
-            <div style="width:10000px;height:4px;background:#ccc;"></div>
 
 
                 <div v-show="qeParams.length" style="width:25px;height:;float:left;padding-top:77px;position:relative;z-index:1"><button @click="extendParams()" style="background;border:1px solid #ddd;height:23px;" data-help-Code="show-advanced-params">+</button></div>
 
 
-                <div ref="computer" style="display:flex;width: ; height:; padding:0 0 0 25px;position:absolute;white-space:nowrap;border:0px solid red;border-width:0px">
+                <div ref="computer" style="display:flex;width: ; height:; padding:0 0 0 25px;position:absolute;white-space:nowrap;border:0px solid #ccc;border-top-width:5px">
                     <div v-for="(col,i) in grid.columns.names" v-if="qeParams[i]" :ref="'computed_'+col.label" class="header-cell" :key="'cont_'+col.label" :type="getParam(i).basic_data_type" :param="JSON.stringify(getParam(i))">
 
                         <!--

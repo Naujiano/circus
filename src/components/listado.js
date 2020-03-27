@@ -216,7 +216,7 @@ export default {
                 return params
             },
             set(newParams){
-                //this.$store.commit ( 'Ventana_injectQE' , {indexVentana:this.ventana.index,qeParams:newParams} )
+                this.$store.commit ( 'Ventana_injectQE' , {indexVentana:this.ventana.index,qeParams:newParams} )
             }
         },
          columns () {
@@ -258,6 +258,7 @@ export default {
         //this.qeHasChanged.changed = false
         $(this.$refs.computer).sortable({
             handle: '.cell-title'
+            , start: this.clearSimpleTable
             , stop: this.sortableStop
             , placeholder: "ui-state-highlight"
             , revert: 200
@@ -430,7 +431,7 @@ export default {
             //return
             
             if ( params == 'resorted' ) {
-                this.clearSimpleTable()
+                //this.clearSimpleTable()
                 return false
             }
             

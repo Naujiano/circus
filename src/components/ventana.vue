@@ -410,36 +410,16 @@ export default {
         },
         formFilter ( filterState ) {
             const that = this
-            /*
-            console.log(filterState)
-            if ( parameterExists () ) {
-                window.circus.showHelpBox ({title:'Este campo ya está en el listado',text:'El campo que está intentando añadir ya está presente en el listado.'})
-                //return false
-            }
-            function parameterExists () {
-                const params = that.$refs.listado.$refs.qe.parameters.data
-                , key = Object.keys(filterState)[0]
-                let exists = false
-                params.forEach ( par => {
-                    if ( par.reference == key ) exists = true
-                })
-                return exists
-            }
-            */
-            //debugger
             const filteredField =  filterState[Object.keys(filterState)[0]]
             const index = filteredField.index
-            //console.log(this.$store.state.ventanas.data[this.index].fields[index])
-            //this.formFilterState.data = filterState
             let fieldConfig = JSON.cc (this.evaluatedFieldsOfVentana.fields[index])  //JSON.cc(this.$store.state.ventanas.data[this.index].fields[index])
-            
-            //fieldConfig = Object.assign ( fieldConfig, filteredField )
-            // debugger
-
             this.formFilterState.data = [fieldConfig]
-            //console.log(this.formFilterState.data)
             const actualRows = this.$refs.listado.grid.rows
             if ( ! actualRows ) return false
+
+            this.$refs.listado.clearSimpleTable()
+            return
+
 
             //AÑADO UNA COLUMNA AL LISTADO PROVISONALMENTE
 

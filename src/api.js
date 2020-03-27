@@ -239,10 +239,12 @@ export function getLiteral ( id ) {
 
 export function getFieldsForTable ( table, cb ) {
 	table = getCaseSensitiveTableName ( table )
-	    $fieldsForTable (table,fields => {
-			const identities = fields.filter ( (field,index) => field.is_identity ).map ( field => field.column_name )
-			cb ( { fields,identities })
-		})
+	const tableConfig = window.tablesMap.get(table)
+    $fieldsForTable (table,fields => {
+		let identities = fields.filter ( (field,index) => field.is_identity ).map ( field => field.column_name )
+		if ( ! identities.length ) identities = [tableConfig.table_pkname]
+		cb ( { fields,identities })
+	})
 }
 function getCaseSensitiveTableName (tableName) {
 	let csTableName
@@ -253,11 +255,12 @@ function getCaseSensitiveTableName (tableName) {
 }
 
 export function getIdentitiesForTableSet ( table, cb ) {
-	console.log('getIdentitiesForTableSet')
-	    $fieldsForTable (table,fields => {
-			const identities = fields.filter ( (field,index) => field.is_identity ).map ( field => ( { column_name: field.column_name, table_name: field.table_name } ) )
-			cb ( identities )
-		})
+	const tableConfig = window.tablesMap.get(table)
+	$fieldsForTable (table,fields => {
+		let identities = fields.filter ( (field,index) => field.is_identity ).map ( field => ( { column_name: field.column_name, table_name: field.table_name } ) )
+		if ( ! identities.length ) identities = [tableConfig.table_pkname]
+		cb ( identities )
+	})
 }
 function sp_circus_fields ( tableName, cb ) {
 	const tableConfig = window.tablesMap.get(tableName) //store.database.tables[tableName]

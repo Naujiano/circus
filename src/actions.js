@@ -151,11 +151,10 @@ const actions = {
             , fecha = event.toLocaleString('en-GB', { timeZone: 'UTC' })
             state.log.unshift ( fecha + '<br>' + msg ) 
         },
-        set_favoriteToField ( state, {tableKeyName, fieldName} ) {
-            const path = ['database','tables',`${tableKeyName}`,'fields_config',`${fieldName}`,'favorite']
-            , CSpath = $$(state).getCIpath ( path )
-            , actualValue = $$(state).getCI ( path )
-            setKey ( state , { path: CSpath ,value: actualValue ? false :  true })
+        set_databaseConfig ( state, {path, value} ) {
+            path =  `database.${path}` //LO QUE VA LA DB LLEVA EL PATH COMO CADENA DE TEXTO SEPARADA POR PUNTOS PORQUE ES MÁS FÁCIL DE ENVIAR A NODE QUE UN ARRAY QUE LUEGO HAY QUE PARSEAR.
+            //debugger
+            setKey ( state , { path , value })
             state.database.literales = JSON.cc ( state.database.literales )
         },
         set_contextDialogProps ( state, value ) {
@@ -178,12 +177,6 @@ const actions = {
           
             //commit( 'write' , { cursor: getters.ventana(id) , data: "juan" } )
             commit( 'setVentana' , { index: id , data: "juan" } )
-        },
-        set_listModelNameToField:  ( {commit,state} , { listModelName, tableName, fieldName } ) => { 
-            const path = ['database','tables',`${tableName}`,'fields_config',`${fieldName}`,'listModel']
-            , CSpath = $$(state).getCIpath ( path )
-            commit ( 'setKey' , {path:CSpath , value: listModelName} )
-            //state.database.tables[tableName].fields_config[fieldName].listModel = listModelName 
         },
         "context-menu": ( {commit,state}, {action,item,cursor,title,branchs,keysSettings} ) => {
             switch ( action ) {

@@ -255,8 +255,9 @@ export default {
         },
         favorite ( campo, index ) {
             let fieldConfig = JSON.cc(this.ventana.data.fields[index])
-            this.$store.commit('set_favoriteToField',{tableKeyName: fieldConfig.table_config_keyname, fieldName: fieldConfig.column_name })
-            
+            //this.$store.commit ( 'set_favoriteToField', {tableKeyName: fieldConfig.table_config_keyname, fieldName: fieldConfig.column_name } )
+            //debugger
+            window.commit ( 'set_favoriteToField', { tableKeyName: fieldConfig.table_config_keyname, fieldName: fieldConfig.column_name } )
         }
     }
     , beforeUpdate(){

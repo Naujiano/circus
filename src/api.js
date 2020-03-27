@@ -108,8 +108,9 @@ function createStore (storedVuexStore) {
 		localStorage["vuexStore"] = JSON.stringify(estado)
 		resetApiStore()
 		setDatabaseMaps()
+		console.log('Commit to Vuex.')
 		//saveConfigFile ()
-		saveCircusConfig()
+		//saveCircusConfig()
 		window.vuex = JSON.cc ( estado ) 
 	})
 }
@@ -562,18 +563,18 @@ export function saveTree ( fileName, doPrompt ) {
 	});
 	return fileName
 }
-export function saveCircusConfig ( ) {
-	circusConfig =  JSON.parse(localStorage["vuexStore"]).database 
-	$.ajax({
-  		url: apiURL + 'writeConfig',
-		data: { json: JSON.stringify(circusConfig,null,2) },
-		method: "POST",
-		//async: false,
-  		success: (storedVuexStore) => {
-			//console.log('Circus config saved.' )
-		}
-	});
-	return fileName
+export function saveGlobalConfig ( { path, value } ) {
+	console.log( { path , value } )
+	//return
+    $.ajax({
+        url: apiURL + 'writeConfig',
+      	data: { path, value },
+      	method: "POST",
+      	//async: false,
+        success: (storedVuexStore) => {
+        	console.log('Global State saved.' )
+      	}
+  	});
 }
 export function listFiles (folder,cb) {
 	$.ajax({

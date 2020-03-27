@@ -91,6 +91,7 @@
 import Vue from 'vue'
 //import * as store from '../store.js'
 import * as api from '../api.js'
+import actions_global from '../actions_global.js'
 const {$fieldsForTable,saveTree,tablesFromConnection,keepDBConnAlive} = api
 import uuidV1 from 'uuid/v1'
 //import * as helpers from '../helpers.js'
@@ -520,6 +521,11 @@ export default {
                 $('body').addClass('progress-on')
             else
                 $('body').removeClass('progress-on')
+        }
+        window.commit = ( commitKey, payload )  => {
+            const { path, value } = actions_global[commitKey] ( payload )
+            this.api.saveGlobalConfig ( { path, value } )
+            this.$store.commit ( 'set_databaseConfig', { path, value } )
         }
         this.loadQueries()
         //this.api.getTablesList((tables)=>{this.treedata_tables = tables })

@@ -216,7 +216,7 @@ export default {
                 return params
             },
             set(newParams){
-                this.$store.commit ( 'Ventana_injectQE' , {indexVentana:this.ventana.index,qeParams:newParams} )
+                //this.$store.commit ( 'Ventana_injectQE' , {indexVentana:this.ventana.index,qeParams:newParams} )
             }
         },
          columns () {

@@ -81,7 +81,7 @@ export default {
                 */
                 const store = JSON.cc(this.$store.state)
                 //debugger
-                this.$store.dispatch ( 'set_listModelNameToField' , { listModelName, tableName: table_config_keyname, fieldName: column_name } )
+                window.commit ( 'set_listModelNameToField' , { listModelName, tableName: table_config_keyname, fieldName: column_name } )
                 window.circus.showHelpBox({title:'Modelo de lista cambiado',text:`Se ha canbiado el modelo de lista asignado al campo ${field_full_name} a ${listModelName}`})
                 if ( this.componentProps.cb ) this.componentProps.cb()
             //}

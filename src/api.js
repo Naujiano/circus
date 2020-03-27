@@ -53,6 +53,8 @@ if ( parsedSearch.reset ) {
 	loadTree( treeModel=>{
 			createStore(treeModel);
 			//console.log('Model loaded from ' + fileName );
+			alert("Se ha importado la configuración del archivo '" + fileName + "' a su Configuración Local.")
+			location = './?api=' + apiURL + '&admin=1'
 	}, fileName )
 } else {
 	try {
@@ -319,7 +321,6 @@ export function $fieldsForTable ( tableName, cb ) {
 			promise = new Promise ( ( resolve, reject ) => {
 				const newCampos = tableConfig.evaluatedFields
 				evaluateFields(newCampos)
-				console.log('cache')
 				resolve ( newCampos )
 			})
 		}

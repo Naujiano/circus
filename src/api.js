@@ -294,15 +294,32 @@ export function $fieldsForTable ( tableName, cb ) {
 		const tna = tableName.split ( "." )
 		, tableConfig = window.tablesMap.get(tableName) //store.database.tables[tableName]
 		, dbID = getTableConnectionId(tableName)
-		const { table_catalog, table_name, table_schema, table_server, table_alias, table_pkname, fields_config, table_reference } = tableConfig
+		const { table_catalog, table_name, table_schema, table_server, table_alias, table_pkname, fields_config, fields_computed, table_reference } = tableConfig
 		let promise
 		if ( ! tableConfig.evaluatedFields ) {
 			promise = new Promise ( ( resolve, reject ) => {
 				sp_circus_fields ( tableName, ( campos ) => {
-					//debugger
 					const newCampos = JSON.parse ( JSON.stringify ( campos ) )
-					//, custom_pkname = store.database.tables[tableName].pkname ? store.database.tables[tableName].pkname : ''
-					//, custom_pkname = pkname ? pkname : ''
+					//debugger
+					
+					if ( fields_computed && fields_computed.length ) {
+						fields_computed.forEach ( cf => {
+							newCampos.push({
+								CHARACTER_MAXIMUM_LENGTH:10
+								, column_name: cf.sql
+								, data_type: cf.type
+								, is_identity: false
+								, table_name //: tableName //tabla
+								, table_schema
+								, table_catalog
+								, literal: cf.literal
+								, is_computed: true
+								, computed_literal: cf.literal
+							})
+						})
+					}
+					
+/*
 					const computedFields = store.database.computedFields
 					computedFields.forEach ( cf => {
 						const cfTable = cf.table
@@ -319,6 +336,7 @@ export function $fieldsForTable ( tableName, cb ) {
 							})
 						}
 					})
+*/
 					evaluateFields(newCampos)
 					resolve ( newCampos )
 				} )

@@ -681,8 +681,10 @@ export default {
             this.api.$dbq (paramsComputedCols , data => {
                 const results = JSON.cc(data[0])
                 Object.keys(results).forEach ( key => {
-                    $(this.$refs['computed_['+key+']']).find('span').html(results[key] ).attr('title',results[key] )
-                    $(this.$refs['computed_['+key+']']).find('.button-operation *').attr('title',results[key] )
+                    let result = results[key]
+                    result = ( result && result != "" ) ? result : "[No disponbible]"
+                    $(this.$refs['computed_['+key+']']).find('span').html( result ).attr ( 'title', result )
+                    $(this.$refs['computed_['+key+']']).find('.button-operation *').attr ( 'title', result )
                 })
                 //console.log(data[0])
             })

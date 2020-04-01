@@ -299,13 +299,14 @@ export function $fieldsForTable ( tableName, cb ) {
 		if ( ! tableConfig.evaluatedFields ) {
 			promise = new Promise ( ( resolve, reject ) => {
 				sp_circus_fields ( tableName, ( campos ) => {
+					//debugger
 					const newCampos = JSON.parse ( JSON.stringify ( campos ) )
 					//, custom_pkname = store.database.tables[tableName].pkname ? store.database.tables[tableName].pkname : ''
 					//, custom_pkname = pkname ? pkname : ''
 					const computedFields = store.database.computedFields
 					computedFields.forEach ( cf => {
 						const cfTable = cf.table
-						if ( cfTable.toLowerCase() == table_name.toLowerCase() ) {
+						if ( cfTable.toLowerCase() == tableName.toLowerCase() ) {
 							newCampos.push({
 								CHARACTER_MAXIMUM_LENGTH:10
 								, column_name: cf.sql
@@ -313,6 +314,8 @@ export function $fieldsForTable ( tableName, cb ) {
 								, is_identity: false
 								, table_name: tableName //tabla
 								, literal: cf.literal
+								, is_computed: true
+								, computed_literal: cf.literal
 							})
 						}
 					})
@@ -351,7 +354,7 @@ export function $fieldsForTable ( tableName, cb ) {
 						}
 					}
 				}
-				const field_full_name = `[${table_alias}].[${campo.column_name}]`
+				const field_full_name = ! campo.is_computed ? `[${table_alias}].[${campo.column_name}]` : `${campo.column_name}`
 				Object.assign ( 
 					campo
 					, { 

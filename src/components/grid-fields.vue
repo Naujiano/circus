@@ -2,7 +2,7 @@
 <div  ref="tabs">
     <Tabs :tabs="tabs">
         <Ly v-for="tab in tabs" flexbox=1 column=1 grow=1 :slot="tab">
-            <Ly v-for="(campo, index) in shallowFields(tab)" v-show="inFilter(campo) && (!verSoloFavoritos || ventana.data.fields[index].favorite)" :style="elementStyle(campo)">
+            <Ly v-for="(campo, index) in shallowFields(tab)" v-show="inFilter(fields[index]) && (!verSoloFavoritos || ventana.data.fields[index].favorite)" :style="elementStyle(campo)">
                 <table style="white-space:nowrap">
                     <tr @click="addField($event,campo,tab)" style="display:block; margin: 1px 0" :class="{'star-row-favorited':ventana.data.fields[index].favorite}">
                         <td :class="{'star-row':true}" @click.stop="favorite(campo,index)" style="">
@@ -11,8 +11,9 @@
                                 <img src="images/empty-star.svg" class="empty-star" style="">
                             </div>
                         </td>
-                        <td v-for="ele in campo.name.split('.').slice(0, 3)" v-if="(ele!='dbo')&&showPath" @dblclick="editFieldName($event.target)" @blur="saveFieldName($event.target,campo.name)"  class="highlight-text">{{ele}}</td>
-                        <td @dblclick="editFieldName($event.target)" @blur="saveFieldName($event.target,campo.name)" v-html="api.getLiteral(campo.name)"  class="highlight-text highlight-text-strong" style=""></td>
+                        <!--<td v-for="ele in campo.name.split('.').slice(0, 3)" v-if="(ele!='dbo')&&showPath" @dblclick="editFieldName($event.target)" @blur="saveFieldName($event.target,campo.name)"  class="highlight-text">{{ele}}</td>-->
+                        <td v-if ="showPath" class="highlight-text">{{fields[index].table_alias}}</td>
+                        <td @dblclick="editFieldName($event.target)" @blur="saveFieldName($event.target,campo.name)" v-html="fields[index].label"  class="highlight-text highlight-text-strong" style=""></td>
                     </tr>
                 </table>
                 <!--
@@ -57,7 +58,8 @@ export default {
         showFields: Boolean,
         showPath: Boolean,
         ventana: Object,
-        verSoloFavoritos: Boolean
+        verSoloFavoritos: Boolean,
+        fields: Array
     },
     data: function () {
         /*
@@ -85,7 +87,8 @@ export default {
             $(this.$refs.tabs).find('textarea').css ({ height:'24px' })
         }
         , filter: function (val, oldVal ) { 
-            const fields = this.shallowFields('main').filter ( field => {
+            //const fields = this.shallowFields('main').filter ( field => {
+            const fields = this.fields.filter ( field => {
                 return this.inFilter(field)
             })
             this.$emit('filter',fields.length)
@@ -140,8 +143,12 @@ export default {
         inFilter(campo) {
             if ( !this.filter || this.filter == "" ) return true
             const re = new RegExp ( this.filter.toLowerCase(), 'gi' )
+            /*
             , matches = this.api.getLiteral(campo.name).toLowerCase().match (re)
             , matches2 = campo.name.toLowerCase().match (re)
+            */
+            , matches = campo.label.toLowerCase().match (re)
+            , matches2 = campo.label.toLowerCase().match (re)
             , inFilter = ( matches != null || matches2 != null )
             //const inFilter = campo.name.toLowerCase().indexOf(this.filter.toLowerCase()) != -1
             return inFilter

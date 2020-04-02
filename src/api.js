@@ -312,7 +312,7 @@ export function $fieldsForTable ( tableName, cb ) {
 								, table_catalog
 								, literal: cf.literal
 								, is_computed: true
-								, computed_literal: cf.literal
+								, label: cf.literal
 							})
 						})
 					}
@@ -352,7 +352,7 @@ export function $fieldsForTable ( tableName, cb ) {
 				//const fieldSettings = getFieldSettings ( campo.column_name, campo.table_name )
 				let list = false, listModel = false, listAlias = false, listType = false, favorite= false
 				//if ( campo.column_name.toLowerCase() == "col_id_1" ) debugger
-				if ( fields_config ) {
+				if ( fields_config && ! campo.is_computed ) {
 					const field_config = $$ ( fields_config ).getCI ( campo.column_name )
 					if ( field_config ) {
 						listModel = field_config.listModel

@@ -27,6 +27,7 @@
         <div class="LyItem LyItem-grow LyItem-overflow" @scroll="positionContext($event)" style="background:; padding:0">
             <GridFields 
                 :item="formState.editorData" 
+                :fields="fields"
                 data-component="Formulario" 
                 v-on:change="formChange" 
                 v-on:clickLabel="clickLabel"
@@ -96,7 +97,7 @@ export default {
             , showPath: false
         }
     },
-    props: ['item','onFilter','overflow','keysSettings','ventana'],
+    props: ['item','fields','onFilter','overflow','keysSettings','ventana'],
     watch: {
         item: function ( val, oldVal ) {
             this.formState.editorData = val

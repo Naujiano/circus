@@ -45,7 +45,7 @@
       <!--<Ly flexbox=1 height=1>-->
       <div style="display:flex;flex-grow:1;height:calc(100% - 0px);max-height:calc(100% - 50px);position:relative">
           <div v-show="panels.form&&admin" class="panel-envelope" style="height:100%;border:0px solid red" ref="Formulario">
-            <Formulario :item="form.data" :onFilter="formFilter" :overflow="overflow" :keysSettings="keysSettings" :ventana="evaluatedVentana" style="min-width:150px;background:#f4f4f4;padding:0px"
+            <Formulario :item="form.data" :onFilter="formFilter" :overflow="overflow" :keysSettings="keysSettings" :ventana="evaluatedVentana" :fields="evaluatedFieldsOfVentana.fields" style="min-width:150px;background:#f4f4f4;padding:0px"
             />
           </div>
           

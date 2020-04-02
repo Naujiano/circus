@@ -2,7 +2,7 @@
     <div class="context-field-edit-list">
         <div class="encabezado">
             <div style="text-transform:uppercase">Cambiar modelo de lista desplegable<br></div>
-            <b>{{componentProps.qeParam.is_computed?componentProps.qeParam.computed_literal:componentProps.qeParam.field_full_name}}</b>
+            <b>{{componentProps.qeParam.is_computed?componentProps.qeParam.label:componentProps.qeParam.field_full_name}}</b>
         </div>
         <SimpleTable style=""
             ref="simpleTable"

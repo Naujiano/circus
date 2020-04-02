@@ -524,7 +524,7 @@ export default {
         }
         window.commit = ( commitKey, payload )  => {
             const { path, value } = actions_global[commitKey] ( payload )
-            this.api.saveGlobalConfig ( { path, value } )
+            if ( commitKey != "set_favoriteToField" ) this.api.saveGlobalConfig ( { path, value } )
             this.$store.commit ( 'set_databaseConfig', { path, value } )
         }
         this.loadQueries()

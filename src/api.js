@@ -100,7 +100,21 @@ function createStore (storedVuexStore) {
 		} ,
 		...actions
 	}
+	const localCircusConfig = vuexTree.state.database
 	vuexTree.state.database = circusConfig // Asigno la configuración de la aplicación al archivo de configuración global.
+
+	//Recupero el valor de "favorito" de la configuración local para manejarlo como un config del archivo de configuración individual y no como config general de la base de datos.
+	Object.keys ( localCircusConfig.tables ).forEach ( tableName => {
+		const table = localCircusConfig.tables[tableName]
+		const fieldsConfig = table.fields_config
+		if ( fieldsConfig ) {
+			Object.keys ( fieldsConfig ).forEach ( fieldName => {
+				const fieldConfig = fieldsConfig[fieldName]
+				const favorite = fieldConfig.favorite
+				vuexTree.state.database.tables[tableName].fields_config[fieldName].favorite = favorite
+			})
+		}
+	})
 	//Object.assign ( vuexTree.state.database , circusConfig )
 	vuexStore = new Vuex.Store(vuexTree)
 	localStorage["vuexStore"] = JSON.stringify(vuexTree.state)

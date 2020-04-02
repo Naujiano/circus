@@ -300,8 +300,6 @@ export function $fieldsForTable ( tableName, cb ) {
 			promise = new Promise ( ( resolve, reject ) => {
 				sp_circus_fields ( tableName, ( campos ) => {
 					const newCampos = JSON.parse ( JSON.stringify ( campos ) )
-					//debugger
-					
 					if ( fields_computed && fields_computed.length ) {
 						fields_computed.forEach ( cf => {
 							newCampos.push({

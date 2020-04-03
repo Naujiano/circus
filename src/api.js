@@ -205,7 +205,7 @@ export const databaseMaps = {
 		for ( const [key,table] of window.tablesMap ) {
 			getFieldsForTable ( key, ( { fields,identities } ) => {
 				fields.forEach ( campo => {
-					campo.favorite = vuexStore.state.fieldsMap[campo.field_full_name].favorite
+					campo.favorite = vuexStore.state.fieldsMap[campo.field_full_name] ? vuexStore.state.fieldsMap[campo.field_full_name].favorite : 0
 					window.fieldsMap[campo.field_full_name] = campo
 				})
 				Object.assign ( vuexStore.state.fieldsMap, window.fieldsMap )

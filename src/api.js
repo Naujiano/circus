@@ -106,6 +106,7 @@ function createStore (storedVuexStore) {
 	//Recupero el valor de "favorito" de la configuración local para manejarlo como un config del archivo de configuración individual y no como config general de la base de datos.
 	Object.keys ( localCircusConfig.tables ).forEach ( tableName => {
 		const table = localCircusConfig.tables[tableName]
+		if ( !table ) return
 		const fieldsConfig = table.fields_config
 		if ( fieldsConfig ) {
 			Object.keys ( fieldsConfig ).forEach ( fieldName => {

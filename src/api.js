@@ -112,7 +112,7 @@ function createStore (storedVuexStore) {
 				const fieldConfig = fieldsConfig[fieldName]
 				const favorite = fieldConfig.favorite
 				if ( vuexTree.state.database.tables[tableName].fields_config[fieldName] )
-					vuexTree.state.database.tables[tableName].fields_config[fieldName].favorite = favorite
+					vuexTree.state.database.tables[tableName].fields_config[fieldName].favorite = favorite 
 			})
 		}
 	})

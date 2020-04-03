@@ -111,7 +111,8 @@ function createStore (storedVuexStore) {
 			Object.keys ( fieldsConfig ).forEach ( fieldName => {
 				const fieldConfig = fieldsConfig[fieldName]
 				const favorite = fieldConfig.favorite
-				vuexTree.state.database.tables[tableName].fields_config[fieldName].favorite = favorite
+				if ( vuexTree.state.database.tables[tableName].fields_config[fieldName] )
+					vuexTree.state.database.tables[tableName].fields_config[fieldName].favorite = favorite
 			})
 		}
 	})

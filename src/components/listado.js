@@ -227,7 +227,7 @@ export default {
             , identities = this.ventana.data.identities
             , idField = identities[0]
             , distinct = this.distinct // this.$store.state.ventanas.data[this.ventana.index].queryeditor.distinct
-            , columns = distinct ? ['1 as PK_ID'] : [`[${tableConfig.table_alias}].[${idField}] as PK_ID`]
+            , columns = distinct ? ['1 as PK_ID'] : [`[${tableConfig.table_alias}].[${tableConfig.table_pkname}] as PK_ID`]
             const qeColumns = this.$refs.qe.settings.columns
             qeColumns.forEach ( key => {
                 //if ( columns.indexOf(key.toLowerCase()) == -1 ) 
@@ -237,16 +237,9 @@ export default {
             return (columns)
         },
         pkName(){
-            return this.ventana.data.identities[0]
-            const tarr = this.ventana.data.table.split(".")
-            if ( tarr.length > 1 ) _.reverse ( tarr )
-            const table = tarr[0]
-            const fields = this.ventana.data.fields
-            , pkfield = fields.filter ( field => ( field.is_identity && field.table_name.toLowerCase() == table.toLowerCase() ) )
-            if ( !pkfield[0] ) {
-                console.error ( `La tabla ${table} no tiene clave primaria definida.` )
-            }
-            return pkfield[0].column_name
+            const table = this.ventana.data.table
+            , tableConfig = window.tablesMap.get (table)
+            return tableConfig.table_pkname
         },
         tablesRelation(){
             return this.api.getTablesRelation ( this.ventana.data.table )

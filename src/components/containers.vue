@@ -168,7 +168,7 @@ export default {
                             <Ventana 
                                 v-for="ventana in (ventanasDelContainer(container))"
                                 :key="ventana.index"
-                                v-show="visibleVentanas ( container ).indexOf(ventana.index)!=-2" 
+                                v-if="visibleVentanas ( container ).indexOf(ventana.index)!=-2" 
                                 :ventana="ventana" 
                                 :isInline="isInlineContainer(container)" 
                                 :style="styleVentana(container,visibleVentanas ( container ).indexOf(ventana.index)!=-1)"

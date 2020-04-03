@@ -264,20 +264,19 @@ export default {
            //this.form.data = this.formDataBlanked()
        },
        database() {
-           return
-           const that = this
-           that.setFieldsForTable()
-           //return
-           that.$refs.listado.qeParams.forEach ( param => {
+           this.$refs.listado.qeParams.forEach ( param => {
                
+               this.api.setFieldListSettings ( param )
+                /*
                const fieldConfig = that.evaluatedFieldsOfVentana.fields[param.index]
                , { list, listModel , listAlias, listType, key } = fieldConfig
                , newListConfig = { list: list ? list : false , listModel: listModel ? listModel : false  , listAlias: listAlias ? listAlias : false , listType: listType ? listType : false , key }
                 //debugger
                Object.assign ( param, newListConfig )
+               */
 
            })
-           that.$refs.listado.qeParams = JSON.cc(that.$refs.listado.qeParams)
+           this.$refs.listado.qeParams = JSON.cc(this.$refs.listado.qeParams)
        },
        evaluatedFieldsOfVentana () {
            this.form.data = this.formDataBlanked()

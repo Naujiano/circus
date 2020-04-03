@@ -2,7 +2,7 @@
 <div  ref="tabs">
     <Tabs :tabs="tabs">
         <Ly v-for="tab in tabs" flexbox=1 column=1 grow=1 :slot="tab">
-            <Ly v-for="(campo, index) in shallowFields(tab)" v-show="inFilter(fields[index]) && (!verSoloFavoritos || ventana.data.fields[index].favorite)" :style="elementStyle(campo)" :key="index">
+            <Ly v-for="(campo, index) in shallowFields(tab)" v-show="inFilter(fields[index]) && (!verSoloFavoritos || fieldsMap[fields[index].field_full_name].favorite)" :style="elementStyle(campo)" :key="index">
                 <table style="white-space:nowrap">
                     <tr @click="addField($event,campo,tab)" style="display:block; margin: 1px 0" :class="{'star-row-favorited':fieldsMap[fields[index].field_full_name].favorite}">
                         <td :class="{'star-row':true}" @click.stop="favorite(campo,index)" style="">

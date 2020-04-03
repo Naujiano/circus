@@ -201,6 +201,7 @@ export const databaseMaps = {
 		window.events = {}
 		window.events.endcache = new Event ( "endcache" )
 		let contador = 0
+		if ( ! vuexStore.state.fieldsMap ) vuexStore.state.fieldsMap = {}
 		for ( const [key,table] of window.tablesMap ) {
 			getFieldsForTable ( key, ( { fields,identities } ) => {
 				fields.forEach ( campo => {

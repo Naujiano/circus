@@ -115,6 +115,8 @@ function createStore (storedVuexStore) {
 			})
 		}
 	})
+
+	
 	//Object.assign ( vuexTree.state.database , circusConfig )
 	vuexStore = new Vuex.Store(vuexTree)
 	localStorage["vuexStore"] = JSON.stringify(vuexTree.state)
@@ -123,7 +125,7 @@ function createStore (storedVuexStore) {
 		const estado = {...state}
 		localStorage["vuexStore"] = JSON.stringify(estado)
 		resetApiStore()
-		setDatabaseMaps()
+		//setDatabaseMaps()
 		console.log('Commit to Vuex.')
 		//saveConfigFile ()
 		//saveCircusConfig()
@@ -168,10 +170,8 @@ function resetApiStore () {
 export function tablesFromConnection ( connection ) {
 	return [['clientes','clientes'],['polizas','polizas',],['recibos','recibos'],['colaboradores','colaboradores']]
 }
-setDatabaseMaps()
-function setDatabaseMaps () {
-	setTablesMap()
-	function setTablesMap () {
+export const databaseMaps = {
+	setTablesMap () {
 		//const existingTablesMap = window.tablesMap
 		const tablesMap = window.tablesMap ? window.tablesMap : new Map()
 		, tablesConfig = store.database.tables
@@ -191,8 +191,30 @@ function setDatabaseMaps () {
 			}
 		})
 		window.tablesMap = tablesMap
+		vuexStore.state.tablesMap = Object.fromEntries(tablesMap)
+	},
+	setFieldsMap () {
+		window.fieldsMap = {}
+		window.events = {}
+		window.events.endcache = new Event ( "endcache" )
+		let contador = 0
+		for ( const [key,table] of window.tablesMap ) {
+			getFieldsForTable ( key, ( { fields,identities } ) => {
+				fields.forEach ( campo => {
+					campo.favorite = vuexStore.state.fieldsMap[campo.field_full_name].favorite
+					window.fieldsMap[campo.field_full_name] = campo
+				})
+				Object.assign ( vuexStore.state.fieldsMap, window.fieldsMap )
+				contador++
+				if ( contador == window.tablesMap.size ) window.dispatchEvent(window.events.endcache);
+			})
+			console.log(table)
+		}
 	}
 }
+databaseMaps.setTablesMap()
+databaseMaps.setFieldsMap()
+
 /*
 export function getListColumnSql ( key, options ) {
 	const list = getListModel(key)
@@ -304,13 +326,14 @@ export function $fieldsForTable ( tableName, cb ) {
 	, finalCampos = []
 	, promises = []
 	let index = 0
+	console.time('fieldsForTable'+tableName)
 	tables.forEach ( ( tableName ) => {
 		const tna = tableName.split ( "." )
 		, tableConfig = window.tablesMap.get(tableName) //store.database.tables[tableName]
 		, dbID = getTableConnectionId(tableName)
 		const { table_catalog, table_name, table_schema, table_server, table_alias, table_pkname, fields_config, fields_computed, table_reference } = tableConfig
 		let promise
-		if ( ! tableConfig.evaluatedFields ) {
+		//if ( ! tableConfig.evaluatedFields ) {
 			promise = new Promise ( ( resolve, reject ) => {
 				sp_circus_fields ( tableName, ( campos ) => {
 					const newCampos = JSON.parse ( JSON.stringify ( campos ) )
@@ -330,42 +353,27 @@ export function $fieldsForTable ( tableName, cb ) {
 							})
 						})
 					}
-					
-/*
-					const computedFields = store.database.computedFields
-					computedFields.forEach ( cf => {
-						const cfTable = cf.table
-						if ( cfTable.toLowerCase() == tableName.toLowerCase() ) {
-							newCampos.push({
-								CHARACTER_MAXIMUM_LENGTH:10
-								, column_name: cf.sql
-								, data_type: cf.type
-								, is_identity: false
-								, table_name: tableName //tabla
-								, literal: cf.literal
-								, is_computed: true
-								, computed_literal: cf.literal
-							})
-						}
-					})
-*/
 					evaluateFields(newCampos)
 					resolve ( newCampos )
 				} )
 			})
+		/*
 		} else {
-			promise = new Promise ( ( resolve, reject ) => {
+			promise = function() {
 				const newCampos = tableConfig.evaluatedFields
 				evaluateFields(newCampos)
-				resolve ( newCampos )
-			})
+				return ( newCampos )
+			}
 		}
+		*/
 		promises.push ( promise )
 		function evaluateFields(newCampos) {
 			newCampos.forEach ( ( campo, i ) => {
 				//const fieldSettings = getFieldSettings ( campo.column_name, campo.table_name )
 				let list = false, listModel = false, listAlias = false, listType = false, favorite= false
 				//if ( campo.column_name.toLowerCase() == "col_id_1" ) debugger
+
+				/*
 				if ( fields_config && ! campo.is_computed ) {
 					const field_config = $$ ( fields_config ).getCI ( campo.column_name )
 					if ( field_config ) {
@@ -384,6 +392,8 @@ export function $fieldsForTable ( tableName, cb ) {
 						}
 					}
 				}
+				*/
+
 				const field_full_name = ! campo.is_computed ? `[${table_alias}].[${campo.column_name}]` : `${campo.column_name}`
 				Object.assign ( 
 					campo
@@ -403,7 +413,7 @@ export function $fieldsForTable ( tableName, cb ) {
 						, table_full_name : table_reference
 						, table_pkname
 						, index
-						, key: list ? getListColumnSql ( { list, field_full_name, listType } ) : field_full_name
+						, key: field_full_name
 						, aggregate_function : 'DISTINCT'
 						, basic_data_type: function ( data_type ) {
 							//console.log(data_type)
@@ -429,6 +439,7 @@ export function $fieldsForTable ( tableName, cb ) {
 						}(campo.data_type)
 					}
 				)
+				//setFieldListSettings ( campo )
 				index++;
 			});
 			tableConfig.evaluatedFields = newCampos
@@ -437,18 +448,49 @@ export function $fieldsForTable ( tableName, cb ) {
 	})
 	function execPromises ( promiseNumber ) {
 		const promise = promises [promiseNumber]
-		promise.then( (newCampos) => {
+		if ( promise.then ) {
+			promise.then( (newCampos) => {
+				addFields ( newCampos )
+			})
+		} else {
+			const newCampos = promise()
+			addFields ( newCampos )
+		}
+		function addFields(newCampos) {
 			finalCampos.push ( ...newCampos )
-			//console.log(JSON.cc(newCampos))
-
 			if ( promiseNumber < promises.length - 1 ) {
 				execPromises ( promiseNumber+1 )
 			} else {
+				console.timeEnd('fieldsForTable'+tableName)
 				cb ( finalCampos )
 			}
-		})
+		}
 	}
 	execPromises( 0 )
+}
+export function setFieldListSettings ( campo ) {
+	const tableConfig = window.tablesMap.get( campo.table_config_keyname )  
+	const { table_catalog, table_name, table_schema, table_server, table_alias, table_pkname, fields_config, fields_computed, table_reference } = tableConfig
+	let list = false, listModel = false, listAlias = false, listType = false
+	if ( fields_config && ! campo.is_computed ) {
+		const field_config = $$ ( fields_config ).getCI ( campo.column_name )
+		if ( field_config ) {
+			listModel = field_config.listModel
+			list = store.database.listsModels[listModel]
+			if ( list ) {
+				listAlias = list.alias
+				if ( list.sqlListGrid ) { //ES LISTA DINÁMICA. 
+					listType = "dynamic"
+				} else {
+					listType = "static"
+					list = list.valuesArray ? list.valuesArray : list // ME QUEDO SÓLO CON EL ARRAY DE VALORES QUE ES CON LO QUE FUNCIONA EL RESTO DEL PROGRAMA.
+				}
+				campo.key = getListColumnSql ( { list, field_full_name: campo.field_full_name, listType } )
+			}
+		}
+	}
+	Object.assign ( campo , { list, listModel, listAlias, listType } )
+	return campo
 }
 function getFieldSettings ( fieldName, tableName ) {
 	const table = store.database.tables[tableName.toLowerCase()]

@@ -524,11 +524,17 @@ export default {
         }
         window.commit = ( commitKey, payload )  => {
             const { path, value } = actions_global[commitKey] ( payload )
-            if ( commitKey != "set_favoriteToField" ) this.api.saveGlobalConfig ( { path, value } )
+            this.api.saveGlobalConfig ( { path, value } )
             this.$store.commit ( 'set_databaseConfig', { path, value } )
+            this.api.databaseMaps.setTablesMap()
         }
         this.loadQueries()
-        //this.api.getTablesList((tables)=>{this.treedata_tables = tables })
+
+        window.addEventListener('endcache', (e) => { 
+            this.$store.commit ( 'set_tablesMap' )
+        }, false);
+
+
         if ( help ) {
             
             $(window.document)

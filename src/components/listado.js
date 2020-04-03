@@ -148,6 +148,7 @@ export default {
                         , _orderby: '-'
                     }
                 ) 
+                this.api.setFieldListSettings ( newPar )
                 return newPar
             })
             qeParams[0].text = ""

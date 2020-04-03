@@ -15,7 +15,7 @@
         </div>
         <div class="toolbar-box">
             <div class="toolbar-box-title">Tabla Principal</div>
-            <select @change="tableChange($event)" class="form-control" style="display:inline;width:auto;font-size:11px;margin-bottom:-2px;margin-top:1px" :data-help-code="getRelations(tabs.names,evaluatedFieldsOfVentana.identities)">
+            <select @change="tableChange($event)" class="form-control" style="display:inline;width:auto;font-size:11px;margin-bottom:-2px;margin-top:1px">
                 <option v-for="table in availableTables" :value="table[0]" :selected="table[0]==ventana.data.table?'selected':''">{{table[1].table_alias}}</option>
             </select>
         </div>
@@ -86,7 +86,7 @@ export default {
             configFilesList: [],
             parentTables: this.api.getDirectParents(this.ventana.data.table),
             childTables: this.api.getDirectSuns(this.ventana.data.table),
-            evaluatedFieldsOfVentana: { fields: [], identities: [] },
+            //evaluatedFieldsOfVentana: { fields: [], identities: [] },
             tree: true,
             formver: true,
             list: true,
@@ -184,6 +184,11 @@ export default {
         }
     },
   computed: {
+      evaluatedFieldsOfVentana () {
+          const fields = this.$store.state.tablesMap[this.ventana.data.table].evaluatedFields
+          //console.log(fields)
+          return { fields }
+      },
       database(){
                    return JSON.cc(this.$store.state.database)
       },
@@ -229,6 +234,8 @@ export default {
           //log('func')
           const keysSettings = {}
           var val
+          //debugger
+          if ( ! this.evaluatedFieldsOfVentana.fields ) return keysSettings
           this.evaluatedFieldsOfVentana.fields.forEach ( field => {
               const list = field.dbsettings ? field.dbsettings.list : false
               val = { data_type: field.data_type }
@@ -254,9 +261,10 @@ export default {
    },
    watch: {
        ventana() {
-           this.form.data = this.formDataBlanked()
+           //this.form.data = this.formDataBlanked()
        },
        database() {
+           return
            const that = this
            that.setFieldsForTable()
            //return
@@ -270,6 +278,9 @@ export default {
 
            })
            that.$refs.listado.qeParams = JSON.cc(that.$refs.listado.qeParams)
+       },
+       evaluatedFieldsOfVentana () {
+           this.form.data = this.formDataBlanked()
        }
 
    },
@@ -383,8 +394,13 @@ export default {
         this.setFieldsForTable (newTable)
       },
       setFieldsForTable (tableName) {
-        window.working(1)
-        if ( tableName ) this.$store.commit ( 'Ventana_setTable' , {indexVentana:this.index,tableName} )
+          if ( tableName ) this.$store.commit ( 'Ventana_setTable' , {indexVentana:this.index,tableName} )
+            //this.evaluatedFieldsOfVentana = { fields, identities }
+            //this.form.data = this.formDataBlanked()
+
+
+/*
+          window.working(1)
         tableName = tableName ? tableName : this.ventana.data.table
         this.api.getFieldsForTable ( tableName, ( { fields, identities } ) => {
             //this.$store.commit ( 'Ventana_setFields', {indexVentana: this.ventana.index, fields, identities})
@@ -392,6 +408,7 @@ export default {
             this.form.data = this.formDataBlanked()
             window.working(0)
         } )
+        */
       },
       toolbarClick (buttonLabel) {
           const key = (buttonLabel != 'formver') ? buttonLabel.toLowerCase() : 'formver'
@@ -459,6 +476,7 @@ export default {
         },
       formDataBlanked() {
           const formData = {}
+          if ( ! this.evaluatedFieldsOfVentana.fields ) return formData
           this.evaluatedFieldsOfVentana.fields.forEach ( field => {
               formData[this.fieldUniqueId(field)] = ""
           })
@@ -467,12 +485,12 @@ export default {
       }
  },
  created: function () {
-        this.api.getFieldsForTable ( this.ventana.data.table, ( { fields, identities } ) => {
+        //this.api.getFieldsForTable ( this.ventana.data.table, ( { fields, identities } ) => {
             //console.log(JSON.cc(fields))
             //this.$store.commit ( 'Ventana_setFields', {indexVentana: this.ventana.index, fields, identities})
-            this.evaluatedFieldsOfVentana = { fields, identities }
-            this.form.data = this.formDataBlanked()
-        } )
+            //this.evaluatedFieldsOfVentana = { fields, identities }
+        //} )
+            //this.form.data = this.formDataBlanked()
         this.api.listFiles('./json/',(list)=>{
             /*
             target.options.length = 1

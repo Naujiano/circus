@@ -160,6 +160,15 @@ const actions = {
         set_contextDialogProps ( state, value ) {
             const path = ['contextDialog','props']
             setKey ( state , { path, value } )
+        },
+        set_favoriteToField ( state, fieldConfig ) {
+            //debugger
+            const fieldsMap = JSON.cc(state.fieldsMap)
+            fieldsMap[fieldConfig.field_full_name].favorite = fieldsMap[fieldConfig.field_full_name].favorite ? 0 : 1
+            state.fieldsMap = fieldsMap
+        },
+        set_tablesMap ( state, tablesMap ) {
+            state.tablesMap = JSON.cc(state.tablesMap)
         }
     },
     getters: {

@@ -2,9 +2,9 @@
 <div  ref="tabs">
     <Tabs :tabs="tabs">
         <Ly v-for="tab in tabs" flexbox=1 column=1 grow=1 :slot="tab">
-            <Ly v-for="(campo, index) in shallowFields(tab)" v-show="inFilter(fields[index]) && (!verSoloFavoritos || ventana.data.fields[index].favorite)" :style="elementStyle(campo)">
+            <Ly v-for="(campo, index) in shallowFields(tab)" v-show="inFilter(fields[index]) && (!verSoloFavoritos || ventana.data.fields[index].favorite)" :style="elementStyle(campo)" :key="index">
                 <table style="white-space:nowrap">
-                    <tr @click="addField($event,campo,tab)" style="display:block; margin: 1px 0" :class="{'star-row-favorited':ventana.data.fields[index].favorite}">
+                    <tr @click="addField($event,campo,tab)" style="display:block; margin: 1px 0" :class="{'star-row-favorited':fieldsMap[fields[index].field_full_name].favorite}">
                         <td :class="{'star-row':true}" @click.stop="favorite(campo,index)" style="">
                             <div style="margin-top:-2px">
                                 <img src="images/filled-star.svg" class="full-star" style="">
@@ -95,6 +95,9 @@ export default {
          }
     },
     computed : {
+        fieldsMap () {
+            return this.$store.state.fieldsMap
+        },
        branchKeys () {
            let branchs = this.branchs
            if ( !branchs ) return []
@@ -262,9 +265,9 @@ export default {
         },
         favorite ( campo, index ) {
             let fieldConfig = JSON.cc(this.ventana.data.fields[index])
-            //this.$store.commit ( 'set_favoriteToField', {tableKeyName: fieldConfig.table_config_keyname, fieldName: fieldConfig.column_name } )
+            this.$store.commit ( 'set_favoriteToField', fieldConfig )
             //debugger
-            window.commit ( 'set_favoriteToField', { tableKeyName: fieldConfig.table_config_keyname, fieldName: fieldConfig.column_name } )
+            //window.commit ( 'set_favoriteToField', { tableKeyName: fieldConfig.table_config_keyname, fieldName: fieldConfig.column_name } )
         }
     }
     , beforeUpdate(){

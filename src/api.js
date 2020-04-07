@@ -450,7 +450,7 @@ export function $fieldsForTable ( tableName, cb ) {
 			window.tablesMap.set(tableName,tableConfig)
 		}
 	})
-	function execPromises ( promiseNumber ) {
+	function execPromises_bak ( promiseNumber ) {
 		const promise = promises [promiseNumber]
 		if ( promise.then ) {
 			promise.then( (newCampos) => {
@@ -466,6 +466,27 @@ export function $fieldsForTable ( tableName, cb ) {
 				execPromises ( promiseNumber+1 )
 			} else {
 				console.timeEnd('fieldsForTable'+tableName)
+				cb ( finalCampos )
+			}
+		}
+	}
+	function execPromises ( promiseNumber ) {
+		const promise = promises [promiseNumber]
+		promise.then( (newCampos) => {
+			addFields ( newCampos )
+		})
+		function addFields(newCampos) {
+			finalCampos.push ( ...newCampos )
+			if ( promiseNumber < promises.length - 1 ) {
+				execPromises ( promiseNumber + 1 )
+			} else {
+				console.timeEnd('fieldsForTable'+tableName)
+				const tableConfig = window.tablesMap.get(tableName)
+
+				tableConfig.evaluatedFields = finalCampos
+				window.tablesMap.set(tableName,tableConfig)
+	
+				//if ( tableName == "visual_polizas" ) debugger
 				cb ( finalCampos )
 			}
 		}

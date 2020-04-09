@@ -483,10 +483,11 @@ export function $fieldsForTable ( tableName, cb ) {
 				console.timeEnd('fieldsForTable'+tableName)
 				const tableConfig = window.tablesMap.get(tableName)
 
+				
 				tableConfig.evaluatedFields = finalCampos
 				window.tablesMap.set(tableName,tableConfig) 
 	
-				//if ( tableName == "visual_polizas" ) debugger
+				//if ( tableName == "visual_polizas" ) debugger 
 				cb ( finalCampos )
 			}
 		}

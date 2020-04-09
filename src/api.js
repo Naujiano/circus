@@ -446,8 +446,6 @@ export function $fieldsForTable ( tableName, cb ) {
 				//setFieldListSettings ( campo )
 				index++;
 			});
-			tableConfig.evaluatedFields = newCampos
-			window.tablesMap.set(tableName,tableConfig)
 		}
 	})
 	function execPromises_bak ( promiseNumber ) {

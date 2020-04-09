@@ -481,7 +481,7 @@ export function $fieldsForTable ( tableName, cb ) {
 				execPromises ( promiseNumber + 1 )
 			} else {
 				console.timeEnd('fieldsForTable'+tableName)
-				console.log(finalCampos)
+				//console.log(finalCampos)
 				const tableConfig = window.tablesMap.get(tableName)
 
 

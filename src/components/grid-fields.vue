@@ -101,7 +101,7 @@ export default {
             })
             const fieldsWithFilter = JSON.cc ( this.fields )
             this.$emit('filter',contador)
-            return fieldsWithFilter
+            return fieldsWithFilter 
 
         },
         fieldsMap () {

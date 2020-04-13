@@ -2,7 +2,7 @@
 <div  ref="tabs">
     <Tabs :tabs="tabs">
         <Ly v-for="tab in tabs" flexbox=1 column=1 grow=1 :slot="tab">
-            <Ly v-for="(campo, index) in shallowFields(tab)" v-show="inFilter(fields[index]) && (!verSoloFavoritos || fieldsMap[fields[index].field_full_name].favorite)" :style="elementStyle(campo)" :key="index">
+            <Ly v-for="(campo, index) in shallowFields(tab)" v-show="fieldsWithFilter[index].inFilter && (!verSoloFavoritos || fieldsMap[fields[index].field_full_name].favorite)" :style="elementStyle(campo)" :key="index">
                 <table style="white-space:nowrap">
                     <tr @click="addField($event,campo,tab)" style="display:block; margin: 1px 0" :class="{'star-row-favorited':fieldsMap[fields[index].field_full_name].favorite}">
                         <td :class="{'star-row':true}" @click.stop="favorite(campo,index)" style="">
@@ -77,6 +77,7 @@ export default {
                 }
             },
             objeto: JSON.cc(this.item)
+            , fieldsWithFilter : this.fields
         }
     },
     watch:{
@@ -88,10 +89,22 @@ export default {
         }
         , filter: function (val, oldVal ) { 
             //const fields = this.shallowFields('main').filter ( field => {
+                /*
             const fields = this.fields.filter ( field => {
                 return this.inFilter(field)
             })
-            this.$emit('filter',fields.length)
+            */
+            let contador = 0
+            this.fields.forEach ( field => {
+                if ( this.inFilter ( field ) ) {
+                    contador++
+                    field.inFilter = 1
+                } else {
+                    field.inFilter = 0
+                }
+            })
+            this.fieldsWithFilter = JSON.cc ( this.fields )
+            this.$emit('filter',contador)
          }
     },
     computed : {
@@ -146,14 +159,9 @@ export default {
         inFilter(campo) {
             if ( !this.filter || this.filter == "" ) return true
             const re = new RegExp ( this.filter.toLowerCase(), 'gi' )
-            /*
-            , matches = this.api.getLiteral(campo.name).toLowerCase().match (re)
-            , matches2 = campo.name.toLowerCase().match (re)
-            */
             , matches = campo.label.toLowerCase().match (re)
             , matches2 = campo.label.toLowerCase().match (re)
             , inFilter = ( matches != null || matches2 != null )
-            //const inFilter = campo.name.toLowerCase().indexOf(this.filter.toLowerCase()) != -1
             return inFilter
         },
         elementStyle(campo) {

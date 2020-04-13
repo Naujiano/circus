@@ -35,7 +35,7 @@
                 v-on:filter="updateShownNumber"
                 v-on:addField="addField"
                 :ventana ="ventana"
-                :filter="filter" 
+                :filter="filterForGrid" 
                 :keysSettings="keysSettings"
                 :showFields="showFields"
                 :showPath="showPath"
@@ -91,6 +91,7 @@ export default {
                 , editorData: this.item 
             },
             filter: ""
+            , filterForGrid: ""
             , shownNumber: 0
             , focusedKeyName: ""
             , showFields: false
@@ -103,6 +104,12 @@ export default {
             this.formState.editorData = val
             this.formState.data = this.formStateData ( val )
             //console.log('new item')
+        },
+        filter() {
+            if ( this.filterTimeout ) clearTimeout ( this.filterTimeout )
+            this.filterTimeout = setTimeout ( () => {
+                this.filterForGrid = this.filter
+            }, 300)
         }
     },
     computed : {

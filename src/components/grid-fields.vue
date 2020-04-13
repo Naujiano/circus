@@ -77,7 +77,6 @@ export default {
                 }
             },
             objeto: JSON.cc(this.item)
-            , fieldsWithFilter : this.fields
         }
     },
     watch:{
@@ -87,13 +86,10 @@ export default {
             //return
             $(this.$refs.tabs).find('textarea').css ({ height:'24px' })
         }
-        , filter: function (val, oldVal ) { 
-            //const fields = this.shallowFields('main').filter ( field => {
-                /*
-            const fields = this.fields.filter ( field => {
-                return this.inFilter(field)
-            })
-            */
+
+    },
+    computed : {
+        fieldsWithFilter () {
             let contador = 0
             this.fields.forEach ( field => {
                 if ( this.inFilter ( field ) ) {
@@ -103,11 +99,11 @@ export default {
                     field.inFilter = 0
                 }
             })
-            this.fieldsWithFilter = JSON.cc ( this.fields )
+            const fieldsWithFilter = JSON.cc ( this.fields )
             this.$emit('filter',contador)
-         }
-    },
-    computed : {
+            return fieldsWithFilter
+
+        },
         fieldsMap () {
             return this.$store.state.fieldsMap
         },
@@ -282,6 +278,9 @@ export default {
         //console.log(shownNumber)
     }
     , updated() {
+    },
+    mounted() {
+        //this.setFilteredFields()
     }
   }
 </script>

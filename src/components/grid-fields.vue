@@ -1,5 +1,5 @@
 <template>
-    <table >
+    <table ref="tabla">
         <tr v-for="(campo, index) in shallowFields" v-show="fieldsWithFilter[index].inFilter && (!verSoloFavoritos || fieldsMap[fields[index].field_full_name].favorite)" :key="index" @click="addField($event,campo,tab)"  :class="{'star-row-favorited':fieldsMap[fields[index].field_full_name].favorite}" style="display:block;margin-bottom:2px">
             <td class="star-row" @click.stop="favorite(campo,index)" style="margin-top:-2px">
                 <img src="images/filled-star.svg" class="full-star" style="">
@@ -31,7 +31,8 @@ export default {
         showPath: Boolean,
         indexVentana: Number,
         verSoloFavoritos: Boolean,
-        fields: Array
+        fields: Array,
+        visible: Boolean
     },
     data: function () {
         /*
@@ -85,6 +86,7 @@ export default {
             return this.$store.state.fieldsMap
         },
         shallowFields () {
+            if ( ! this.visible  ) return []
             const obj = this.objeto
             const shallowKeys = Object.keys(obj).filter ( key => ( obj[key] == null || typeof obj[key] != 'object' || this.listFor(key) ) )
             const shallowFields = shallowKeys.map ( key => {
@@ -95,6 +97,7 @@ export default {
                 return ({ name, value, type, text })
             } )//Object.keys(this.objeto).filter ( campo => ( typeof campo[this.valueKeyName] != 'object' || this.isList(campo) ) )
             return shallowFields
+            //return [shallowFields[0]]
         }
     },
     methods: {

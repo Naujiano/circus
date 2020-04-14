@@ -39,6 +39,7 @@
                 :showFields="showFields"
                 :showPath="showPath"
                 :verSoloFavoritos="verSoloFavoritos"
+                :visible="visible"
                 ref="gridfields"
             />
         </div>
@@ -97,7 +98,7 @@ export default {
             , showPath: false
         }
     },
-    props: ['item','fields','onFilter','overflow','keysSettings','ventana'],
+    props: ['item','fields','onFilter','overflow','keysSettings','ventana','visible'],
     watch: {
         item: function ( val, oldVal ) {
             this.formState.editorData = val

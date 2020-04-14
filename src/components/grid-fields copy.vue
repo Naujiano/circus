@@ -1,35 +1,65 @@
-<template>
-    <table >
-        <tr v-for="(campo, index) in shallowFields" v-show="fieldsWithFilter[index].inFilter && (!verSoloFavoritos || fieldsMap[fields[index].field_full_name].favorite)" :key="index" @click="addField($event,campo,tab)"  :class="{'star-row-favorited':fieldsMap[fields[index].field_full_name].favorite}" style="display:block;margin-bottom:2px">
-            <td class="star-row" @click.stop="favorite(campo,index)" style="margin-top:-2px">
-                <img src="images/filled-star.svg" class="full-star" style="">
-                <img src="images/empty-star.svg" class="empty-star" style="">
-            </td>
-            <td v-if ="showPath" class="highlight-text">{{fields[index].table_alias}}</td>
-            <td @dblclick="editFieldName($event.target)" @blur="saveFieldName($event.target,campo)" v-html="fields[index].label"  class="highlight-text highlight-text-strong" style=""></td>
-        </tr>
-    </table>
+<template v-if="false">
+<div  ref="tabs">
+    <Tabs :tabs="tabs">
+        <div v-for="tab in tabs" flexbox=1 column=1 grow=1 :slot="tab">
+            <div v-for="(campo, index) in shallowFields(tab)" v-show="fieldsWithFilter[index].inFilter && (!verSoloFavoritos || fieldsMap[fields[index].field_full_name].favorite)" :style="elementStyle(campo)" :key="index" @click="addField($event,campo,tab)">
+                <table style="white-space:nowrap" :key="index">
+                    <tr style="display:block; margin: 1px 0"  :class="{'star-row-favorited':fieldsMap[fields[index].field_full_name].favorite}" :key="index">
+                        <td :class="{'star-row':true}" @click.stop="favorite(campo,index)" style="">
+                            <div style="margin-top:-2px">
+                                <img src="images/filled-star.svg" class="full-star" style="">
+                                <img src="images/empty-star.svg" class="empty-star" style="">
+                            </div>
+                        </td>
+                        <!--<td v-for="ele in campo.name.split('.').slice(0, 3)" v-if="(ele!='dbo')&&showPath" @dblclick="editFieldName($event.target)" @blur="saveFieldName($event.target,campo.name)"  class="highlight-text">{{ele}}</td>-->
+                        <td v-if ="showPath" class="highlight-text">{{fields[index].table_alias}}</td>
+                        <td @dblclick="editFieldName($event.target)" @blur="saveFieldName($event.target,campo.name)" v-html="fields[index].label"  class="highlight-text highlight-text-strong" style=""></td>
+                    </tr>
+                </table>
+                <!--
+                <label @click="labelClick($event)" v-html="api.getLiteral(campo.name)" @dblclick="editFieldName($event.target)" @blur="saveFieldName($event.target,campo.name)" style="white-space:nowrap"></label>
+                -->
+                <!--
+                <select v-if="campo.type=='multiple'" :id="campo.name" multiple v-model="campo.value" v-on:change="assignModel($event,campo,tab)" class="form-control">
+                    <option value="">&nbsp;</option>
+                    <option v-for="option in listOptions( campo )" :value="option[0]">{{option[1]}}</option>
+                </select>
+                <select v-else-if="campo.type=='select'" :id="campo.name" v-model="campo.value" v-on:change="assignModel($event,campo,tab)" class="form-control">
+                    <option/>
+                    <option v-for="option in listOptions( campo )" :value="option[0]">{{option[1]}}</option>
+                </select>
+                <input v-else-if="campo.type=='boolean'" :id="campo.name" type="checkbox" v-model="campo.value" v-on:change="assignModel($event,campo,tab)" class="form-control">
+               <textarea v-else v-model="campo.value" v-if="showFields" :title="campo.value" :id="campo.name" v-on:blur="assignModel($event,campo,tab)" class="form-control" @focus="focusTextField($event,campo)" data-help-code="search-parameter-value" style="height:24px;resize:none;border-radius: 5px; background: #eee"/>
+                 <div style="float:none; height: 3px"></div>
+                 -->
+            </div>
+        </div>
+    </Tabs>
+    </div>
 </template>
 
 <script>
-//import Vue from 'vue'
+import Vue from 'vue'
 //import $ from 'jquery'
 //import {objeto,JSON.cc,select} from '../helpers.js'
+import Ly from './layout.vue';
 //import autosizeTextarea  from './autosize-textarea.vue'
+import Tabs  from './tabs.vue'
 //Vue.use(VueAutosize)
 export default {
-    components: {  },
+    components: { Ly, Tabs },
     props: {
-        objeto: {
+        item: {
             type: Object,
             required: true
         }, 
         branchs: Array,
         lists: Array,
         filter: String,
+        keysSettings: Object,
         showFields: Boolean,
         showPath: Boolean,
-        indexVentana: Number,
+        ventana: Object,
         verSoloFavoritos: Boolean,
         fields: Array
     },
@@ -43,58 +73,52 @@ export default {
                 })
                 */
         return {
-            tab: "main",
             validations: {
                 label: ( val ) => {
                     return true
                 }
-            }
-            //,objeto: this.item
+            },
+            objeto: JSON.cc(this.item)
         }
     },
     watch:{
-        /*
         item: function (val, oldVal ) { 
             this.objeto = val 
             //console.log('aa')
             //return
-            //$(this.$refs.tabs).find('textarea').css ({ height:'24px' })
+            $(this.$refs.tabs).find('textarea').css ({ height:'24px' })
         }
-        */
+
     },
     computed : {
         fieldsWithFilter () {
-            if ( ! this.fields ) return []
             let contador = 0
             this.fields.forEach ( field => {
                 if ( this.inFilter ( field ) ) {
-                    if ( ! this.verSoloFavoritos || field.favorite ) contador++
+                    contador++
                     field.inFilter = 1
                 } else {
                     field.inFilter = 0
                 }
-                //field.name = 
             })
-            const fieldsWithFilter = this.fields // JSON.cc ( this.fields )
+            const fieldsWithFilter = JSON.cc ( this.fields )
             this.$emit('filter',contador)
             return fieldsWithFilter 
 
         },
         fieldsMap () {
-            //alert('b')
             return this.$store.state.fieldsMap
         },
-        shallowFields () {
-            const obj = this.objeto
-            const shallowKeys = Object.keys(obj).filter ( key => ( obj[key] == null || typeof obj[key] != 'object' || this.listFor(key) ) )
-            const shallowFields = shallowKeys.map ( key => {
-                const value = JSON.cc(obj[key])
-                , name = key
-                , type = this.fieldType (key)
-                , text = this.listTextForValue ( value , key )
-                return ({ name, value, type, text })
-            } )//Object.keys(this.objeto).filter ( campo => ( typeof campo[this.valueKeyName] != 'object' || this.isList(campo) ) )
-            return shallowFields
+       branchKeys () {
+           let branchs = this.branchs
+           if ( !branchs ) return []
+           branchs = branchs.map ( branch => branch.key )
+           return {}
+            const branchKeys = Object.keys(this.objeto).filter ( key => ( branchs.indexOf(key) !=-1 && this.objeto[key] && typeof this.objeto[key] == 'object' && typeof this.objeto[key].length == 'undefined' ) )
+            return branchKeys//.filter ( key => branchs.indexOf(key) != -1 )
+         },
+        tabs () {
+            return ['main'].concat(this.branchKeys)
         }
     },
     methods: {
@@ -180,6 +204,18 @@ export default {
                 return this.objeto[tab]
             }
         },
+        shallowFields (tab) {
+            const obj = this.branch(tab)
+            const shallowKeys = Object.keys(obj).filter ( key => ( obj[key] == null || typeof obj[key] != 'object' || this.listFor(key) ) )
+            const shallowFields = shallowKeys.map ( key => {
+                const value = JSON.cc(obj[key])
+                , name = key
+                , type = this.fieldType (key)
+                , text = this.listTextForValue ( value , key )
+                return ({ name, value, type, text })
+            } )//Object.keys(this.objeto).filter ( campo => ( typeof campo[this.valueKeyName] != 'object' || this.isList(campo) ) )
+            return shallowFields
+        },
         fieldType ( key ) {
             const list = this.listFor ( key )
             if ( list ) { return list.multiple ? 'multiple' : 'textarea' } // Me salto mi mecanismo de listas convencionales para trabajar con las nuevas multiselec. if ( list ) { return list.multiple ? 'multiple' : 'select' }
@@ -234,17 +270,17 @@ export default {
             return validation
         },
         favorite ( campo, index ) {
-            let fieldConfig = JSON.cc(this.fields[index])
+            let fieldConfig = JSON.cc(this.ventana.data.fields[index])
             this.$store.commit ( 'set_favoriteToField', fieldConfig )
             //debugger
             //window.commit ( 'set_favoriteToField', { tableKeyName: fieldConfig.table_config_keyname, fieldName: fieldConfig.column_name } )
         }
     }
     , beforeUpdate(){
-        console.time('gridFieldsRender'+this.indexVentana)
+        console.time('gridFieldsRender'+this.ventana.index)
     }
     , updated() {
-        console.timeEnd('gridFieldsRender'+this.indexVentana)
+        console.timeEnd('gridFieldsRender'+this.ventana.index)
     },
     mounted() {
         //this.setFilteredFields()

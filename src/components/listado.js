@@ -244,8 +244,12 @@ export default {
         tablesRelation(){
             return this.api.getTablesRelation ( this.ventana.data.table )
         }
-    },
-    updated () {
+    }
+    , beforeUpdate(){
+        console.time('listadoRender'+this.ventana.index)
+    }
+    , updated() {
+        console.timeEnd('listadoRender'+this.ventana.index)
     },
     mounted: function () {
         //console.log("distinct"+this.distinct)

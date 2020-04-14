@@ -26,7 +26,7 @@
         <div style="position:relative;left:calc(100% - 50px);top:-20px;height:0;overflow:visible;font-size:9px;color:gray">{{shownNumber}} / {{Object.keys(formState.editorData).length}}</div>
         <div class="LyItem LyItem-grow LyItem-overflow" @scroll="positionContext($event)" style="background:; padding:0">
             <GridFields 
-                :item="formState.editorData" 
+                :objeto="formState.editorData" 
                 :fields="fields"
                 data-component="Formulario" 
                 v-on:change="formChange" 
@@ -34,9 +34,8 @@
                 v-on:focusField="focusField"
                 v-on:filter="updateShownNumber"
                 v-on:addField="addField"
-                :ventana ="ventana"
+                :indexVentana ="ventana.index"
                 :filter="filterForGrid" 
-                :keysSettings="keysSettings"
                 :showFields="showFields"
                 :showPath="showPath"
                 :verSoloFavoritos="verSoloFavoritos"

@@ -390,7 +390,7 @@ body.progress-on * {
     transform: scale(0) rotate(720deg);
     transition: transform 0.5s;
 }
-[data-component="Formulario"] tr:hover td {
+[data-component="Formulario"] tr:hover td.highlight-text.highlight-text-strong {
     background: red;
     margin: 5px 0;
 }

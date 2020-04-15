@@ -86,17 +86,20 @@ const actions = {
             configVentana.queryeditor.parameters = []
             configVentana.name = "[NUEVA]"
             state.ventanas.data.push ( configVentana )
+            state.qeParams.push ( [] )
             //state.ventanas.data.push ( JSON.cc(state.ventanas.data[index]).queryeditor.parameters = [] )
         },
         Ventana_delete ( state, {index} ) {
             state.ventanas.data.splice ( index , 1 )
+            state.qeParams.splice ( index , 1 )
         },
         Ventana_injectQE ( state, {indexVentana,qeParams} ) {
             //console.log('injectedParams')
             //console.log(JSON.cc(qeParams))
             //state.ventanas.data[indexVentana].queryeditor.parameters = qeParams
-            if ( ! state.qeParams ) state.qeParams = {}
+            if ( ! state.qeParams ) state.qeParams = []
             state.qeParams[indexVentana] = qeParams
+            state.qeParams = JSON.cc(state.qeParams)
             //state.ventanas.data[indexVentana].queryeditor.parameters.unshift ( qeParams[0] )
             //console.log(JSON.cc(state.ventanas.data[indexVentana].queryeditor.parameters))
         },

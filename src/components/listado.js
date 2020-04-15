@@ -172,7 +172,6 @@ export default {
             */
             this.utils.unifyObjectKey ( {array: newParams, key: 'alias'} )
             this.$store.commit ( 'Ventana_injectQE' , {indexVentana:this.ventana.index,qeParams:newParams} )
-            //alert('c')
         },
         qeParams(){
             this.$nextTick(()=>{this.compute()})
@@ -185,15 +184,6 @@ export default {
         */
     },
     computed : {
-        series_parameters() {
-            const mainTable = this.tablesRelation.joinSyntax.split(" INNER JOIN ")[0]
-            , series_parameters = JSON.cc ( this.qeParams.filter(param => {
-                const paramKey = param.reference ? param.reference : param.key
-                return paramKey.toLowerCase().indexOf(mainTable.toLowerCase()) != -1 
-            }))
-            //series_parameters.forEach ( param => { param.value = ""; param.text = "" } )
-            return series_parameters
-        },
         buttonsUser() {
             const buttonsUser = []
             this.buttons.forEach ( (button,i) => {
@@ -213,14 +203,26 @@ export default {
         },
         qeParams: {
             get(){
-                const params = this.$store.state.ventanas.data[this.ventana.index].queryeditor.parameters
+                //const params = this.$store.state.ventanas.data[this.ventana.index].queryeditor.parameters
+                const params = this.$store.state.qeParams[this.ventana.index] 
                 return params
             },
             set(newParams){
                 this.$store.commit ( 'Ventana_injectQE' , {indexVentana:this.ventana.index,qeParams:newParams} )
             }
         },
+        series_parameters() {
+            if ( ! this.qeParams ) return []
+            const mainTable = this.tablesRelation.joinSyntax.split(" INNER JOIN ")[0]
+            , series_parameters = JSON.cc ( this.qeParams.filter(param => {
+                const paramKey = param.reference ? param.reference : param.key
+                return paramKey.toLowerCase().indexOf(mainTable.toLowerCase()) != -1 
+            }))
+            //series_parameters.forEach ( param => { param.value = ""; param.text = "" } )
+            return series_parameters
+        },
          columns () {
+             if ( ! this.$refs.qe ) return []
             const table = this.ventana.data.table
             , tableConfig = window.tablesMap.get (table)
             , fields = this.ventana.data.fields

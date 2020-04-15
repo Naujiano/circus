@@ -50,7 +50,8 @@
                 :onFilter="formFilter" 
                 :overflow="overflow" 
                 :keysSettings="keysSettings" 
-                :ventana="evaluatedVentana" 
+                :ventanaIndex="evaluatedVentana.index" 
+                :ventanaTable="evaluatedVentana.data.table" 
                 :fields="evaluatedFieldsOfVentana.fields" 
                 :visible="visible"
                 style="min-width:150px;background:#f4f4f4;padding:0px"
@@ -433,10 +434,11 @@ export default {
             //, tableName = this.ventana.table
             return itemTableName
         },
-        formFilter ( filterState ) {
+        formFilter ( index ) {
             const that = this
-            const filteredField =  filterState[Object.keys(filterState)[0]]
-            const index = filteredField.index
+            //debugger
+            //const filteredField =  filterState[Object.keys(filterState)[0]]
+            //const index = filteredField.index
             let fieldConfig = JSON.cc (this.evaluatedFieldsOfVentana.fields[index])  //JSON.cc(this.$store.state.ventanas.data[this.index].fields[index])
             this.formFilterState.data = [fieldConfig]
             const actualRows = this.$refs.listado.grid.rows

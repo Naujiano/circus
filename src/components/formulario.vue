@@ -34,7 +34,7 @@
                 v-on:focusField="focusField"
                 v-on:filter="updateShownNumber"
                 v-on:addField="addField"
-                :indexVentana ="ventana.index"
+                :indexVentana ="ventanaIndex"
                 :filter="filterForGrid" 
                 :showFields="showFields"
                 :showPath="showPath"
@@ -98,7 +98,7 @@ export default {
             , showPath: false
         }
     },
-    props: ['item','fields','onFilter','overflow','keysSettings','ventana','visible'],
+    props: ['item','fields','onFilter','overflow','keysSettings','ventanaIndex','ventanaTable','visible'],
     watch: {
         item: function ( val, oldVal ) {
             this.formState.editorData = val
@@ -269,11 +269,12 @@ export default {
             formState.editorData = blankedEditorItem
             this.formState = formState
         },
-        addField({campo,i}){
-            const fs = JSON.cc(this.filterState())
-            //console.log(JSON.cc(fs))
-            this.onFilter(fs)
-            this.clean()
+        addField(index){
+            //const fs = JSON.cc(this.filterState())
+            //debugger
+            this.onFilter(index)
+            //this.onFilter ( campo )
+            //this.clean()
         },
         formChange(item) {
             //console.log(item)
@@ -285,9 +286,9 @@ export default {
             return
             //log(this.items)
             //console.log(fields)
-            getFieldsForTable ( this.ventana.data.table, ( { fields, identities } ) => {
+            getFieldsForTable ( this.ventanaTable, ( { fields, identities } ) => {
                 //console.log(JSON.cc(fields))
-                this.$store.commit ( 'Ventana_setFields', {indexVentana: this.ventana.index, fields, identities})
+                this.$store.commit ( 'Ventana_setFields', {indexVentana: this.ventanaIndex, fields, identities})
             } )
         }
     }

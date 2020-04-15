@@ -94,7 +94,10 @@ const actions = {
         Ventana_injectQE ( state, {indexVentana,qeParams} ) {
             //console.log('injectedParams')
             //console.log(JSON.cc(qeParams))
-            state.ventanas.data[indexVentana].queryeditor.parameters = qeParams
+            //state.ventanas.data[indexVentana].queryeditor.parameters = qeParams
+            if ( ! state.qeParams ) state.qeParams = {}
+            state.qeParams[indexVentana] = qeParams
+            //state.ventanas.data[indexVentana].queryeditor.parameters.unshift ( qeParams[0] )
             //console.log(JSON.cc(state.ventanas.data[indexVentana].queryeditor.parameters))
         },
         Ventana_setName ( state, {indexVentana,ventanaName} ) {
@@ -162,6 +165,8 @@ const actions = {
             setKey ( state , { path, value } )
         },
         set_favoriteToField ( state, fieldConfig ) {
+            state.fieldsMap[fieldConfig.field_full_name].favorite = state.fieldsMap[fieldConfig.field_full_name].favorite ? 0 : 1
+            return
             //debugger
             const fieldsMap = JSON.cc(state.fieldsMap)
             fieldsMap[fieldConfig.field_full_name].favorite = fieldsMap[fieldConfig.field_full_name].favorite ? 0 : 1
@@ -177,7 +182,7 @@ const actions = {
           return getters.ventanas[id]
         },
         qeParams: (state, getters) => (windowId) => {
-          return state.ventanas.data[windowId].queryeditor.parameters
+          return state.qeParams[windowId]
         }
         
     },

@@ -49,19 +49,17 @@ export default {
                 label: ( val ) => {
                     return true
                 }
-            }
-            //,objeto: this.item
+            },
+            fieldsMap: JSON.cc(this.$store.state.fieldsMap)
+            
         }
     },
     watch:{
-        /*
-        item: function (val, oldVal ) { 
-            this.objeto = val 
-            //console.log('aa')
-            //return
-            //$(this.$refs.tabs).find('textarea').css ({ height:'24px' })
+        
+        visible: function (val, oldVal ) { 
+            if ( val ) this.fieldsMap = JSON.cc(this.$store.state.fieldsMap)
         }
-        */
+        
     },
     computed : {
         fieldsWithFilter () {
@@ -81,12 +79,14 @@ export default {
             return fieldsWithFilter 
 
         },
+        /*
         fieldsMap () {
             //alert('b')
             return this.$store.state.fieldsMap
         },
+        */
         shallowFields () {
-            if ( ! this.visible  ) return []
+            //if ( ! this.visible  ) return []
             const obj = this.objeto
             const shallowKeys = Object.keys(obj).filter ( key => ( obj[key] == null || typeof obj[key] != 'object' || this.listFor(key) ) )
             const shallowFields = shallowKeys.map ( key => {
@@ -108,11 +108,34 @@ export default {
                 formState[key] = ''
             })
             //this.$emit('change',JSON.cc(formState))
-            this.assignModel({target:{value:"%"}},campo,tab)
+            const index = this.assignModel({target:{value:"%"}},campo,tab)
             //console.log(campo)
             //console.log(campoKey)
             
-            this.$emit('addField',campo)
+            this.$emit('addField',index)
+        },
+        assignModel ( event, campo, tab ) {
+            const val = event.target.value
+            if ( ! this.isContentValid ( val, campo, tab ) ) {
+                alert ('El contenido del campo no es valido.')
+                return false;
+            }
+            const value = campo.type == 'multiple' ? new select(val).getValues() : val
+            const key = campo.name
+            , model = { [key]: value }
+            , formState = JSON.cc(this.objeto) // this.objeto // this.branch(tab) 
+            Object.assign ( formState , model )
+            let index = -1
+            Object.keys(formState).forEach ( ( fkey, i ) => {
+                const val = formState[fkey]
+                formState[fkey] = { value: val, text: this.listTextForValue(val,key)}
+                if ( key == fkey ) index = i
+            })
+            return index
+            //log(formState)
+            //this.utils.setTextareaHeight(event.target)
+            this.$emit('change',formState)
+            window.contextList.positionContext()
         },
         saveFieldName(target,key){
             this.$store.commit ( 'database_setLiteral' , {key,literal:$(target).text()} )
@@ -148,29 +171,7 @@ export default {
             , zindex = readOnly ? {"z-index" : -1} : {}
             return zindex
         },
-        assignModel ( event, campo, tab ) {
-            const val = event.target.value
-            if ( ! this.isContentValid ( val, campo, tab ) ) {
-                alert ('El contenido del campo no es valido.')
-                return false;
-            }
-            const value = campo.type == 'multiple' ? new select(val).getValues() : val
-            const key = campo.name
-            , model = { [key]: value }
-            , branch = this.branch(tab) 
-            Object.assign ( branch , model )
-            
-            const formState = JSON.cc(this.objeto)
-            Object.keys(formState).forEach ( key => {
-                const val = formState[key]
-                formState[key] = { value: val, text: this.listTextForValue(val,key)}
-            })
-            //log(formState)
-            this.utils.setTextareaHeight(event.target)
-            this.$emit('change',formState)
-            window.contextList.positionContext()
-        },
-        isContentValid ( val, campo, tab ) {
+         isContentValid ( val, campo, tab ) {
             //return true
             const fieldValidation = this.fieldValidation ( campo, tab )
             , isValid = fieldValidation ? fieldValidation ( val ) : true
@@ -238,6 +239,7 @@ export default {
         },
         favorite ( campo, index ) {
             let fieldConfig = JSON.cc(this.fields[index])
+            this.fieldsMap[fieldConfig.field_full_name].favorite = this.fieldsMap[fieldConfig.field_full_name].favorite ? 0 : 1
             this.$store.commit ( 'set_favoriteToField', fieldConfig )
             //debugger
             //window.commit ( 'set_favoriteToField', { tableKeyName: fieldConfig.table_config_keyname, fieldName: fieldConfig.column_name } )

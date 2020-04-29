@@ -808,10 +808,16 @@ export default {
             console.log(selectSql)
             //this.qeHasChanged.changed = true
             this.api.$dbq ({
-                sqlSyntax: "SELECT COUNT(*) as recnum FROM (" + selectSql + ") as a"
+                sqlSyntax: "set language spanish SELECT COUNT(*) as recnum FROM (" + selectSql + ") as a"
 				, dbID: this.api.getTableConnectionId(table)
             }, data => {
-                //console.log(data)
+                if ( data[0].Error ) { 
+                    console.log('Error')
+                    console.log(data)
+                    window.circus.showHelpBox ( {title:'Error SQL', text:data[0].Error})
+                    this.telon(0)
+                    return
+                }
                 this.grid.rowCount = data[0].recnum ? data[0].recnum : 0
                 this.grid.whereSql = whereSyntax
                 this.grid.qeSettings = this.$refs.qe.settings

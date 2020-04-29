@@ -212,7 +212,7 @@ export const databaseMaps = {
 				contador++
 				if ( contador == window.tablesMap.size ) window.dispatchEvent(window.events.endcache);
 			})
-			console.log(table)
+			//console.log(table)
 		}
 	}
 }
@@ -330,7 +330,7 @@ export function $fieldsForTable ( tableName, cb ) {
 	, finalCampos = []
 	, promises = []
 	let index = 0
-	console.time('fieldsForTable'+tableName)
+	//console.time('fieldsForTable'+tableName)
 	tables.forEach ( ( tableName ) => {
 		const tna = tableName.split ( "." )
 		, tableConfig = window.tablesMap.get(tableName) //store.database.tables[tableName]
@@ -463,7 +463,7 @@ export function $fieldsForTable ( tableName, cb ) {
 			if ( promiseNumber < promises.length - 1 ) {
 				execPromises ( promiseNumber+1 )
 			} else {
-				console.timeEnd('fieldsForTable'+tableName)
+				//console.timeEnd('fieldsForTable'+tableName)
 				cb ( finalCampos )
 			}
 		}
@@ -478,7 +478,7 @@ export function $fieldsForTable ( tableName, cb ) {
 			if ( promiseNumber < promises.length - 1 ) {
 				execPromises ( promiseNumber + 1 )
 			} else {
-				console.timeEnd('fieldsForTable'+tableName)
+				//console.timeEnd('fieldsForTable'+tableName)
 				//console.log(finalCampos)
 				const tableConfig = window.tablesMap.get(tableName)
 
@@ -753,7 +753,7 @@ export function $dbq (
   		success: (respuesta) => {
 			  const jsonRespuesta = JSON.parse(respuesta)
 			  if ( jsonRespuesta.length && jsonRespuesta[0].Error ){
-				  console.log(JSON.stringify(jsonRespuesta[0]))
+				  //console.log(JSON.stringify(jsonRespuesta[0]))
 				  window.circus.showHelpBox ( {title:'Error en consulta SQL', text:JSON.stringify(jsonRespuesta[0])}, true)
 			  	//alert(JSON.stringify(jsonRespuesta[0]))
 			  }

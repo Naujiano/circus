@@ -195,7 +195,7 @@ export default {
   computed: {
       evaluatedFieldsOfVentana () {
           const fields = this.$store.state.tablesMap[this.ventana.data.table].evaluatedFields
-          console.log(fields)
+          //console.log(fields)
           return { fields }
       },
       database(){

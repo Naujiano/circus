@@ -97,7 +97,12 @@ const actions = {
             //console.log('injectedParams')
             //console.log(JSON.cc(qeParams))
             //state.ventanas.data[indexVentana].queryeditor.parameters = qeParams
-            if ( ! state.qeParams ) state.qeParams = []
+            if ( ! state.qeParams || ! state.qeParams.length ) {
+                state.qeParams = []
+                state.ventanas.data.forEach ( ven => {
+                    state.qeParams.push ( [] )
+                })
+            }
             state.qeParams[indexVentana] = qeParams
             state.qeParams = JSON.cc(state.qeParams)
             //state.ventanas.data[indexVentana].queryeditor.parameters.unshift ( qeParams[0] )

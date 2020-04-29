@@ -246,10 +246,10 @@ export default {
         }
     }
     , beforeUpdate(){
-        console.time('gridFieldsRender'+this.indexVentana)
+        //console.time('gridFieldsRender'+this.indexVentana)
     }
     , updated() {
-        console.timeEnd('gridFieldsRender'+this.indexVentana)
+        //console.timeEnd('gridFieldsRender'+this.indexVentana)
     },
     mounted() {
         //this.setFilteredFields()

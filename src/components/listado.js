@@ -248,10 +248,10 @@ export default {
         }
     }
     , beforeUpdate(){
-        console.time('listadoRender'+this.ventana.index)
+        //console.time('listadoRender'+this.ventana.index)
     }
     , updated() {
-        console.timeEnd('listadoRender'+this.ventana.index)
+        //console.timeEnd('listadoRender'+this.ventana.index)
     },
     mounted: function () {
         //console.log("distinct"+this.distinct)

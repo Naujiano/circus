@@ -400,6 +400,7 @@ export default {
           */
         const newTable = event.target.value
         this.setFieldsForTable (newTable)
+        this.$refs.listado.custom_buttons = this.api.$buttonsForTable ( newTable )
       },
       setFieldsForTable (tableName) {
           if ( tableName ) this.$store.commit ( 'Ventana_setTable' , {indexVentana:this.index,tableName} )

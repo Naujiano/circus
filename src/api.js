@@ -325,6 +325,10 @@ function sp_circus_fields ( tableName, cb ) {
 	)
 
 }
+export function $buttonsForTable ( tableName, cb ) {
+	const tableConfig = window.tablesMap.get( tableName )  
+	return(tableConfig.buttons_config)
+}
 export function $fieldsForTable ( tableName, cb ) {
 	const tables = getTablesRelation(tableName).names
 	, finalCampos = []

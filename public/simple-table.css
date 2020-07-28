@@ -24,8 +24,11 @@
 .simple-table-vue tr {
     background: #fff;
 }
-.simple-table-vue tr.rowSelected {
-    background: #ddd;
+.simple-table-vue tr.rowSelected, .simple-table-vue tr.rowSelected:hover {
+    background: rgb(174, 194, 221);
+}
+.simple-table-vue tr.rowSelected td {
+    background: transparent;
 }
 .simple-table-vue td {
     border:1px solid #ddd;

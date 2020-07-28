@@ -28,6 +28,8 @@ export default {
             show: {
                 queryEditor: false
             },
+            selected_pk_id: "",
+            custom_buttons : this.api.$buttonsForTable ( this.ventana.data.table ),
             buttons: [
                 {
                     label: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" xmlns:xlink="http://www.w3.org/1999/xlink" enable-background="new 0 0 44 44"><g><circle cx="20" cy="20" r="7"></circle><path d="m22,0c-12.2,0-22,9.8-22,22s9.8,22 22,22 22-9.8 22-22-9.8-22-22-22zm12.7,33.3l-1.4,1.4c-0.4,0.4-1,0.4-1.4,0l-5.4-5.4c-0.2-0.2-0.4-0.2-0.6-0.1-1.7,1.1-3.7,1.7-5.9,1.7-6.1,0-11-4.9-11-11s4.9-11 11-11 11,4.9 11,11c0,2.2-0.6,4.2-1.7,5.9-0.1,0.2-0.1,0.5 0.1,0.6l5.4,5.4c0.3,0.5 0.3,1.1-0.1,1.5z"></path></g></svg>`,
@@ -532,11 +534,13 @@ export default {
             this.checkedIndexes = checklist
             //this.$store.commit ( 'log', checklist.length + ' registros marcados.' )
         },
+        custom_button_click ( ref ) {
+            if ( ref == "getDocument" ) customjs.buttons.onclick.getDocument(this.api,this.selected_pk_id)
+        },
         rowClick(row){
+            this.selected_pk_id = row.PK_ID
             return
-            const pk_id = row.PK_ID
-            const table = this.ventana.data.table
-            , identities = this.ventana.data.identities
+            const identities = this.ventana.data.identities
             , idField = identities[0]
             , joinSyntax = this.tablesRelation.joinSyntax
             //, fields = this.tablesRelation.names.map ( tblName => `${tblName}.*`)

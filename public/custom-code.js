@@ -1,3 +1,4 @@
+
 const customjs = {
     "buttons" : {
         "onclick" : {
@@ -12,9 +13,10 @@ const customjs = {
                     , columns: fields
                     , schemaSyntax: joinSyntax
                     , whereSyntax: whereSyntax
-                    , dbID : 'circus'
+                    , dbID : 'DBH_coteyser2'
                 }, data => {
                     console.log(data)
+                    window.open("http://localhost/node/express/circus_server/downloadFile?path=http://localhost/a.txt&filename=xts.txt")
                 })
             }
         }

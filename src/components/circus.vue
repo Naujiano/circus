@@ -534,6 +534,19 @@ export default {
             this.$store.commit ( 'set_tablesMap' )
         }, false);
 
+            //$.getScript ( '../../public/custom-code.js' )
+            /*
+jQuery.ajax({
+  url: 'test.js',
+  dataType: "script"
+});
+*/
+//console.log(this.$store.state.custom_js)
+$( document ).ready(function() {
+    const $script = $('<script/>').attr('type','text/javascript').attr('src',that.$store.state.custom_js)
+    $('body').append($script)
+});
+            
 
         if ( help ) {
             
@@ -550,6 +563,8 @@ export default {
                 , dontHide = $ele.closest ( '.context-dialog-container' ).length || $ele.closest ( 'table.header' ).length
                 if(!dontHide) that.contextDialog.show = false
             })
+
+
             /*
             .on('mouseover',function(event){
                 //if ( event.target.tagName == "circle" || event.target.tagName == "path" || event.target.tagName == "svg" ) return false

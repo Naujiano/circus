@@ -30,7 +30,7 @@
 		            	        </svg></button>
                     </div>
                     <div v-show="admin"  class="toolbar-box">
-                        <div class="toolbar-box-title" style="margin-top:-7px">Custom</div>
+                        <div class="toolbar-box-title" style="margin-top:-7px">Customm</div>
                         <button v-for="boton in custom_buttons" :title ="boton.label" class="btn btn-primary btn-xs" data-help-code="" style="background:transparent;border:0; float:left; outline: none;box-shadow:none" @click="custom_button_click(boton.onclick)"><svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"           x="0px" y="0px" viewBox="0 0 256 256" style="enable-background:new 0 0 256 256;" xml:space="preserve">
 		            	        <path d="M0,128C0,57.3,57.3,0,128,0s128,57.3,128,128s-57.3,128-128,128S0,198.7,0,128z M172.8,68.3c1.2-10.2-6.8-19.1-17.1-19.1
 		            	        	c-8.7,0-16.1,6.6-17.1,15.2c-0.5,4.6,0.8,9.1,3.6,12.7C151.6,88.9,171,83.6,172.8,68.3z M78.3,207.2c3.3-2.5,3.5-3.7,12.2-18.6

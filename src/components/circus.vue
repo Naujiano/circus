@@ -543,7 +543,7 @@ jQuery.ajax({
 */
 // console.log(this.$store.state.custom_js)
 $( document ).ready(function() {
-    const $script = $('<script/>').attr('type','text/javascript').attr('src',that.$store.state.custom_js)
+    const $script = $('<script/>').attr('type','text/javascript').attr('src',that.$store.state.database.custom_js)
     $('body').append($script)
 });
             

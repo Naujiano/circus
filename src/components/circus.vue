@@ -541,7 +541,7 @@ jQuery.ajax({
   dataType: "script"
 });
 */
-//console.log(this.$store.state.custom_js)
+// console.log(this.$store.state.custom_js)
 $( document ).ready(function() {
     const $script = $('<script/>').attr('type','text/javascript').attr('src',that.$store.state.custom_js)
     $('body').append($script)

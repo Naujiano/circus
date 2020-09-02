@@ -21,7 +21,7 @@ const customjs = {
 					}
 					const doc_nombrearchivo = data[0].doc_nombrearchivo
 					, doc_nombreoriginal = data[0].doc_nombreoriginal
-                    window.open(api.apiURL+"/dbhdoc?file=" + doc_nombrearchivo + "&filename=" + doc_nombreoriginal)
+                    window.open("http://admin1-hp1/node/express/circus_server/dbhdoc?file=" + doc_nombrearchivo + "&filename=" + doc_nombreoriginal)
                 })
             }
         }

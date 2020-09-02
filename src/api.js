@@ -9,7 +9,7 @@ const parsedSearch = queryString.parse(location.search)
 , apiURL = 	parsedSearch.api
 , connectionsModel = {};
 var storedVuexStore, vuexStore
-export {vuexStore, parsedSearch}
+export {vuexStore, parsedSearch, apiURL}
 
 let services = {connNameToDbName:{}}
 $.ajax({

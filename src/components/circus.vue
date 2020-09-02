@@ -542,8 +542,14 @@ jQuery.ajax({
 });
 */
 // console.log(this.$store.state.custom_js)
+//console.log('window.location.hostname' + console.log(window))
 $( document ).ready(function() {
-    const $script = $('<script/>').attr('type','text/javascript').attr('src',that.$store.state.database.custom_js)
+    console.log('window.location.hostname' + console.log(window.location.hostname))
+    const url = 'http://' + window.location.hostname + that.$store.state.database.custom_js
+    //const url = that.$store.state.database.custom_js
+    console.log(url)
+    //return
+    const $script = $('<script/>').attr('type','text/javascript').attr('src', url)
     $('body').append($script)
 });
             

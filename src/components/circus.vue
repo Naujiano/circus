@@ -545,7 +545,7 @@ jQuery.ajax({
 //console.log('window.location.hostname' + console.log(window))
 $( document ).ready(function() {
     //console.log('window.location.hostname' + console.log(window.location.hostname))
-    ///const url = 'http://' + window.location.hostname + that.$store.state.database.custom_js
+    ////const url = 'http://' + window.location.hostname + that.$store.state.database.custom_js
     const urls = that.$store.state.database.custom_js
     //console.log(url)
     //return

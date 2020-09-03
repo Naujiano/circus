@@ -545,11 +545,12 @@ jQuery.ajax({
 //console.log('window.location.hostname' + console.log(window))
 $( document ).ready(function() {
     //console.log('window.location.hostname' + console.log(window.location.hostname))
-    /////const url = 'http://' + window.location.hostname + that.$store.state.database.custom_js
+    //const url = api.hostname + that.$store.state.database.custom_js
     const urls = that.$store.state.database.custom_js
-    //console.log(url)
     //return
     urls.forEach ( url => {
+        url = api.hostname + url
+        console.log(url)
         const $script = $('<script/>').attr('type','text/javascript').attr('src', url)
         $('body').append($script)
     })

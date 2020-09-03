@@ -7,9 +7,10 @@ import queryString from 'query-string';
 import { _ } from 'core-js'
 const parsedSearch = queryString.parse(location.search)
 , apiURL = 	parsedSearch.api
+, hostname = 	parsedSearch.hostname
 , connectionsModel = {};
 var storedVuexStore, vuexStore
-export {vuexStore, parsedSearch, apiURL}
+export {vuexStore, parsedSearch, apiURL, hostname }
 
 let services = {connNameToDbName:{}}
 $.ajax({
@@ -51,6 +52,7 @@ if ( parsedSearch.reset ) {
 	else
 		fileName = parsedSearch.reset
 	loadTree( treeModel=>{
+		console.log( JSON.stringify(treeModel) )
 			createStore(treeModel);
 			//console.log('Model loaded from ' + fileName );
 			alert("Se ha importado la configuración del archivo '" + fileName + "' a su Configuración Local.")
@@ -64,6 +66,7 @@ if ( parsedSearch.reset ) {
 		alert('No se ha encontrado Cookie de configuración local.\n\nCargando configuración del servidor...');
 		location = window.location.href + "&reset=1"
 	}	
+
 	createStore(storedVuexStore)
 }
 export 	function loadTree ( cb, fileName ) {
@@ -73,9 +76,13 @@ export 	function loadTree ( cb, fileName ) {
 		data: { fileName },
 		method: "POST",
 		async: false,
-		  success: (jsonString) => {
-			  const obj = JSON.parse(jsonString)
+		success: (jsonString) => {
+			console.log( 'loadTree suceeded. ')
 			cb(obj)
+		},
+		error: ( jqXHR, textStatus, errorThrown ) => {
+			console.log( 'loadTree Error. ')
+			console.log( errorThrown )
 		}
 	});
 }
@@ -119,8 +126,6 @@ function createStore (storedVuexStore) {
 		}
 	})
 
-	
-	//Object.assign ( vuexTree.state.database , circusConfig )
 	vuexStore = new Vuex.Store(vuexTree)
 	localStorage["vuexStore"] = JSON.stringify(vuexTree.state)
 

@@ -4,7 +4,6 @@ const customjs = {
         "onclick" : {
             "getDocument" : function (api, pk_id) {
                 //pk_id = 710
-                console.log(customjs.hostname)
                 const fields = "doc_nombrearchivo,doc_nombreoriginal"
                 , joinSyntax = "personas_documentos pd INNER JOIN dbh_documentos on doc_pkvalue = pd.perdoc_id INNER JOIN view_documentos_exigidos_union_hijos de ON de.perdoc_id = doc_pkvalue" 
                 , whereSyntax = `de.id = ${pk_id} and doc_da_id = 105` // 105 es el area de Documentos de la figura 
@@ -22,7 +21,7 @@ const customjs = {
 					}
 					const doc_nombrearchivo = data[0].doc_nombrearchivo
 					, doc_nombreoriginal = data[0].doc_nombreoriginal
-                    window.open(customjs.hostname+"/node/express/circus_server/dbhdoc?file=" + doc_nombrearchivo + "&filename=" + doc_nombreoriginal)
+                    window.open(api.hostname+"/node/express/circus_server/dbhdoc?file=" + doc_nombrearchivo + "&filename=" + doc_nombreoriginal)
                 })
             }
         }

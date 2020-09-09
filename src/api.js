@@ -78,7 +78,7 @@ export 	function loadTree ( cb, fileName ) {
 		async: false,
 		success: (jsonString) => {
 			console.log( 'loadTree suceeded. ')
-			cb(obj)
+			cb(jsonString)
 		},
 		error: ( jqXHR, textStatus, errorThrown ) => {
 			console.log( 'loadTree Error. ')

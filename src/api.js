@@ -52,11 +52,12 @@ if ( parsedSearch.reset ) {
 	else
 		fileName = parsedSearch.reset
 	loadTree( treeModel=>{
-		console.log( JSON.stringify(treeModel) )
+		//console.log( JSON.stringify(treeModel) )
 			createStore(treeModel);
 			//console.log('Model loaded from ' + fileName );
 			alert("Se ha importado la configuración del archivo '" + fileName + "' a su Configuración Local.")
-			location = './?api=' + apiURL + '&admin=1'
+			location = './?api=' + apiURL + '&hostname=' + hostname + '&admin=1'
+			//location = window.location.href //+ "&admin=1"
 	}, fileName )
 } else {
 	try {
@@ -78,7 +79,7 @@ export 	function loadTree ( cb, fileName ) {
 		async: false,
 		success: (jsonString) => {
 			console.log( 'loadTree suceeded. ')
-			cb(jsonString)
+			cb(JSON.parse(jsonString))
 		},
 		error: ( jqXHR, textStatus, errorThrown ) => {
 			console.log( 'loadTree Error. ')
@@ -101,16 +102,22 @@ export function deleteConfig ( fileName, cb ) {
     });
 }
 function createStore (storedVuexStore) {
-	const vuexTree = {
+	var vuexTree = {
 		state: {
 			...storedVuexStore
 		} ,
 		...actions
 	}
+	//vuexTree = { state: JSON.parse(storedVuexStore), ...actions }
+	console.log(storedVuexStore)
+	console.log(JSON.stringify(vuexTree))
+	//console.log(storedVuexStore)
+	//return
 	const localCircusConfig = vuexTree.state.database
 	vuexTree.state.database = circusConfig // Asigno la configuración de la aplicación al archivo de configuración global.
 
 	//Recupero el valor de "favorito" de la configuración local para manejarlo como un config del archivo de configuración individual y no como config general de la base de datos.
+	//if ( 1==2 ) {
 	Object.keys ( localCircusConfig.tables ).forEach ( tableName => {
 		const table = localCircusConfig.tables[tableName]
 		if ( !table ) return
@@ -125,8 +132,10 @@ function createStore (storedVuexStore) {
 			})
 		}
 	})
-
-	vuexStore = new Vuex.Store(vuexTree)
+	//}
+//vuexTree = {}
+vuexStore = new Vuex.Store(vuexTree)
+	//console.log(JSON.stringify(vuexTree.state))
 	localStorage["vuexStore"] = JSON.stringify(vuexTree.state)
 
 	vuexStore.subscribe((mutation, state) => {

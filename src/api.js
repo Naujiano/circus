@@ -139,7 +139,7 @@ function createStore (storedVuexStore) {
 	console.log('b')
 	//console.log(JSON.stringify(vuexTree.state))
 	localStorage.clear();
-	localStorage["vuexStore"] = JSON.stringify(vuexTree.state)
+	localStorage["vuexStore"] = JSON.stringify(JSON.cc(vuexTree.state))
 	console.log('c') 
 	window.vuex = vuexTree.state 
 

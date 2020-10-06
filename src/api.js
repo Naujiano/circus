@@ -12,6 +12,11 @@ const parsedSearch = queryString.parse(location.search)
 var storedVuexStore, vuexStore
 export {vuexStore, parsedSearch, apiURL, hostname }
 
+JSON.cc = function (object) {
+    if ( typeof object != 'object' ) return object
+    return JSON.parse ( JSON.stringify ( object ) ) 
+}
+
 let services = {connNameToDbName:{}}
 $.ajax({
 	url: apiURL + 'services',

@@ -114,7 +114,7 @@ function createStore (storedVuexStore) {
 	//console.log(storedVuexStore)
 	//return
 	const localCircusConfig = vuexTree.state.database
-	vuexTree.state.database = circusConfig // Asigno la configuración de la aplicación al archivo de configuración global.
+	vuexTree.state.database = JSON.cc(circusConfig) // Asigno la configuración de la aplicación al archivo de configuración global.
 
 	//Recupero el valor de "favorito" de la configuración local para manejarlo como un config del archivo de configuración individual y no como config general de la base de datos.
 	//if ( 1==2 ) {
@@ -149,7 +149,7 @@ function createStore (storedVuexStore) {
 		console.log(estado)
 		console.log('d')
 		localStorage.clear();
-		localStorage["vuexStore"] = JSON.stringify(estado)
+		//localStorage["vuexStore"] = JSON.stringify(estado)
 		console.log('e') 
 		resetApiStore()
 		//setDatabaseMaps()

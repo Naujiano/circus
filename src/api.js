@@ -15,7 +15,7 @@ export {vuexStore, parsedSearch, apiURL, hostname }
 JSON.cc = function (object) {
     if ( typeof object != 'object' ) return object
     return JSON.parse ( JSON.stringify ( object ) ) 
-}
+} 
 
 let services = {connNameToDbName:{}}
 $.ajax({

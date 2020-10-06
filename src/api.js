@@ -177,7 +177,7 @@ function saveConfigFile () {
 function alterTree () {
 	let tree = JSON.stringify({...vuexStore.state})
 	delete vuexStore.state.ventanas.data[2] //.table = "hunter_personas"
-	localStorage["vuexStore"] = JSON.stringify({...vuexStore.state})
+	//localStorage["vuexStore"] = JSON.stringify({...vuexStore.state})
 	saveTree("circus.json")
 }
 

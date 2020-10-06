@@ -146,7 +146,9 @@ function createStore (storedVuexStore) {
 	vuexStore.subscribe((mutation, state) => {
 		const estado = JSON.cc(state)//{...state}
 		console.log(estado)
+		console.log('d')
 		localStorage["vuexStore"] = JSON.stringify(estado)
+		console.log('e')
 		resetApiStore()
 		//setDatabaseMaps()
 		console.log('Commit to Vuex.')

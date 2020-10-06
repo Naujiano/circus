@@ -137,9 +137,11 @@ function createStore (storedVuexStore) {
 	vuexStore = new Vuex.Store(vuexTree)
 	//console.log(JSON.stringify(vuexTree.state))
 	localStorage["vuexStore"] = JSON.stringify(vuexTree.state)
+	window.vuex = vuexTree.state 
+
 
 	vuexStore.subscribe((mutation, state) => {
-		const estado = state//{...state}
+		const estado = JSON.cc(state)//{...state}
 		console.log(estado)
 		localStorage["vuexStore"] = JSON.stringify(estado)
 		resetApiStore()
@@ -147,7 +149,7 @@ function createStore (storedVuexStore) {
 		console.log('Commit to Vuex.')
 		//saveConfigFile ()
 		//saveCircusConfig()
-		window.vuex = JSON.cc ( estado ) 
+		window.vuex = estado 
 	})
 }
 function saveConfigFile () {

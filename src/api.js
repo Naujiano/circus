@@ -154,7 +154,7 @@ function createStore (storedVuexStore) {
 		console.log(estado)
 		console.log('d')
 		localStorage.clear();
-		//localStorage["vuexStore"] = JSON.stringify(estado)
+		localStorage["vuexStore"] = JSON.stringify(estado)
 		console.log('e') 
 		resetApiStore()
 		//setDatabaseMaps()

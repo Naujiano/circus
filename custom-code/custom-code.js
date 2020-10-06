@@ -23,6 +23,15 @@ const customjs = {
 					, doc_nombreoriginal = data[0].doc_nombreoriginal
                     window.open(api.hostname+"/node/express/circus_server/dbhdoc?file=" + doc_nombrearchivo + "&filename=" + doc_nombreoriginal)
                 })
+            },
+            "editRecord" : function (api, pk_id) {
+                api = api
+                editRecord_id = pk_id
+                const $iframe = $('<iframe src="http://localhost//CIRCUS/custom-code/record-edit.html"  id="juan" style="position:absolute;top:0;left:0;width:500px;height:500px;background:red;z-index:9999"></iframe>')
+                 $('body').prepend($iframe)
+                targetWindow = $iframe[0].contentWindow
+                targetWindow.postMessage({"juan":1})
+                            
             }
         }
     }

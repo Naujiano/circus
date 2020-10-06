@@ -2,6 +2,7 @@ import SimpleTable from 'D:/data/iis/simple-table/src/components/simple-table.vu
 import Ly from './layout.vue'
 import ItemEditor from './item-editor.vue'
 import Queryeditor  from './query-editor.vue'
+//import RowEditor  from './row-editor.vue'
 import Toolbar from './tool-bar.vue'
 import Series from './Series.vue'
 import { _ } from 'core-js'
@@ -29,6 +30,7 @@ export default {
                 queryEditor: false
             },
             selected_pk_id: "",
+            selected_row: "",
             custom_buttons : this.api.$buttonsForTable ( this.ventana.data.table ),
             buttons: [
                 {
@@ -49,6 +51,11 @@ export default {
                 {
                     label: `<svg data-help-code="list-toolbar-excel" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M371.5 128h-67.6L256 198.5 208.1 128h-67.6l81.1 121.2L130.1 384h131.1v-45.8h-30.3l25.1-37.5 55.7 83.3h70.2l-91.5-134.8L371.5 128zM512 256c0 141.4-114.6 256-256 256S0 397.4 0 256 114.6 0 256 0 512 114.6 512 256z"/></svg>`,
                     onClick: function () { this.downloadListAsFile() }.bind(this)
+                    //, title: "Obtener un Excel con la totalidad del listado."
+                },
+                {
+                    label: `<svg data-help-code="list-toolbar-excel" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M371.5 128h-67.6L256 198.5 208.1 128h-67.6l81.1 121.2L130.1 384h131.1v-45.8h-30.3l25.1-37.5 55.7 83.3h70.2l-91.5-134.8L371.5 128zM512 256c0 141.4-114.6 256-256 256S0 397.4 0 256 114.6 0 256 0 512 114.6 512 256z"/></svg>`,
+                    onClick: function () { this.editRecord() }.bind(this)
                     //, title: "Obtener un Excel con la totalidad del listado."
                 }
             ],
@@ -495,6 +502,9 @@ export default {
                 a.click();
             })
         },
+        editRecord( ) {
+            const row = this.selected_row
+        },
         containerResize () {
             this.$refs.Tabla.resizeHeaders()
         },
@@ -536,9 +546,11 @@ export default {
         },
         custom_button_click ( ref ) {
             if ( ref == "getDocument" ) customjs.buttons.onclick.getDocument(this.api,this.selected_pk_id)
+            if ( ref == "editRecord" ) customjs.buttons.onclick.editRecord(this.api,this.selected_pk_id)
         },
         rowClick(row){
             this.selected_pk_id = row.PK_ID
+            this.selected_row = row
             return
             const identities = this.ventana.data.identities
             , idField = identities[0]

@@ -3,6 +3,7 @@
             <div style="position:absolute;top:0;left:0;width:5px;height:100vh;background:transparent;z-index:1000" @mouseover="showFormulario()"></div>
             <!--<div style="position:absolute;bottom:2px;left:0;width:100vw;height:4px;background:transparent;z-index:1000" onmouseover="window.showQueries()"></div>-->
             <Series :operation="series.operation" :fields="series_parameters" ref="popup" @operate="operate_serie"/>
+            <!--<RowEditor :row="selected_row"/>-->
             <div style="width:100%;display:block;min-height:40px;padding: 0px 0;background:#f4f4f4;margin:0">
                 <div style="float:left;display:block;padding:0px; width: 550px;" ref="toolbar">
                     <div class="toolbar-box toolbar1">

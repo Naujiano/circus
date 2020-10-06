@@ -139,7 +139,8 @@ function createStore (storedVuexStore) {
 	localStorage["vuexStore"] = JSON.stringify(vuexTree.state)
 
 	vuexStore.subscribe((mutation, state) => {
-		const estado = {...state}
+		const estado = state//{...state}
+		console.log(estado)
 		localStorage["vuexStore"] = JSON.stringify(estado)
 		resetApiStore()
 		//setDatabaseMaps()

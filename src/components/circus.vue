@@ -115,7 +115,7 @@ window.bus = new Vue()
 JSON.cc = function (object) {
     if ( typeof object != 'object' ) return object
     return JSON.parse ( JSON.stringify ( object ) ) 
-}
+} 
 const plugin = {}
 plugin.install = function (Vue, options) {
   //Vue.api = api

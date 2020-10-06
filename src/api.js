@@ -125,7 +125,7 @@ function createStore (storedVuexStore) {
 	//if ( 1==2 ) {
 	Object.keys ( circusConfig.tables ).forEach ( tableName => {
 		const table = circusConfig.tables[tableName]
-		if ( !table ) return 
+		if ( !table ) return
 		const fieldsConfig = table.fields_config
 		if ( fieldsConfig ) {
 			Object.keys ( fieldsConfig ).forEach ( fieldName => {

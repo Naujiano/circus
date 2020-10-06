@@ -138,6 +138,7 @@ function createStore (storedVuexStore) {
 	vuexStore = new Vuex.Store(vuexTree)
 	console.log('b')
 	//console.log(JSON.stringify(vuexTree.state))
+	localStorage.clear();
 	localStorage["vuexStore"] = JSON.stringify(vuexTree.state)
 	console.log('c') 
 	window.vuex = vuexTree.state 
@@ -148,7 +149,7 @@ function createStore (storedVuexStore) {
 		console.log(estado)
 		console.log('d')
 		localStorage["vuexStore"] = JSON.stringify(estado)
-		console.log('e')
+		console.log('e') 
 		resetApiStore()
 		//setDatabaseMaps()
 		console.log('Commit to Vuex.')

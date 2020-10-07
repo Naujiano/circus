@@ -35,7 +35,7 @@ $.ajax({
 		console.log('error en services json')
   	}
 });
-let circusConfig = ""
+export let circusConfig = ""
 $.ajax({
 	url: apiURL + 'circusConfig',
   	data: '',
@@ -113,13 +113,21 @@ function createStore (storedVuexStore) {
 		} ,
 		...actions
 	}
+	delete vuexTree.state.database
+	delete vuexTree.state["database,lists,vsegbas.dbo.CLIENTES.CLI_Estado"]
+	delete vuexTree.state["database.lists.vsegbas.dbo.CLIENTES.CLI_Estado"]
+	delete vuexTree.state["database.lists['vsegbas.dbo.CLIENTES.CLI_Estado']"]
+	delete vuexTree.state.tablesMap
+	delete vuexTree.state.fieldsMap
+	//vuexTree = { state: JSON.parse(storedVuexStore), ...actions }
+	//vuexTree = { state: JSON.parse(storedVuexStore), ...actions }
 	//vuexTree = { state: JSON.parse(storedVuexStore), ...actions }
 	//console.log(storedVuexStore)
 	//console.log(JSON.stringify(vuexTree))
 	//console.log(storedVuexStore)
 	//return
-	const localCircusConfig = vuexTree.state.database
-	vuexTree.state.database = circusConfig // Asigno la configuración de la aplicación al archivo de configuración global.
+	const localCircusConfig = circusConfig
+	//circusConfig = circusConfig // Asigno la configuración de la aplicación al archivo de configuración global.
 
 	//Recupero el valor de "favorito" de la configuración local para manejarlo como un config del archivo de configuración individual y no como config general de la base de datos.
 	//if ( 1==2 ) {
@@ -131,9 +139,9 @@ function createStore (storedVuexStore) {
 			Object.keys ( fieldsConfig ).forEach ( fieldName => {
 				const fieldConfig = fieldsConfig[fieldName]
 				const favorite = fieldConfig.favorite
-				if ( vuexTree.state.database.tables[tableName] )
-					if ( vuexTree.state.database.tables[tableName].fields_config && vuexTree.state.database.tables[tableName].fields_config[fieldName] )
-						vuexTree.state.database.tables[tableName].fields_config[fieldName].favorite = favorite   
+				if ( circusConfig.tables[tableName] )
+					if ( circusConfig.tables[tableName].fields_config && circusConfig.tables[tableName].fields_config[fieldName] )
+						circusConfig.tables[tableName].fields_config[fieldName].favorite = favorite   
 			})
 		}
 	})
@@ -154,7 +162,7 @@ function createStore (storedVuexStore) {
 		console.log(estado)
 		console.log('d')
 		//localStorage.clear();
-		//localStorage["vuexStore"] = JSON.stringify(estado)
+		localStorage["vuexStore"] = JSON.stringify(estado)
 		console.log('e') 
 		resetApiStore()
 		//setDatabaseMaps()
@@ -206,7 +214,7 @@ export const databaseMaps = {
 	setTablesMap () {
 		//const existingTablesMap = window.tablesMap
 		const tablesMap = window.tablesMap ? window.tablesMap : new Map()
-		, tablesConfig = store.database.tables
+		, tablesConfig = circusConfig.tables
 		Object.keys(tablesConfig).forEach ( ( key, i ) => {
 			const table = tablesConfig[key]
 			, connection = table.connection
@@ -223,21 +231,21 @@ export const databaseMaps = {
 			}
 		})
 		window.tablesMap = tablesMap
-		vuexStore.state.tablesMap = Object.fromEntries(tablesMap)
+		circusConfig.tablesMap = Object.fromEntries(tablesMap)
 	},
 	setFieldsMap () {
 		window.fieldsMap = {}
 		window.events = {}
 		window.events.endcache = new Event ( "endcache" )
 		let contador = 0
-		if ( ! vuexStore.state.fieldsMap ) vuexStore.state.fieldsMap = {}
+		if ( ! circusConfig.fieldsMap ) circusConfig.fieldsMap = {}
 		for ( const [key,table] of window.tablesMap ) {
 			getFieldsForTable ( key, ( { fields,identities } ) => {
 				fields.forEach ( campo => {
-					campo.favorite = vuexStore.state.fieldsMap[campo.field_full_name] ? vuexStore.state.fieldsMap[campo.field_full_name].favorite : 0
+					campo.favorite = circusConfig.fieldsMap[campo.field_full_name] ? circusConfig.fieldsMap[campo.field_full_name].favorite : 0
 					window.fieldsMap[campo.field_full_name] = campo
 				})
-				Object.assign ( vuexStore.state.fieldsMap, window.fieldsMap )
+				Object.assign ( circusConfig.fieldsMap, window.fieldsMap )
 				contador++
 				if ( contador == window.tablesMap.size ) window.dispatchEvent(window.events.endcache);
 			})
@@ -289,16 +297,16 @@ export function getListModel ( listKey ) {
 	return false
 }
 function getListModelFromOldModel ( listKey ) {
-	const listsModels = store.database.listsModels
-    , lists = store.database.lists
+	const listsModels = circusConfig.listsModels
+    , lists = circusConfig.lists
     , listModelName = lists[listKey]
 	, listModel = JSON.cc(listsModels[listModelName])
 	return listModel
 }
 export function getLiteral ( id ) {
-	const literales = store.database.literales
+	const literales = circusConfig.literales
 	if ( literales[id] ) return literales[id]
-	const computedFields = store.database.computedFields
+	const computedFields = circusConfig.computedFields
 	, computedField = computedFields.filter ( cf => cf.sql.indexOf(id) != -1 )
 	if ( computedField.length ) return computedField[0].literal
 	const idArr = id.split(".")
@@ -317,7 +325,7 @@ export function getFieldsForTable ( table, cb ) {
 }
 function getCaseSensitiveTableName (tableName) {
 	let csTableName
-	Object.keys ( store.database.tables ).forEach ( key => {
+	Object.keys ( circusConfig.tables ).forEach ( key => {
 		if ( key.toLowerCase() == tableName.toLowerCase() ) csTableName = key
 	})
 	return csTableName
@@ -332,7 +340,7 @@ export function getIdentitiesForTableSet ( table, cb ) {
 	})
 }
 function sp_circus_fields ( tableName, cb ) {
-	const tableConfig = window.tablesMap.get(tableName) //store.database.tables[tableName]
+	const tableConfig = window.tablesMap.get(tableName) //circusConfig.tables[tableName]
 	if ( !tableConfig ) {
 		console.log ( `api.js no encuentra la tabla '${tableName}'.` )
 		return false
@@ -366,7 +374,7 @@ export function $fieldsForTable ( tableName, cb ) {
 	//console.time('fieldsForTable'+tableName)
 	tables.forEach ( ( tableName ) => {
 		const tna = tableName.split ( "." )
-		, tableConfig = window.tablesMap.get(tableName) //store.database.tables[tableName]
+		, tableConfig = window.tablesMap.get(tableName) //circusConfig.tables[tableName]
 		, dbID = getTableConnectionId(tableName)
 		const { table_catalog, table_name, table_schema, table_server, table_alias, table_pkname, fields_config, fields_computed, table_reference } = tableConfig
 		let promise
@@ -415,7 +423,7 @@ export function $fieldsForTable ( tableName, cb ) {
 					const field_config = $$ ( fields_config ).getCI ( campo.column_name )
 					if ( field_config ) {
 						listModel = field_config.listModel
-						list = store.database.listsModels[listModel]
+						list = circusConfig.listsModels[listModel]
 						favorite = field_config.favorite
 						//debugger
 						if ( list ) {
@@ -534,7 +542,7 @@ export function setFieldListSettings ( campo ) {
 		const field_config = $$ ( fields_config ).getCI ( campo.column_name )
 		if ( field_config ) {
 			listModel = field_config.listModel
-			list = store.database.listsModels[listModel]
+			list = circusConfig.listsModels[listModel]
 			if ( list ) {
 				listAlias = list.alias
 				if ( list.sqlListGrid ) { //ES LISTA DINÁMICA. 
@@ -551,19 +559,19 @@ export function setFieldListSettings ( campo ) {
 	return campo
 }
 function getFieldSettings ( fieldName, tableName ) {
-	const table = store.database.tables[tableName.toLowerCase()]
-	, lists = store.database.lists
+	const table = circusConfig.tables[tableName.toLowerCase()]
+	, lists = circusConfig.lists
 	//, dbsettings = table.fields ? table.fields[fieldName] : false
 	, treatedSettings = {} // Object.assign ( {} , dbsettings )
 	, listName = lists[tableName+'.'+fieldName]
-	treatedSettings.list = store.database.listsModels[listName]
+	treatedSettings.list = circusConfig.listsModels[listName]
 	return treatedSettings
 }
 export function getTableConnectionId ( tableName, databasename ) {
 	let dbID = false
-	Object.keys ( store.database.tables ).forEach ( key => {
+	Object.keys ( circusConfig.tables ).forEach ( key => {
 		if ( key.toLocaleLowerCase() == tableName.toLocaleLowerCase() ) {
-			const connID = store.database.tables[key].connection//.toLowerCase()
+			const connID = circusConfig.tables[key].connection//.toLowerCase()
 			dbID = databasename ? services.connNameToDbName[connID.toLowerCase()] : connID
 		}
 	})
@@ -610,7 +618,7 @@ function getRelatedTables ( tableName, excludeNames=[] ) {
 	if ( ! remoteTableConfig ) return false
 
 	const res = { names: [], joinSyntax: "" }
-	const tables = store.database.tables
+	const tables = circusConfig.tables
 	, table = tables[tableName]
 	, relatedTablesNames = []
 	, remote_table_reference = remoteTableConfig.table_reference
@@ -659,13 +667,13 @@ function cleanTableName ( tn ) {
 }
 
 export function getDirectParents ( tableName ) {
-	if (! store.database.tables[tableName] ) debugger
-	const relatedTables = store.database.tables[tableName].relatedTables
+	if (! circusConfig.tables[tableName] ) debugger
+	const relatedTables = circusConfig.tables[tableName].relatedTables
 	, parentTables = relatedTables ? relatedTables : {}
 	return parentTables
 }
 export function getDirectSuns ( tableName ) {
-	const tables = store.database.tables
+	const tables = circusConfig.tables
 	, childTablesNames = Object.keys(tables).filter(tName => {
 		const tab = tables[tName]
 		if ( !tab.relatedTables ) return false

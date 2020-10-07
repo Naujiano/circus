@@ -1,6 +1,9 @@
 <template>
     <table ref="tabla">
+        <!--
         <tr v-for="(campo, index) in shallowFields" v-show="fieldsWithFilter[index].inFilter && (!verSoloFavoritos || fieldsMap[fields[index].field_full_name].favorite)" :key="index" @click="addField($event,campo,tab)"  :class="{'star-row-favorited':fieldsMap[fields[index].field_full_name].favorite}" style="display:block;margin-bottom:2px">
+        -->
+        <tr v-for="(campo, index) in shallowFields" v-show="fieldsWithFilter[index].inFilter && (!verSoloFavoritos || isFavorite(fields[index].field_full_name))" :key="index" @click="addField($event,campo,tab)"  :class="{'star-row-favorited':isFavorite(fields[index].field_full_name)}" style="display:block;margin-bottom:2px">
             <td class="star-row" @click.stop="favorite(campo,index)" style="margin-top:-2px">
                 <img src="images/filled-star.svg" class="full-star" style="">
                 <img src="images/empty-star.svg" class="empty-star" style="">
@@ -50,14 +53,14 @@ export default {
                     return true
                 }
             },
-            fieldsMap: JSON.cc(this.$store.state.fieldsMap)
+            fieldsMap: JSON.cc(this.api.circusConfig.fieldsMap)
             
         }
     },
     watch:{
         
         visible: function (val, oldVal ) { 
-            if ( val ) this.fieldsMap = JSON.cc(this.$store.state.fieldsMap)
+            if ( val ) this.fieldsMap = JSON.cc(this.api.circusConfig.fieldsMap)
         }
         
     },
@@ -82,7 +85,7 @@ export default {
         /*
         fieldsMap () {
             //alert('b')
-            return this.$store.state.fieldsMap
+            return this.api.circusConfig.fieldsMap
         },
         */
         shallowFields () {
@@ -101,6 +104,10 @@ export default {
         }
     },
     methods: {
+        isFavorite (field_full_name) {
+            const fieldData = this.fieldsMap[field_full_name]
+            return fieldData ? fieldData.favorite : 0
+        },
         addField (event,campo,tab) {
 //            const campoKey = campo.name
             const formState = this.objeto//JSON.cc(this.objeto)

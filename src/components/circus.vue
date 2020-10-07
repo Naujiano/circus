@@ -243,7 +243,7 @@ export default {
                 {
                     key: "table",
                     values: (() => {
-                        return Object.keys(this.$store.state.database.tables).map ( ( key ) => ({ value:key, text: key }))
+                        return Object.keys(this.api.circusConfig.tables).map ( ( key ) => ({ value:key, text: key }))
                     })()
                 }
             ],
@@ -269,7 +269,7 @@ export default {
                 }}/*,
                 connection: { list: {
                     values: (() => {
-                        return Object.keys(this.$store.state.database.connections).map ( ( key ) => [key, key] )
+                        return Object.keys(this.api.circusConfig.connections).map ( ( key ) => [key, key] )
                     })()
                 }}*/
             },
@@ -490,7 +490,7 @@ export default {
         }
     },
     mounted: function () {
-        const help = this.$store.state.database.help
+        const help = this.api.circusConfig.help
         , helpCuadrant = this.$refs.helpCuadrant
         , that = this
         window.log = function ( msg, color ) {
@@ -545,8 +545,8 @@ jQuery.ajax({
 //console.log('window.location.hostname' + console.log(window))
 $( document ).ready(function() {
     //console.log('window.location.hostname' + console.log(window.location.hostname))
-    //const url = api.hostname + that.$store.state.database.custom_js
-    const urls = that.$store.state.database.custom_js
+    //const url = api.hostname + that.api.circusConfig.custom_js
+    const urls = that.api.circusConfig.custom_js
     //return
     urls.forEach ( url => {
         url = api.hostname + url

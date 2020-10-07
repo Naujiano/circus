@@ -194,7 +194,7 @@ export default {
     },
   computed: {
       evaluatedFieldsOfVentana () {
-          const fields = this.$store.state.tablesMap[this.ventana.data.table].evaluatedFields
+          const fields = this.api.circusConfig.tablesMap[this.ventana.data.table].evaluatedFields
           //console.log(fields)
           return { fields }
       },

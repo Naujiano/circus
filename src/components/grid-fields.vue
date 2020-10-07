@@ -53,14 +53,14 @@ export default {
                     return true
                 }
             },
-            fieldsMap: JSON.cc(this.api.circusConfig.fieldsMap)
+            fieldsMap: JSON.cc(this.$store.state.fieldsMap)
             
         }
     },
     watch:{
         
         visible: function (val, oldVal ) { 
-            if ( val ) this.fieldsMap = JSON.cc(this.api.circusConfig.fieldsMap)
+            if ( val ) this.fieldsMap = JSON.cc(this.$store.state.fieldsMap)
         }
         
     },

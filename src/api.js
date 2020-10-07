@@ -118,7 +118,6 @@ function createStore (storedVuexStore) {
 	delete vuexTree.state["database.lists.vsegbas.dbo.CLIENTES.CLI_Estado"]
 	delete vuexTree.state["database.lists['vsegbas.dbo.CLIENTES.CLI_Estado']"]
 	delete vuexTree.state.tablesMap
-	delete vuexTree.state.fieldsMap
 	//vuexTree = { state: JSON.parse(storedVuexStore), ...actions }
 	//vuexTree = { state: JSON.parse(storedVuexStore), ...actions }
 	//vuexTree = { state: JSON.parse(storedVuexStore), ...actions }
@@ -238,14 +237,14 @@ export const databaseMaps = {
 		window.events = {}
 		window.events.endcache = new Event ( "endcache" )
 		let contador = 0
-		if ( ! circusConfig.fieldsMap ) circusConfig.fieldsMap = {}
+		if ( ! vuexStore.state.fieldsMap ) vuexStore.state.fieldsMap = {}
 		for ( const [key,table] of window.tablesMap ) {
 			getFieldsForTable ( key, ( { fields,identities } ) => {
 				fields.forEach ( campo => {
-					campo.favorite = circusConfig.fieldsMap[campo.field_full_name] ? circusConfig.fieldsMap[campo.field_full_name].favorite : 0
+					campo.favorite = vuexStore.state.fieldsMap[campo.field_full_name] ? vuexStore.state.fieldsMap[campo.field_full_name].favorite : 0
 					window.fieldsMap[campo.field_full_name] = campo
 				})
-				Object.assign ( circusConfig.fieldsMap, window.fieldsMap )
+				Object.assign ( vuexStore.state.fieldsMap, window.fieldsMap )
 				contador++
 				if ( contador == window.tablesMap.size ) window.dispatchEvent(window.events.endcache);
 			})
